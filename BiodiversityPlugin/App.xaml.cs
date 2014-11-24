@@ -16,7 +16,7 @@ namespace BiodiversityPlugin
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var vm = new MainViewModel();
+            var vm = new MainViewModel(new HardCodedData());
             var mainWindow = new MainWindow {DataContext = vm};
             mainWindow.Show();
         }

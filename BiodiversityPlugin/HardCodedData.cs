@@ -39,7 +39,7 @@ namespace BiodiversityPlugin
             phylumClasses.Add(new OrgClass("Halobacteria", organisms));
             toReturn.Add(new OrgPhylum("Euryarchaeota", phylumClasses));
 
-            throw new NotImplementedException();
+            return toReturn;
         }
 
         public List<PathwayGroup> LoadPathways()
