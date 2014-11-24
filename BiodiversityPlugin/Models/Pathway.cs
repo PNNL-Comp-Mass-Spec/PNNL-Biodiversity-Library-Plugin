@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,8 +18,19 @@ namespace BiodiversityPlugin.Models
         public string Name { get; set; }
 
         /// <summary>
-        /// KEGG Id for the pathway (last 5 integers from map)
+        /// KEGG Id for the pathway
         /// </summary>
         public int KeggId { get; set; }
+
+        /// <summary>
+        /// Constructor to populate with necessary data
+        /// </summary>
+        /// <param name="name">Name of the pathway (e.g. glycolysis)</param>
+        /// <param name="keggId">Integer Id</param>
+        public Pathway(string name, int keggId)
+        {
+            Name = name;
+            KeggId = keggId;
+        }
     }
 }

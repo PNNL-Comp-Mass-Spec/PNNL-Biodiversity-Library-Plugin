@@ -20,6 +20,11 @@ namespace BiodiversityPlugin.Models
         /// Organism's NCBI taxon id
         /// </summary>
         public int Taxon { get; set; }
-    }
 
+        public Organism(string name, int taxon)
+        {
+            Name = name;
+            Taxon = taxon;
+        }
+    }
 }

@@ -18,5 +18,12 @@ namespace BiodiversityPlugin.Models
         /// Organisms which are in that biological class
         /// </summary>
         public List<OrgClass> OrgClasses { get; set; }
+
+        public OrgPhylum(string phylumName, List<OrgClass> classes)
+        {
+            PhylumName = phylumName;
+            OrgClasses = classes;
+
+        }
     }
 }
