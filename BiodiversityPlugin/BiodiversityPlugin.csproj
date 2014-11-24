@@ -68,6 +68,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CsvDataLoader.cs" />
     <Compile Include="HardCodedData.cs" />
     <Compile Include="IDataAccess.cs" />
     <Compile Include="Models\PathwayGroup.cs" />

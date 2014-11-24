@@ -16,7 +16,10 @@ namespace BiodiversityPlugin
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var vm = new MainViewModel(new HardCodedData());
+            var csvOrgPath = "../../Organisms.csv";
+            var csvPathwaysPath = "../../Pathways.csv";
+            //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
+            var vm = new MainViewModel(new CsvDataLoader(), csvOrgPath, csvPathwaysPath);
             var mainWindow = new MainWindow {DataContext = vm};
             mainWindow.Show();
         }

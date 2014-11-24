@@ -5,8 +5,8 @@ namespace BiodiversityPlugin
 {
     public interface IDataAccess
     {
-        List<OrgPhylum> LoadOrganisms();
+        List<OrgPhylum> LoadOrganisms(string path);
 
-        List<PathwayGroup> LoadPathways();
+        List<PathwayGroup> LoadPathways(string path);
     }
 }
