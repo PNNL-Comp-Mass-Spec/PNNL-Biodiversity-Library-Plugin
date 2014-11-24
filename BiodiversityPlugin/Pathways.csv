@@ -4,4 +4,171 @@ Global and overview maps,Biosynthesis of secondary metabolites,01110
 Global and overview maps,Microbial metabolism in diverse environments,01120
 Global and overview maps,Carbon metabolism,01200
 Global and overview maps,2-Oxocarboxylic acid metabolism,01210
+Global and overview maps,Fatty acid metabolism,01212
+Global and overview maps,Biosynthesis of amino acids,01230
+Global and overview maps,Degradation of aromatic compounds,01220
 Carbohydrate metabolism,Glycolysis / Gluconeogenesis,00010
+Carbohydrate metabolism,Citrate cycle (TCA cycle),00020
+Carbohydrate metabolism,Pentose phosphate pathway,00030
+Carbohydrate metabolism,Pentose and glucuronate interconversions,00040
+Carbohydrate metabolism,Fructose and mannose metabolism,00051
+Carbohydrate metabolism,Galactose metabolism,00052
+Carbohydrate metabolism,Ascorbate and aldarate metabolism,00053
+Carbohydrate metabolism,Starch and sucrose metabolism,00500
+Carbohydrate metabolism,Amino sugar and nucleotide sugar metabolism,00520
+Carbohydrate metabolism,Pyruvate metabolism,00620
+Carbohydrate metabolism,Glyoxylate and dicarboxylate metabolism,00630
+Carbohydrate metabolism,Propanoate metabolism,00640
+Carbohydrate metabolism,Butanoate metabolism,00650
+Carbohydrate metabolism,C5-Branched dibasic acid metabolism,00660
+Carbohydrate metabolism,Inositol phosphate metabolism,00562
+Energy metabolism,Oxidative phosphorylation,00190
+Energy metabolism,Photosynthesis,00195
+Energy metabolism,Photosynthesis - antenna proteins,00196
+Energy metabolism,Carbon fixation in photosynthetic organisms,00710
+Energy metabolism,Carbon fixation pathways in prokaryotes,00720
+Energy metabolism,Methane metabolism,00680
+Energy metabolism,Nitrogen metabolism,00910
+Energy metabolism,Sulfur metabolism,00920
+Lipid metabolism,Fatty acid biosynthesis,00061
+Lipid metabolism,Fatty acid elongation,00062
+Lipid metabolism,Fatty acid degradation,00071
+Lipid metabolism,Synthesis and degradation of ketone bodies,00072
+Lipid metabolism,"Cutin, suberine and wax biosynthesis",00073
+Lipid metabolism,Steroid biosynthesis,00100
+Lipid metabolism,Primary bile acid biosynthesis,00120
+Lipid metabolism,Secondary bile acid biosynthesis,00121
+Lipid metabolism,Steroid hormone biosynthesis,00140
+Lipid metabolism,Glycerolipid metabolism,00561
+Lipid metabolism,Glycerophospholipid metabolism,00564
+Lipid metabolism,Ether lipid metabolism,00565
+Lipid metabolism,Sphingolipid metabolism,00600
+Lipid metabolism,Arachidonic acid metabolism,00590
+Lipid metabolism,Linoleic acid metabolism,00591
+Lipid metabolism,alpha-Linolenic acid metabolism,00592
+Lipid metabolism,Biosynthesis of unsaturated fatty acids,01040
+Nucleotide metabolism,Purine metabolism,00230
+Nucleotide metabolism,Pyrimidine metabolism,00240
+Amino acid metabolism,"Alanine, aspartate and glutamate metabolism",00250
+Amino acid metabolism,"Glycine, serine and threonine metabolism",00260
+Amino acid metabolism,Cysteine and methionine metabolism,00270
+Amino acid metabolism,"Valine, leucine and isoleucine degradation",00280
+Amino acid metabolism,"Valine, leucine and isoleucine biosynthesis",00290
+Amino acid metabolism,Lysine biosynthesis,00300
+Amino acid metabolism,Lysine degradation,00310
+Amino acid metabolism,Arginine and proline metabolism,00330
+Amino acid metabolism,Histidine metabolism,00340
+Amino acid metabolism,Tyrosine metabolism,00350
+Amino acid metabolism,Phenylalanine metabolism,00360
+Amino acid metabolism,Tryptophan metabolism,00380
+Amino acid metabolism,"Phenylalanine, tyrosine and tryptophan biosynthesis",00400
+Metabolism of other amino acids,beta-Alanine metabolism,00410
+Metabolism of other amino acids,Taurine and hypotaurine metabolism,00430
+Metabolism of other amino acids,Phosphonate and phosphinate metabolism,00440
+Metabolism of other amino acids,Selenocompound metabolism,00450
+Metabolism of other amino acids,Cyanoamino acid metabolism,00460
+Metabolism of other amino acids,D-Glutamine and D-glutamate metabolism,00471
+Metabolism of other amino acids,D-Arginine and D-ornithine metabolism,00472
+Metabolism of other amino acids,D-Alanine metabolism,00473
+Metabolism of other amino acids,Glutathione metabolism,00480
+Glycan biosynthesis and metabolism,N-Glycan biosynthesis,00510
+Glycan biosynthesis and metabolism,Various types of N-glycan biosynthesis,00513
+Glycan biosynthesis and metabolism,Mucin type O-Glycan biosynthesis,00512
+Glycan biosynthesis and metabolism,Other types of O-glycan biosynthesis,00514
+Glycan biosynthesis and metabolism,Glycosaminoglycan biosynthesis - CS/DS,00532
+Glycan biosynthesis and metabolism,Glycosaminoglycan biosynthesis - HS/Hep,00534
+Glycan biosynthesis and metabolism,Glycosaminoglycan biosynthesis - KS,00533
+Glycan biosynthesis and metabolism,Glycosaminoglycan degradation,00531
+Glycan biosynthesis and metabolism,Glycosylphosphatidylinositol(GPI)-anchor biosynthesis,00563
+Glycan biosynthesis and metabolism,Glycosphingolipid biosynthesis - lacto and neolacto series,00601
+Glycan biosynthesis and metabolism,Glycosphingolipid biosynthesis - globo series,00603
+Glycan biosynthesis and metabolism,Glycosphingolipid biosynthesis - ganglio series,00604
+Glycan biosynthesis and metabolism,Lipopolysaccharide biosynthesis,00540
+Glycan biosynthesis and metabolism,Peptidoglycan biosynthesis,00550
+Glycan biosynthesis and metabolism,Other glycan degradation,00511
+Metabolism of cofactors and vitamins,Thiamine metabolism,00730
+Metabolism of cofactors and vitamins,Riboflavin metabolism,00740
+Metabolism of cofactors and vitamins,Vitamin B6 metabolism,00750
+Metabolism of cofactors and vitamins,Nicotinate and nicotinamide metabolism,00760
+Metabolism of cofactors and vitamins,Pantothenate and CoA biosynthesis,00770
+Metabolism of cofactors and vitamins,Biotin metabolism,00780
+Metabolism of cofactors and vitamins,Lipoic acid metabolism,00785
+Metabolism of cofactors and vitamins,Folate biosynthesis,00790
+Metabolism of cofactors and vitamins,One carbon pool by folate,00670
+Metabolism of cofactors and vitamins,Retinol metabolism,00830
+Metabolism of cofactors and vitamins,Porphyrin and chlorophyll metabolism,00860
+Metabolism of cofactors and vitamins,Ubiquinone and other terpenoid-quinone biosynthesis,00130
+Metabolism of terpenoids and polyketides,Terpenoid backbone biosynthesis,00900
+Metabolism of terpenoids and polyketides,Monoterpenoid biosynthesis,00902
+Metabolism of terpenoids and polyketides,Sesquiterpenoid and triterpenoid biosynthesis,00909
+Metabolism of terpenoids and polyketides,Diterpenoid biosynthesis,00904
+Metabolism of terpenoids and polyketides,Carotenoid biosynthesis,00906
+Metabolism of terpenoids and polyketides,Brassinosteroid biosynthesis,00905
+Metabolism of terpenoids and polyketides,Insect hormone biosynthesis,00981
+Metabolism of terpenoids and polyketides,Zeatin biosynthesis,00908
+Metabolism of terpenoids and polyketides,Limonene and pinene degradation,00903
+Metabolism of terpenoids and polyketides,Geraniol degradation,00281
+Metabolism of terpenoids and polyketides,Type I polyketide structures,01052
+Metabolism of terpenoids and polyketides,"Biosynthesis of 12-, 14- and 16-membered macrolides",00522
+Metabolism of terpenoids and polyketides,Biosynthesis of ansamycins,01051
+Metabolism of terpenoids and polyketides,Biosynthesis of type II polyketide backbone,01056
+Metabolism of terpenoids and polyketides,Biosynthesis of type II polyketide products,01057
+Metabolism of terpenoids and polyketides,Tetracycline biosynthesis,00253
+Metabolism of terpenoids and polyketides,Polyketide sugar unit biosynthesis,00523
+Metabolism of terpenoids and polyketides,Nonribosomal peptide structures,01054
+Metabolism of terpenoids and polyketides,Biosynthesis of siderophore group nonribosomal peptides,01053
+Metabolism of terpenoids and polyketides,Biosynthesis of vancomycin group antibiotics,01055
+Biosynthesis of other secondary metabolites,Phenylpropanoid biosynthesis,00940
+Biosynthesis of other secondary metabolites,"Stilbenoid, diarylheptanoid and gingerol biosynthesis",00945
+Biosynthesis of other secondary metabolites,Flavonoid biosynthesis,00941
+Biosynthesis of other secondary metabolites,Flavone and flavonol biosynthesis,00944
+Biosynthesis of other secondary metabolites,Anthocyanin biosynthesis,00942
+Biosynthesis of other secondary metabolites,Isoflavonoid biosynthesis,00943
+Biosynthesis of other secondary metabolites,Indole alkaloid biosynthesis,00901
+Biosynthesis of other secondary metabolites,Indole diterpene alkaloid biosynthesis New!,00403
+Biosynthesis of other secondary metabolites,Isoquinoline alkaloid biosynthesis,00950
+Biosynthesis of other secondary metabolites,"Tropane, piperidine and pyridine alkaloid biosynthesis",00960
+Biosynthesis of other secondary metabolites,Acridone alkaloid biosynthesis,01058
+Biosynthesis of other secondary metabolites,Caffeine metabolism,00232
+Biosynthesis of other secondary metabolites,Betalain biosynthesis,00965
+Biosynthesis of other secondary metabolites,Glucosinolate biosynthesis,00966
+Biosynthesis of other secondary metabolites,Benzoxazinoid biosynthesis,00402
+Biosynthesis of other secondary metabolites,Penicillin and cephalosporin biosynthesis,00311
+Biosynthesis of other secondary metabolites,Carbapenem biosynthesis New!,00332
+Biosynthesis of other secondary metabolites,Clavulanic acid biosynthesis,00331
+Biosynthesis of other secondary metabolites,Streptomycin biosynthesis,00524
+Biosynthesis of other secondary metabolites,Butirosin and neomycin biosynthesis,00521
+Biosynthesis of other secondary metabolites,Puromycin biosynthesis,00231
+Biosynthesis of other secondary metabolites,Novobiocin biosynthesis,00401
+Biosynthesis of other secondary metabolites,Aflatoxin biosynthesis,00254
+Xenobiotics biodegradation and metabolism,Benzoate degradation,00362
+Xenobiotics biodegradation and metabolism,Aminobenzoate degradation,00627
+Xenobiotics biodegradation and metabolism,Fluorobenzoate degradation,00364
+Xenobiotics biodegradation and metabolism,Chloroalkane and chloroalkene degradation,00625
+Xenobiotics biodegradation and metabolism,Chlorocyclohexane and chlorobenzene degradation,00361
+Xenobiotics biodegradation and metabolism,Toluene degradation,00623
+Xenobiotics biodegradation and metabolism,Xylene degradation,00622
+Xenobiotics biodegradation and metabolism,Nitrotoluene degradation,00633
+Xenobiotics biodegradation and metabolism,Ethylbenzene degradation,00642
+Xenobiotics biodegradation and metabolism,Styrene degradation,00643
+Xenobiotics biodegradation and metabolism,Atrazine degradation,00791
+Xenobiotics biodegradation and metabolism,Caprolactam degradation,00930
+Xenobiotics biodegradation and metabolism,DDT degradation,00351
+Xenobiotics biodegradation and metabolism,Bisphenol degradation,00363
+Xenobiotics biodegradation and metabolism,Dioxin degradation,00621
+Xenobiotics biodegradation and metabolism,Naphthalene degradation,00626
+Xenobiotics biodegradation and metabolism,Polycyclic aromatic hydrocarbon degradation,00624
+Xenobiotics biodegradation and metabolism,Furfural degradation,00365
+Xenobiotics biodegradation and metabolism,Steroid degradation,00984
+Xenobiotics biodegradation and metabolism,Metabolism of xenobiotics by cytochrome P450,00980
+Xenobiotics biodegradation and metabolism,Drug metabolism - cytochrome P450,00982
+Xenobiotics biodegradation and metabolism,Drug metabolism - other enzymes,00983
+Chemical structure transformation maps,Overview of biosynthetic pathways,01010
+Chemical structure transformation maps,Biosynthesis of plant secondary metabolites,01060
+Chemical structure transformation maps,Biosynthesis of phenylpropanoids,01061
+Chemical structure transformation maps,Biosynthesis of terpenoids and steroids,01062
+Chemical structure transformation maps,Biosynthesis of alkaloids derived from shikimate pathway,01063
+Chemical structure transformation maps,"Biosynthesis of alkaloids derived from ornithine, lysine and nicotinic acid",01064
+Chemical structure transformation maps,Biosynthesis of alkaloids derived from histidine and purine,01065
+Chemical structure transformation maps,Biosynthesis of alkaloids derived from terpenoid and polyketide,01066
+Chemical structure transformation maps,Biosynthesis of plant hormones,01070

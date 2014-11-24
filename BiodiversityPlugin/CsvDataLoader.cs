@@ -22,7 +22,7 @@ namespace BiodiversityPlugin
                 var row = reader.ReadLine();
                 while (!string.IsNullOrWhiteSpace(row))
                 {
-                    var pieces = row.Split(',');
+                    var pieces = row.Split('\t');
                     var org = new Organism(pieces[2], Convert.ToInt32(pieces[3]));
                     if (!classes.ContainsKey(pieces[1]))
                     {
@@ -58,7 +58,7 @@ namespace BiodiversityPlugin
                 var row = reader.ReadLine();
                 while (!string.IsNullOrWhiteSpace(row))
                 {
-                    var pieces = row.Split(',');
+                    var pieces = row.Split('\t');
                     var pathway = new Pathway(pieces[1], Convert.ToInt32(pieces[2]));
                     if (!groups.ContainsKey(pieces[0]))
                     {
