@@ -67,6 +67,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Organism.cs" />
+    <Compile Include="Models\OrgClass.cs" />
+    <Compile Include="Models\OrgPhylum.cs" />
+    <Compile Include="Models\Pathway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
