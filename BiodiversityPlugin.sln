@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiodiversityPlugin", "BiodiversityPlugin\BiodiversityPlugin.csproj", "{2DB59DE3-8998-4D96-AA70-6A0FF74474EE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DB59DE3-8998-4D96-AA70-6A0FF74474EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DB59DE3-8998-4D96-AA70-6A0FF74474EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DB59DE3-8998-4D96-AA70-6A0FF74474EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DB59DE3-8998-4D96-AA70-6A0FF74474EE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

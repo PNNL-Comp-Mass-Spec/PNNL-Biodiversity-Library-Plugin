@@ -1,0 +1,8 @@
+*.csproj.user
+*.suo
+*.user
+*.sln.DotSettings.user
+*/bin/
+*/obj/
+BiodiversityPlugin/DataFiles/DBs/
+packages
