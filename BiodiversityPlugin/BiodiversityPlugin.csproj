@@ -88,6 +88,7 @@
     <Compile Include="DatabaseDataLoader.cs" />
     <Compile Include="HardCodedData.cs" />
     <Compile Include="IDataAccess.cs" />
+    <Compile Include="Models\PathwayCatagory.cs" />
     <Compile Include="Models\PathwayGroup.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">

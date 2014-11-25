@@ -46,8 +46,8 @@ namespace BiodiversityPlugin
         {
 
             var pathways = new List<Pathway>();
-            pathways.Add(new Pathway("Glycolysis", 00010));
-            pathways.Add(new Pathway("Citrate Cycle (TCA cycle)", 00020));
+            pathways.Add(new Pathway("Glycolysis", "00010"));
+            pathways.Add(new Pathway("Citrate Cycle (TCA cycle)", "00020"));
 
             var toReturn = new List<PathwayGroup>();
 

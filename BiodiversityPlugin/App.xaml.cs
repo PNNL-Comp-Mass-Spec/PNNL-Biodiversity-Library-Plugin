@@ -19,7 +19,8 @@ namespace BiodiversityPlugin
             var tsvOrgPath = "../../Organisms.txt";
             var tsvPathwaysPath = "../../Pathways.txt";
             //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
-            var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
+            //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
+            var vm = new MainViewModel(new DatabaseDataLoader(), tsvOrgPath, tsvPathwaysPath);
             var mainWindow = new MainWindow {DataContext = vm};
             mainWindow.Show();
         }

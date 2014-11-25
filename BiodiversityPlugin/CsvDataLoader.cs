@@ -60,7 +60,7 @@ namespace BiodiversityPlugin
                 while (!string.IsNullOrWhiteSpace(row))
                 {
                     var pieces = row.Split('\t');
-                    var pathway = new Pathway(pieces[1], Convert.ToInt32(pieces[2]));
+                    var pathway = new Pathway(pieces[1], pieces[2]);
                     if (!groups.ContainsKey(pieces[0]))
                     {
                         groups[pieces[0]] = new PathwayGroup(pieces[0], new List<Pathway>());
