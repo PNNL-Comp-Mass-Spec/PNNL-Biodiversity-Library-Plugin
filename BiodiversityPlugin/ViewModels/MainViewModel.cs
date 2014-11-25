@@ -15,10 +15,10 @@ namespace BiodiversityPlugin.ViewModels
         public ObservableCollection<OrgPhylum> Organisms { get; private set; }
         public ObservableCollection<PathwayGroup> Pathways { get; private set; } 
 
-        public MainViewModel(IDataAccess data, string organismPath, string pathwaysPath)
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string organismPath, string pathwaysPath)
         {
-            Organisms = new ObservableCollection<OrgPhylum>(data.LoadOrganisms(organismPath));
-            Pathways = new ObservableCollection<PathwayGroup>(data.LoadPathways(pathwaysPath));
+            Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms(organismPath));
+            Pathways = new ObservableCollection<PathwayGroup>(pathData.LoadPathways(pathwaysPath));
         }
     }
 }
