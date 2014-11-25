@@ -5,37 +5,49 @@
         Title="Biodiversity Plugin" Height="500" Width="525">
     <Grid Margin="15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="2" />
             <RowDefinition Height="*" />
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="20">Organisms</TextBlock>
-        <TreeView Grid.Row="1" ItemsSource="{Binding Organisms}">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
-                    <TextBlock Text="{Binding PhylumName}" />
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
-                    <TextBlock Text="{Binding ClassName}" />
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                    <TextBlock Text="{Binding Name}" />
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>
-        <TextBlock Grid.Row="2" FontWeight="Bold" FontSize="20">Pathways</TextBlock>
-        <TreeView Grid.Row="3" ItemsSource="{Binding Pathways}">
-            <TreeView.Resources>
-                <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
-                    <TextBlock Text="{Binding GroupName}" />
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
-                    <TextBlock Text="{Binding Name}" />
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-        </TreeView>
-        <Button Grid.Row="4" Width="130" HorizontalAlignment="Right" Margin="0,10,0,0">Export to Skyline</Button>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="20">Organisms</TextBlock>
+            <TreeView Grid.Row="1" ItemsSource="{Binding Organisms}">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
+                        <TextBlock Text="{Binding PhylumName}" />
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
+                        <TextBlock Text="{Binding ClassName}" />
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
+                        <TextBlock Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </Grid>
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" ShowsPreview="True" />
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="20">Pathways</TextBlock>
+            <TreeView Grid.Row="1" ItemsSource="{Binding Pathways}">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
+                        <TextBlock Text="{Binding GroupName}" />
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
+                        <TextBlock Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </Grid>
+        <Button Grid.Row="3" Width="130" HorizontalAlignment="Right" Margin="0,10,0,0">Export to Skyline</Button>
     </Grid>
 </Window>
