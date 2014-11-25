@@ -21,6 +21,11 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public int Taxon { get; set; }
 
+        /// <summary>
+        /// Organism's Kegg Org Code
+        /// </summary>
+        public string OrgCode { get; set; }
+
         public Organism(string name, int taxon)
         {
             Name = name;
