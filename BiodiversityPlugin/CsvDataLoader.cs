@@ -23,7 +23,7 @@ namespace BiodiversityPlugin
                 while (!string.IsNullOrWhiteSpace(row))
                 {
                     var pieces = row.Split('\t');
-                    var org = new Organism(pieces[2], Convert.ToInt32(pieces[3]));
+                    var org = new Organism(pieces[2], Convert.ToInt32(pieces[3]), pieces[4]);
                     var pair = new Tuple<string, string>(pieces[0], pieces[1]);
                     if (!classes.ContainsKey(pair))
                     {
