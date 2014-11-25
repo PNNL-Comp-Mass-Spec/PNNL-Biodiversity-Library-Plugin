@@ -13,22 +13,15 @@ namespace BiodiversityPlugin
 {
     public class DatabaseDataLoader: IDataAccess
     {
-
-        /*string SelectUniprotQuery = @"SELECT 
-                                      kegg_gene_uniprot_map.uniprot_acc
-                                    FROM
-                                      kegg_gene_uniprot_map,
-                                      observed_kegg_gene
-                                    WHERE
-                                      observed_kegg_gene.is_observed = 1 AND 
-                                      observed_kegg_gene.kegg_pathway_id = '' AND 
-                                      observed_kegg_gene.kegg_org_code LIKE '%%' AND 
-                                      kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id";*/
-
         private string m_databasePath = "Resources/PBL.db";
 
         public List<string> ExportAccessions(Pathway pathway, Organism org)
         {
+            if (pathway == null || org == null)
+            {
+                return null;
+            }
+
             var pathwayId = pathway.KeggId;
             var orgCode = org.OrgCode;
             var uniprotAccessions = new List<string>();
