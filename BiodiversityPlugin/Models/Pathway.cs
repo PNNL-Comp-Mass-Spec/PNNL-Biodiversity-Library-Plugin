@@ -20,14 +20,14 @@ namespace BiodiversityPlugin.Models
         /// <summary>
         /// KEGG Id for the pathway
         /// </summary>
-        public int KeggId { get; set; }
+        public string KeggId { get; set; }
 
         /// <summary>
         /// Constructor to populate with necessary data
         /// </summary>
         /// <param name="name">Name of the pathway (e.g. glycolysis)</param>
         /// <param name="keggId">Integer Id</param>
-        public Pathway(string name, int keggId)
+        public Pathway(string name, string keggId)
         {
             Name = name;
             KeggId = keggId;
