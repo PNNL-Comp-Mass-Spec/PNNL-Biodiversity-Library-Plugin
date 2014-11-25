@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -10,13 +11,13 @@ namespace BiodiversityPlugin
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string formatted = "";
-            Color color = Colors.Black;
+            FontWeight weight = FontWeights.Normal;
             formatted = value as string;
-            if (String.IsNullOrEmpty(formatted))
+            if (!String.IsNullOrEmpty(formatted))
             {
-                color = Colors.Red;
+                weight = FontWeights.Bold;
             }
-            return color;
+            return weight;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

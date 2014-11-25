@@ -29,7 +29,7 @@
                         <TextBlock Text="{Binding ClassName}" />
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                        <TextBlock Text="{Binding Name}" Foreground="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
+                        <TextBlock Text="{Binding Name}" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
