@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -57,8 +58,23 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var dataAccess = new DatabaseDataLoader();
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                int numInLine = 0;
+                string acc = "";
+                foreach (var line in accessions)
+                {
+                    acc += line;
+                    if (numInLine%7 != 6)
+                    {
+                        acc += ", ";
+                    }
+                    else
+                    {
+                        acc += "\n";
+                    }
+                    numInLine++;
+                }
 
-                string acc = accessions.Aggregate("", (current, accession) => current + ("\n" + accession));
+                //string acc = accessions.Aggregate("", (current, accession) => current + ("\n" + accession));
                 MessageBox.Show(acc);   
             }
             else

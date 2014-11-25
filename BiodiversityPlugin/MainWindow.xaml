@@ -23,10 +23,10 @@
            <biodiversityPlugin:MvvmTreeView Grid.Row="1" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
-                        <TextBlock Text="{Binding PhylumName}" />
+                        <TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="16" />
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
-                        <TextBlock Text="{Binding ClassName}" />
+                        <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
                         <TextBlock Text="{Binding Name}" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
@@ -44,10 +44,10 @@
             <biodiversityPlugin:MvvmTreeView Grid.Row="1" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
-                        <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" />
+                        <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="16" />
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
-                        <TextBlock Text="{Binding GroupName}" />
+                        <TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="14"/>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
                         <TextBlock Text="{Binding Name}" />
