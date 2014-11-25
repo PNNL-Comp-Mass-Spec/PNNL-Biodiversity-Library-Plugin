@@ -6,6 +6,7 @@ using System.Data.SQLite.Linq.Properties;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using BiodiversityPlugin.Models;
 
 namespace BiodiversityPlugin
@@ -26,8 +27,10 @@ namespace BiodiversityPlugin
 
         private string m_databasePath = "Resources/PBL.db";
 
-        public List<string> ExportAccessions(string pathwayId, string orgCode)
+        public List<string> ExportAccessions(Pathway pathway, Organism org)
         {
+            var pathwayId = pathway.KeggId;
+            var orgCode = org.OrgCode;
             var uniprotAccessions = new List<string>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
