@@ -14,7 +14,7 @@ namespace BiodiversityPlugin
         public List<OrgPhylum> LoadOrganisms(string path)
         {
             var phylums = new Dictionary<string, OrgPhylum>();
-            var classes = new Dictionary<string, OrgClass>();
+            var classes = new Dictionary<Tuple<string, string>, OrgClass>();
 
             using (var reader = new StreamReader(path))
             {
@@ -24,19 +24,20 @@ namespace BiodiversityPlugin
                 {
                     var pieces = row.Split('\t');
                     var org = new Organism(pieces[2], Convert.ToInt32(pieces[3]));
-                    if (!classes.ContainsKey(pieces[1]))
+                    var pair = new Tuple<string, string>(pieces[0], pieces[1]);
+                    if (!classes.ContainsKey(pair))
                     {
-                        classes[pieces[1]] = new OrgClass(pieces[1], new List<Organism>());
+                        classes[pair] = new OrgClass(pieces[1], new List<Organism>());
                     }
-                    classes[pieces[1]].Organisms.Add(org);
+                    classes[pair].Organisms.Add(org);
                     
                     if (!phylums.ContainsKey(pieces[0]))
                     {
                         phylums[pieces[0]] = new OrgPhylum(pieces[0], new List<OrgClass>());
                     }
-                    if (!phylums[pieces[0]].OrgClasses.Contains(classes[pieces[1]]))
+                    if (!phylums[pieces[0]].OrgClasses.Contains(classes[pair]))
                     {
-                        phylums[pieces[0]].OrgClasses.Add(classes[pieces[1]]);
+                        phylums[pieces[0]].OrgClasses.Add(classes[pair]);
                     }
 
                     row = reader.ReadLine();
