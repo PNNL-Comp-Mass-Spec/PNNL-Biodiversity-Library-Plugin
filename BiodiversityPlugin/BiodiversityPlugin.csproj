@@ -91,6 +91,7 @@
     <Compile Include="Models\PathwayCatagory.cs" />
     <Compile Include="Models\PathwayGroup.cs" />
     <Compile Include="MvvmTreeView.cs" />
+    <Compile Include="OrgCodeToColorConverter.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

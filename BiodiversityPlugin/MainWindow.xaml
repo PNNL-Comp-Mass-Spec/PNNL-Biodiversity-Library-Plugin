@@ -4,6 +4,9 @@
         xmlns:models="clr-namespace:BiodiversityPlugin.Models"
         xmlns:biodiversityPlugin="clr-namespace:BiodiversityPlugin"
         Title="Biodiversity Plugin" Height="500" Width="525">
+    <Window.Resources>
+        <biodiversityPlugin:OrgCodeToColorConverter x:Key="OrgCodeToColor" />
+    </Window.Resources>
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -26,7 +29,7 @@
                         <TextBlock Text="{Binding ClassName}" />
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Name}" Foreground="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
