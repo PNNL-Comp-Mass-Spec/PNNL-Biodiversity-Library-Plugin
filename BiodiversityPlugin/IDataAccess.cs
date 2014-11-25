@@ -7,6 +7,6 @@ namespace BiodiversityPlugin
     {
         List<OrgPhylum> LoadOrganisms(string path);
 
-        List<PathwayGroup> LoadPathways(string path);
+        List<PathwayCatagory> LoadPathways(string path);
     }
 }

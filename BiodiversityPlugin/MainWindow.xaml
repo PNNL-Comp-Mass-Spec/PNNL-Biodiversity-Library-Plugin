@@ -43,6 +43,9 @@
             <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="20">Pathways</TextBlock>
             <biodiversityPlugin:MvvmTreeView Grid.Row="1" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
+                        <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" />
+                    </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
                         <TextBlock Text="{Binding GroupName}" />
                     </HierarchicalDataTemplate>

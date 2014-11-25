@@ -49,7 +49,7 @@ namespace BiodiversityPlugin
             return listPhy;
         }
 
-        public List<PathwayGroup> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways(string path)
         {
             var groups = new Dictionary<string, PathwayGroup>();
 
@@ -71,8 +71,9 @@ namespace BiodiversityPlugin
             }
 
             var groupList = groups.Values.ToList();
-
-            return groupList;
+            var cats = new List<PathwayCatagory>();
+            cats.Add(new PathwayCatagory("Metabolism", groupList));
+            return cats;
 
         }
     }

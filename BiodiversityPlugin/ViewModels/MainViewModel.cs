@@ -15,7 +15,7 @@ namespace BiodiversityPlugin.ViewModels
     public class MainViewModel: ViewModelBase
     {
         public ObservableCollection<OrgPhylum> Organisms { get; private set; }
-        public ObservableCollection<PathwayGroup> Pathways { get; private set; } 
+        public ObservableCollection<PathwayCatagory> Pathways { get; private set; } 
 
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
@@ -25,7 +25,7 @@ namespace BiodiversityPlugin.ViewModels
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string organismPath, string pathwaysPath)
         {
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms(organismPath));
-            Pathways = new ObservableCollection<PathwayGroup>(pathData.LoadPathways(pathwaysPath));
+            Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways(pathwaysPath));
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
         }
 

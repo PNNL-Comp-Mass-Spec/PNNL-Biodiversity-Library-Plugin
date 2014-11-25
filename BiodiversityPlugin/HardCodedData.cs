@@ -42,7 +42,7 @@ namespace BiodiversityPlugin
             return toReturn;
         }
 
-        public List<PathwayGroup> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways(string path)
         {
 
             var pathways = new List<Pathway>();
@@ -54,7 +54,10 @@ namespace BiodiversityPlugin
             var group = new PathwayGroup("Carbohydrate metabolism", pathways);
 
             toReturn.Add(group);
-            return toReturn;
+
+            var cats = new List<PathwayCatagory>();
+            cats.Add(new PathwayCatagory("Metabolism", toReturn));
+            return cats;
         }
     }
 }

@@ -60,8 +60,9 @@ namespace BiodiversityPlugin
             throw new NotImplementedException();
         }
 
-        public List<PathwayGroup> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways(string path)
         {
+            var catagories = new Dictionary<string, PathwayCatagory>();
             var groups = new Dictionary<string, PathwayGroup>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
@@ -79,6 +80,7 @@ namespace BiodiversityPlugin
                             var subCat = reader.GetString(2);
                             var pathName = reader.GetString(3);
                             var pathId = reader.GetString(0);
+                            var catName = reader.GetString(1);
 
                             var pathway = new Pathway(pathName, pathId);
 
@@ -87,14 +89,24 @@ namespace BiodiversityPlugin
                                 groups[subCat] = new PathwayGroup(subCat, new List<Pathway>());
                             }
                             groups[subCat].Pathways.Add(pathway);
+
+                            if (!catagories.ContainsKey(catName))
+                            {
+                                catagories[catName] = new PathwayCatagory(catName, new List<PathwayGroup>());
+                            }
+                            if (!catagories[catName].PathwayGroups.Contains(groups[subCat]))
+                            {
+                                catagories[catName].PathwayGroups.Add(groups[subCat]);
+                            }
+                            
                         }
                     }
                 }
             }
 
-            var groupList = groups.Values.ToList();
+            var catList = catagories.Values.ToList();
 
-            return groupList;
+            return catList;
         }
     }
 }
