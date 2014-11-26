@@ -96,6 +96,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedOrganismTreeItem = value;
                 SelectedOrganism = _selectedOrganismTreeItem as Organism;
+                IsOrganismSelected = false;
                 if(SelectedOrganism != null)
                     SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
                 RaisePropertyChanged();
