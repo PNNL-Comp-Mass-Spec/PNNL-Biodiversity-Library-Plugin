@@ -75,7 +75,7 @@
                         <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                        <TextBlock Text="{Binding Name}" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
+                        <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
@@ -99,7 +99,7 @@
                         <TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="14"/>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
-                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="Regular"/>
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
@@ -110,7 +110,35 @@
 
         <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="22" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White">
-            <Button Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Export</Button>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="18*" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <TextBlock TextAlignment="Center" FontWeight="Bold" FontSize="24">Data for Export</TextBlock>
+                <TextBlock Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
+                <DataGrid Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn FontSize="14" Header="Protein name" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Header="Protein Accession" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Grid Grid.Row="7">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Previous</Button>
+                    <Button Grid.Column="1" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Export</Button>
+                </Grid>
+            </Grid>
  
             <!-- <Button Grid.Row="3" Width="130" HorizontalAlignment="Right" Margin="0,10,0,0" Command="{Binding ExportToSkylineCommand}">Export to Skyline</Button>
         -->

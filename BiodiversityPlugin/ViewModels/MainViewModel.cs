@@ -21,6 +21,26 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
+        public string SelectedOrganismText
+        {
+            get { return m_selectedOrganismText; }
+            private set
+            {
+                m_selectedOrganismText = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string SelectedPathwayText
+        {
+            get { return m_selectedPathwayText; }
+            private set
+            {
+                m_selectedPathwayText = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public RelayCommand ExportToSkylineCommand { get; private set; }
 
         private readonly string _dbPath;
@@ -40,6 +60,8 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedOrganismTreeItem = value;
                 SelectedOrganism = _selectedOrganismTreeItem as Organism;
+                if(SelectedOrganism != null)
+                    SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
                 RaisePropertyChanged();
             }
         }
@@ -51,6 +73,8 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedPathwayTreeItem = value;
                 SelectedPathway = _selectedPathwayTreeItem as Pathway;
+                if (SelectedPathway != null)
+                    SelectedPathwayText = string.Format("Pathway: {0}", SelectedPathway.Name);
                 RaisePropertyChanged();
             }
         }
@@ -88,5 +112,8 @@ namespace BiodiversityPlugin.ViewModels
 
         private object _selectedOrganismTreeItem;
         private object _selectedPathwayTreeItem;
+
+        private string m_selectedOrganismText;
+        private string m_selectedPathwayText;
     }
 }
