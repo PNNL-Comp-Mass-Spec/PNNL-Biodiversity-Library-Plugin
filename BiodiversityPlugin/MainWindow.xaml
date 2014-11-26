@@ -121,13 +121,13 @@
                     <RowDefinition Height="15" />
                     <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
-                <TextBlock TextAlignment="Center" FontWeight="Bold" FontSize="24">Data for Export</TextBlock>
-                <TextBlock Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
-                <DataGrid Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
+                <TextBlock TextAlignment="Center" FontWeight="Bold" FontSize="24"  Foreground="Black">Data for Export</TextBlock>
+                <TextBlock Grid.Row="2" FontSize="14" Foreground="Black" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Row="3" FontSize="14" Foreground="Black" Text="{Binding SelectedPathwayText}" />
+                <DataGrid Grid.Row="5" Foreground="Black" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
                     <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Header="Protein name" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Header="Protein Accession" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <Grid Grid.Row="7">
@@ -135,8 +135,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Previous</Button>
-                    <Button Grid.Column="1" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Export</Button>
+                    <Button Grid.Column="0" Width="150" FontSize="22" Foreground="Black" Command="{Binding ExportToSkylineCommand}">Previous</Button>
+                    <Button Grid.Column="1" Width="150" FontSize="22" Foreground="Black" Command="{Binding ExportToSkylineCommand}">Export</Button>
                 </Grid>
             </Grid>
  
