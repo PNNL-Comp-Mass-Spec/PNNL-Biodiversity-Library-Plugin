@@ -16,7 +16,7 @@ namespace BiodiversityPlugin
             m_databasePath = organismDb;
         }
 
-        public List<string> ExportAccessions(Pathway pathway, Organism org)
+        public List<ProteinInformation> ExportAccessions(Pathway pathway, Organism org)
         {
             if (pathway == null || org == null)
             {
@@ -25,7 +25,7 @@ namespace BiodiversityPlugin
 
             var pathwayId = pathway.KeggId;
             var orgCode = org.OrgCode;
-            var uniprotAccessions = new List<string>();
+            var uniprotAccessions = new List<ProteinInformation>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
@@ -44,7 +44,7 @@ namespace BiodiversityPlugin
                     {
                         while (reader.Read())
                         {
-                            uniprotAccessions.Add(reader.GetString(0));
+                            uniprotAccessions.Add(new ProteinInformation("", "", reader.GetString(0)));
                         }
                     }
                 }

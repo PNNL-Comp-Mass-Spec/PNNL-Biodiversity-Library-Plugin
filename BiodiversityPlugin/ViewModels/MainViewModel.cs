@@ -6,6 +6,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -20,6 +21,16 @@ namespace BiodiversityPlugin.ViewModels
 
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
+
+        public ObservableCollection<ProteinInformation> FilteredProteins
+        {
+            get { return m_filteredProteins; }
+            private set
+            {
+                m_filteredProteins = value;
+                RaisePropertyChanged();
+            }
+        } 
 
         public string SelectedOrganismText
         {
@@ -50,6 +61,7 @@ namespace BiodiversityPlugin.ViewModels
             _dbPath = dbPath;
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
+            FilteredProteins = new ObservableCollection<ProteinInformation>();
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
         }
 
@@ -85,6 +97,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var dataAccess = new DatabaseDataLoader(_dbPath);
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
                 int numInLine = 0;
                 string acc = "";
                 foreach (var line in accessions)
@@ -115,5 +128,6 @@ namespace BiodiversityPlugin.ViewModels
 
         private string m_selectedOrganismText;
         private string m_selectedPathwayText;
+        private ObservableCollection<ProteinInformation> m_filteredProteins;
     }
 }
