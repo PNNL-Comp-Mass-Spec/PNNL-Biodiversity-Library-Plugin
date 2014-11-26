@@ -24,5 +24,15 @@ namespace BiodiversityPlugin
         {
             InitializeComponent();
         }
+
+        private void PreviousButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            WizardTabs.SelectedIndex--;
+        }
+
+        private void NextButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            WizardTabs.SelectedIndex++;
+        }
     }
 }

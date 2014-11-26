@@ -38,6 +38,7 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 m_selectedOrganismText = value;
+                IsOrganismSelected = true;
                 RaisePropertyChanged();
             }
         }
@@ -48,6 +49,27 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 m_selectedPathwayText = value;
+                IsPathwaySelected = true;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool IsOrganismSelected
+        {
+            get { return _isOrganismSelected; }
+            set
+            {
+                _isOrganismSelected = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool IsPathwaySelected
+        {
+            get { return _isPathwaySelected; }
+            set
+            {
+                _isPathwaySelected = value;
                 RaisePropertyChanged();
             }
         }
@@ -63,6 +85,8 @@ namespace BiodiversityPlugin.ViewModels
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
+            _isOrganismSelected = false;
+            _isPathwaySelected = false;
         }
 
         public object SelectedOrganismTreeItem
@@ -85,6 +109,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedPathwayTreeItem = value;
                 SelectedPathway = _selectedPathwayTreeItem as Pathway;
+                IsPathwaySelected = false;
                 if (SelectedPathway != null)
                     SelectedPathwayText = string.Format("Pathway: {0}", SelectedPathway.Name);
                 RaisePropertyChanged();
@@ -98,6 +123,7 @@ namespace BiodiversityPlugin.ViewModels
                 var dataAccess = new DatabaseDataLoader(_dbPath);
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
                 FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
+                IsPathwaySelected = true;
             }
             else
             {
@@ -111,5 +137,7 @@ namespace BiodiversityPlugin.ViewModels
         private string m_selectedOrganismText;
         private string m_selectedPathwayText;
         private ObservableCollection<ProteinInformation> m_filteredProteins;
+        private bool _isPathwaySelected;
+        private bool _isOrganismSelected;
     }
 }

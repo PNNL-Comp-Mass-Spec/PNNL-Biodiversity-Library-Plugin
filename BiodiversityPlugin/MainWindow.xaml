@@ -47,18 +47,18 @@
                                 <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
                                 <Setter Property="Foreground" Value="{StaticResource WhiteBrush}" />
                             </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
+                            <!--<Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Border" Property="Background" Value="{StaticResource DisabledBackgroundBrush}" />
                                 <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource DisabledBorderBrush}" />
                                 <Setter Property="Foreground" Value="{StaticResource DisabledForegroundBrush}" />
-                            </Trigger>
+                            </Trigger> -->
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
     </Window.Resources>
-    <TabControl TabStripPlacement="Left" Margin="0">
+    <TabControl TabStripPlacement="Left" Margin="0" Name="WizardTabs">
         <TabItem Header="Organisms" Width="200" Height="150" FontSize="24" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
         <Grid>
             <Grid.RowDefinitions>
@@ -85,13 +85,13 @@
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
-                <Button Grid.Row="3" Grid.Column="0" FontSize="22"   Width="150" HorizontalAlignment="Center">&lt; Previous</Button>
-                <Button Grid.Row="3" Grid.Column="1" FontSize="22"   Width="150" HorizontalAlignment="Center">Next &gt;</Button>
+                <!--<Button Grid.Row="3" Grid.Column="0" FontSize="22"   Width="150" HorizontalAlignment="Center" Click="PreviousButton_OnClick">&lt; Previous</Button> -->
+                <Button Grid.Row="3" Grid.Column="1" FontSize="22"   Width="150" HorizontalAlignment="Center" Click="NextButton_OnClick" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
             </Grid>
         </TabItem>
 
 
-        <TabItem Header="Pathways"  Width="200" Height="150" FontSize="24" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" >
+        <TabItem Header="Pathways"  Width="200" Height="150" FontSize="24" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -117,13 +117,14 @@
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
-                <Button Grid.Row="3" Grid.Column="0" FontSize="22" Width="150" HorizontalAlignment="Center">&lt; Previous</Button>
-                <Button Grid.Row="3" Grid.Column="1" FontSize="22" Width="150" HorizontalAlignment="Center">Next &gt;</Button>
+                <Button Grid.Row="3" Grid.Column="0" FontSize="22" Width="150" HorizontalAlignment="Center" Click="PreviousButton_OnClick">&lt; Previous</Button>
+                <Button Grid.Row="3" Grid.Column="1" FontSize="22" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}" IsEnabled="{Binding IsPathwaySelected}" Click="NextButton_OnClick">Next &gt;</Button>
             </Grid>
         </TabItem>
 
         <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="22" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White">
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 IsEnabled="False">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30" />
@@ -140,8 +141,8 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">Data for Export</TextBlock>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
                 <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
@@ -149,7 +150,7 @@
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="5*" Binding="{Binding Accession}" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">&lt; Previous</Button>
+                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="22"  Click="PreviousButton_OnClick">&lt; Previous</Button>
                 <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="22"  Command="{Binding ExportToSkylineCommand}">Export</Button>
             </Grid>
  
