@@ -11,12 +11,21 @@ namespace BiodiversityPlugin
 {
     public class CsvDataLoader : IDataAccess
     {
-        public List<OrgPhylum> LoadOrganisms(string path)
+        private readonly string _organisms;
+        private readonly string _pathways;
+
+        public CsvDataLoader(string organisms, string pathways)
+        {
+            _organisms = organisms;
+            _pathways = pathways;
+        }
+
+        public List<OrgPhylum> LoadOrganisms()
         {
             var phylums = new Dictionary<string, OrgPhylum>();
             var classes = new Dictionary<Tuple<string, string>, OrgClass>();
 
-            using (var reader = new StreamReader(path))
+            using (var reader = new StreamReader(_organisms))
             {
                 var header = reader.ReadLine();
                 var row = reader.ReadLine();
@@ -49,11 +58,11 @@ namespace BiodiversityPlugin
             return listPhy;
         }
 
-        public List<PathwayCatagory> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways()
         {
             var groups = new Dictionary<string, PathwayGroup>();
 
-            using (var reader = new StreamReader(path))
+            using (var reader = new StreamReader(_pathways))
             {
                 var header = reader.ReadLine();
                 var row = reader.ReadLine();

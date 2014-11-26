@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
-using System.Data.SQLite.Linq.Properties;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using BiodiversityPlugin.Models;
 
 namespace BiodiversityPlugin
 {
     public class DatabaseDataLoader: IDataAccess
     {
-        private string m_databasePath = "Resources/PBL.db";
+        //private string m_databasePath = "Tools/BioDiversity/DataFiles/PBL.db";
+        private readonly string m_databasePath;
+
+        public DatabaseDataLoader(string organismDb)
+        {
+            m_databasePath = organismDb;
+        }
 
         public List<string> ExportAccessions(Pathway pathway, Organism org)
         {
@@ -53,14 +54,14 @@ namespace BiodiversityPlugin
         }
 
 
-        public List<OrgPhylum> LoadOrganisms(string path)
+        public List<OrgPhylum> LoadOrganisms()
         {
             
 
             throw new NotImplementedException();
         }
 
-        public List<PathwayCatagory> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways()
         {
             var catagories = new Dictionary<string, PathwayCatagory>();
             var groups = new Dictionary<string, PathwayGroup>();

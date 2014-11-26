@@ -23,10 +23,13 @@ namespace BiodiversityPlugin.ViewModels
 
         public RelayCommand ExportToSkylineCommand { get; private set; }
 
-        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string organismPath, string pathwaysPath)
+        private readonly string _dbPath;
+
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath)
         {
-            Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms(organismPath));
-            Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways(pathwaysPath));
+            _dbPath = dbPath;
+            Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
+            Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
         }
 
@@ -56,7 +59,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             if (SelectedPathway != null && SelectedOrganism != null)
             {
-                var dataAccess = new DatabaseDataLoader();
+                var dataAccess = new DatabaseDataLoader(_dbPath);
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
                 int numInLine = 0;
                 string acc = "";

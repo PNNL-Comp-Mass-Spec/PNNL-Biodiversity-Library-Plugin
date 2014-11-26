@@ -10,7 +10,7 @@ namespace BiodiversityPlugin
     class HardCodedData:IDataAccess
     {
 
-        public List<OrgPhylum> LoadOrganisms(string path)
+        public List<OrgPhylum> LoadOrganisms()
         {
             var toReturn = new List<OrgPhylum>();
 
@@ -42,7 +42,7 @@ namespace BiodiversityPlugin
             return toReturn;
         }
 
-        public List<PathwayCatagory> LoadPathways(string path)
+        public List<PathwayCatagory> LoadPathways()
         {
 
             var pathways = new List<Pathway>();
