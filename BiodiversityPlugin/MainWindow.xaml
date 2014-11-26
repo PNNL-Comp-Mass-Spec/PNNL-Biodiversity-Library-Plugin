@@ -127,7 +127,8 @@
                 <DataGrid Grid.Row="5" Foreground="Black" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="5*" Binding="{Binding Name}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="10*" Binding="{Binding Description}" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="5*" Binding="{Binding Accession}" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <Grid Grid.Row="7">
