@@ -98,24 +98,6 @@ namespace BiodiversityPlugin.ViewModels
                 var dataAccess = new DatabaseDataLoader(_dbPath);
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
                 FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
-                int numInLine = 0;
-                string acc = "";
-                foreach (var line in accessions)
-                {
-                    acc += line;
-                    if (numInLine%7 != 6)
-                    {
-                        acc += ", ";
-                    }
-                    else
-                    {
-                        acc += "\n";
-                    }
-                    numInLine++;
-                }
-
-                //string acc = accessions.Aggregate("", (current, accession) => current + ("\n" + accession));
-                MessageBox.Show(acc);   
             }
             else
             {
