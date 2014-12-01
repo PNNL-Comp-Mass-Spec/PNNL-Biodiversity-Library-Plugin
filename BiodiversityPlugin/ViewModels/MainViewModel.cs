@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity.Core.Metadata.Edm;
+using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -89,8 +91,9 @@ namespace BiodiversityPlugin.ViewModels
 
         private readonly string _dbPath;
 
-        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath)
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, string proteinsPath)
         {
+            _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
@@ -134,6 +137,14 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var dataAccess = new DatabaseDataLoader(_dbPath);
                 var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                foreach (var accession in accessions)
+                {
+                    string proteinName;
+                    if (_proteins.TryGetValue(accession.Accession, out proteinName))
+                    {
+                        accession.Name = proteinName;
+                    }
+                }
                 FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
                 IsPathwaySelected = true;
             }
@@ -141,6 +152,24 @@ namespace BiodiversityPlugin.ViewModels
             {
                 MessageBox.Show("Please select an organism and pathway.");
             }
+        }
+
+        private Dictionary<string, string> PopulateProteins(string fileName)
+        {
+            var file = File.ReadAllLines(fileName);
+            int lineIndex = 0;
+            var proteins = new Dictionary<string, string>();
+            foreach (var line in file)
+            {
+                if (lineIndex++ == 0) continue;
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue;
+                if (!proteins.ContainsKey(parts[0]))
+                {
+                    proteins.Add(parts[0], parts[2]);
+                }
+            }
+            return proteins;
         }
 
         private object _selectedOrganismTreeItem;
@@ -152,5 +181,6 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<ProteinInformation> m_filteredProteins;
         private bool _isPathwaySelected;
         private bool _isOrganismSelected;
+        private readonly Dictionary<string, string> _proteins;
     }
 }

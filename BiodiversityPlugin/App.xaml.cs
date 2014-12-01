@@ -21,9 +21,11 @@ namespace BiodiversityPlugin
             {
                 var tsvOrgPath = "Tools/BioDiversity/DataFiles/Organisms.txt";
                 var dbPath = "Tools/BioDiversity/DataFiles/DBs/PBL.db";
+                var proteinsPath = "Tools/BioDiversity/DataFiles/Proteins.txt";
                 //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
-                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath);
+                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                    proteinsPath);
                 var mainWindow = new MainWindow {DataContext = vm};
                 mainWindow.Show();
             }
@@ -31,9 +33,23 @@ namespace BiodiversityPlugin
             {
                 var tsvOrgPath = "DataFiles/Organisms.txt";
                 var dbPath = "DataFiles/DBs/PBL.db";
+                var proteinsPath = "DataFiles/Proteins.txt";
                 //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
-                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath);
+                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                    proteinsPath);
+                var mainWindow = new MainWindow {DataContext = vm};
+                mainWindow.Show();
+            }
+            catch (FileNotFoundException)
+            {
+                var tsvOrgPath = "DataFiles/Organisms.txt";
+                var dbPath = "DataFiles/PBL.db";
+                var proteinsPath = "DataFiles/Proteins.txt";
+                //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
+                //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
+                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                    proteinsPath);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();
             }
