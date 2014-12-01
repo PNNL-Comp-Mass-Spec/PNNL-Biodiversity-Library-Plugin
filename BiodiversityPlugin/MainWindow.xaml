@@ -149,7 +149,7 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <!-- <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="10*" Binding="{Binding Description}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn> -->
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="2*" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="140" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
 
