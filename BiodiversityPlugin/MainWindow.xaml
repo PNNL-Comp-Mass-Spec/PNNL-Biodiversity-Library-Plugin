@@ -59,7 +59,7 @@
         </Style>
     </Window.Resources>
     <TabControl TabStripPlacement="Left" Margin="0" Name="WizardTabs">
-        <TabItem Header="Organisms" Width="200" Height="150" FontSize="24" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
+        <TabItem Header="Organisms" Width="200" Height="150" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -71,7 +71,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">Organisms</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Organisms</TextBlock>
                 <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
@@ -86,12 +86,12 @@
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
                 <!--<Button Grid.Row="3" Grid.Column="0" FontSize="22"   Width="150" HorizontalAlignment="Center" Click="PreviousButton_OnClick">&lt; Previous</Button> -->
-                <Button Grid.Row="3" Grid.Column="1" FontSize="22"   Width="150" HorizontalAlignment="Center" Click="NextButton_OnClick" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
+                <Button Grid.Row="3" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Click="NextButton_OnClick" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
             </Grid>
         </TabItem>
 
 
-        <TabItem Header="Pathways"  Width="200" Height="150" FontSize="24" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
+        <TabItem Header="Pathways"  Width="200" Height="150" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -103,7 +103,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">Pathways</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Pathways</TextBlock>
                 <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
@@ -117,12 +117,12 @@
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
             </biodiversityPlugin:MvvmTreeView>
-                <Button Grid.Row="3" Grid.Column="0" FontSize="22" Width="150" HorizontalAlignment="Center" Click="PreviousButton_OnClick">&lt; Previous</Button>
-                <Button Grid.Row="3" Grid.Column="1" FontSize="22" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}" IsEnabled="{Binding IsPathwaySelected}" Click="NextButton_OnClick">Next &gt;</Button>
+                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Click="PreviousButton_OnClick">&lt; Previous</Button>
+                <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}" IsEnabled="{Binding IsPathwaySelected}" Click="NextButton_OnClick">Next &gt;</Button>
             </Grid>
         </TabItem>
 
-        <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="22" 
+        <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="False">
             <Grid>
@@ -140,7 +140,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">Data for Export</TextBlock>
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Data for Export</TextBlock>
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
                 <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
@@ -151,11 +151,11 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="22" Click="PreviousButton_OnClick">&lt; Previous</Button>
-                <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="22" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="20" Click="PreviousButton_OnClick">&lt; Previous</Button>
+                <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
-                        <TextBlock FontSize="22" VerticalAlignment="Center">Export</TextBlock>
+                        <TextBlock FontSize="20" VerticalAlignment="Center">Export</TextBlock>
                     </StackPanel>
                 </Button>
             </Grid>
