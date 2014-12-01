@@ -65,7 +65,7 @@ Proteobacteria	Alphaproteobacteria	Sinorhizobium_meliloti_1021	266834
 Proteobacteria	Alphaproteobacteria	Sinorhizobium_medicae	366394	
 Proteobacteria	Alphaproteobacteria	Acidiphilium_cryptum_JF-5	349163	acr
 Proteobacteria	Alphaproteobacteria	Novosphingobium_aromaticivorans_F199	279238	nar
-Proteobacteria	Alpharoteobacteria	Bartonella_henselae_Houston-1	283166	
+Proteobacteria	Alphaproteobacteria	Bartonella_henselae_Houston-1	283166	
 Proteobacteria	Betaproteobacteria	Ralstonia_pickettii	267608	
 Proteobacteria	Betaproteobacteria	Burkholderia_mallei	243160	
 Proteobacteria	Betaproteobacteria	Methylophilales_HTCC2181	383631	
