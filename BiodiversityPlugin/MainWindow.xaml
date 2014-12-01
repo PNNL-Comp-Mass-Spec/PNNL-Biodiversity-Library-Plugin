@@ -131,6 +131,7 @@
                     <RowDefinition Height="15" />
                     <RowDefinition Height="30" />
                     <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="18*" />
                     <RowDefinition Height="15" />
@@ -143,7 +144,8 @@
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Data for Export</TextBlock>
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
-                <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" />
+                <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <!-- <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="10*" Binding="{Binding Description}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn> -->
@@ -151,8 +153,8 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="20" Click="PreviousButton_OnClick">&lt; Previous</Button>
-                <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="20" Click="PreviousButton_OnClick">&lt; Previous</Button>
+                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="20" VerticalAlignment="Center">Export</TextBlock>

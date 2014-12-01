@@ -28,9 +28,20 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 m_filteredProteins = value;
+                NumProteinsText = string.Format("Proteins ({0})", value.Count);
                 RaisePropertyChanged();
             }
-        } 
+        }
+
+        public string NumProteinsText
+        {
+            get { return m_numberProteinsText; }
+            private set
+            {
+                m_numberProteinsText = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public string SelectedOrganismText
         {
@@ -137,6 +148,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private string m_selectedOrganismText;
         private string m_selectedPathwayText;
+        private string m_numberProteinsText;
         private ObservableCollection<ProteinInformation> m_filteredProteins;
         private bool _isPathwaySelected;
         private bool _isOrganismSelected;
