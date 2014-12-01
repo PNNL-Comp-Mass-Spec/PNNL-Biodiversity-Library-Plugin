@@ -151,7 +151,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="22">&lt; Previous</Button>
+                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="22" Click="PreviousButton_OnClick">&lt; Previous</Button>
                 <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="22" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
