@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:BiodiversityPlugin.Models"
         xmlns:biodiversityPlugin="clr-namespace:BiodiversityPlugin"
-        Title="Biodiversity Plugin" Height="900" Width="800">
+        Title="Biodiversity Plugin" Height="900" Width="1100">
     <Window.Resources>
 
         <SolidColorBrush x:Key="SolidBorderBrush" Color="#FFFFFF" />
@@ -147,9 +147,10 @@
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" />
                 <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" >
                     <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="5*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="90" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="70*" Binding="{Binding Description}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <!-- <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="10*" Binding="{Binding Description}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn> -->
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Accession" Width="140" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
 
