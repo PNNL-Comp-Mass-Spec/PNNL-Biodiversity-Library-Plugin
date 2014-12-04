@@ -26,32 +26,61 @@ namespace BiodiversityPlugin
 
             var pathwayId = pathway.KeggId;
             var orgCode = org.OrgCode;
-            var uniprotAccessions = new List<ProteinInformation>();
+            var uniprotAccessions = new Dictionary<string, ProteinInformation>();
+//            var uniprotAccessions = new List<ProteinInformation>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selectionText =
-                        string.Format("SELECT kegg_gene_uniprot_map.uniprot_acc FROM kegg_gene_uniprot_map, " +
-                                      " observed_kegg_gene WHERE observed_kegg_gene.is_observed = 1 AND " +
+                    var selectionText = 
+                            string.Format(" SELECT refseq_uniprot_map.refseq_id " +
+                                      " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map, ncbi_protein " +
+                                      " WHERE observed_kegg_gene.is_observed = 1 AND " +
                                       " observed_kegg_gene.kegg_pathway_id = '{0}' AND " +
                                       " observed_kegg_gene.kegg_org_code LIKE '%{1}%' AND " +
-                                      "kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id",
+                                      " kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
+                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc " +
+                                      " group by refseq_uniprot_map.refseq_id",
+                            pathwayId, orgCode);
+
+                    
+                    cmd.CommandText = selectionText;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Error: Not found in database", "Error: Not found in database", reader.GetString(0)));
+                            //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
+                        }
+                    }
+                    selectionText =
+                        string.Format(" Select * " +
+                                      " From ncbi_protein " +
+                                      " Where refseq_id_versioned in(SELECT refseq_uniprot_map.refseq_id " +
+                                      " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map, ncbi_protein " +
+                                      " WHERE observed_kegg_gene.is_observed = 1 AND " +
+                                      " observed_kegg_gene.kegg_pathway_id = '{0}' AND " +
+                                      " observed_kegg_gene.kegg_org_code LIKE '%{1}%' AND " +
+                                      " kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
+                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc " +
+                                      " group by refseq_uniprot_map.refseq_id)",
                             pathwayId, orgCode);
                     cmd.CommandText = selectionText;
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            uniprotAccessions.Add(new ProteinInformation("", "", reader.GetString(0)));
+                            uniprotAccessions[reader.GetString(3)].Description = reader.GetString(5);
+                            uniprotAccessions[reader.GetString(3)].Name = reader.GetString(4);
+                            //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
                         }
                     }
                 }
             }
 
-            return uniprotAccessions;
+            return uniprotAccessions.Values.ToList();
         }
 
 
