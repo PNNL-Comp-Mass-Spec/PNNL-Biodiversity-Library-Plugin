@@ -36,7 +36,9 @@ namespace BiodiversityPlugin
                 var proteinsPath = "DataFiles/Proteins.txt";
                 //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
-                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                //var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                //    proteinsPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     proteinsPath);
                 var mainWindow = new MainWindow {DataContext = vm};
                 mainWindow.Show();
@@ -48,7 +50,9 @@ namespace BiodiversityPlugin
                 var proteinsPath = "DataFiles/Proteins.txt";
                 //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
-                var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                //var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
+                //    proteinsPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     proteinsPath);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();

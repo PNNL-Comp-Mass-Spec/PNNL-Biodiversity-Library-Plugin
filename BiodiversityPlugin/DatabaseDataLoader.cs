@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
+using System.Xml.Linq;
 using BiodiversityPlugin.Models;
 
 namespace BiodiversityPlugin
@@ -56,9 +57,56 @@ namespace BiodiversityPlugin
 
         public List<OrgPhylum> LoadOrganisms()
         {
-            
+            var phylums = new Dictionary<string, OrgPhylum>();
+            var classes = new Dictionary<Tuple<string, string>, OrgClass>();
 
-            throw new NotImplementedException();
+            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var selectionText = "SELECT * FROM organism";
+                    cmd.CommandText = selectionText;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var taxon = Convert.ToInt32(reader["ncbi_taxon_id"]);
+                            var taxonName = reader["ncbi_taxon_name"].ToString();
+                            var orgCode = reader["kegg_org_code"].ToString();
+                            using (var cmd1 = new SQLiteCommand(dbConnection))
+                            {
+                                cmd1.CommandText = String.Format("SELECT * FROM organism_taxonomy WHERE ncbi_taxon_id = {0};",
+                                    taxon);
+                                var reader1 = cmd1.ExecuteReader();
+                                while (reader1.Read())
+                                {
+                                    var ogphylum = reader1["og_phylum"].ToString();
+                                    var ogclass = reader1["og_class"].ToString();
+                                    var pair = new Tuple<string, string>(ogphylum, ogclass);
+                                    var org = new Organism(taxonName, taxon, orgCode);
+
+                                    if (!classes.ContainsKey(pair))
+                                    {
+                                        classes.Add(pair, new OrgClass(ogclass, new List<Organism>()));
+                                    }
+                                    classes[pair].Organisms.Add(org);
+
+                                    if (!phylums.ContainsKey(ogphylum))
+                                    {
+                                        phylums.Add(ogphylum, new OrgPhylum(ogphylum, new List<OrgClass>()));
+                                    }
+                                    if (!phylums[ogphylum].OrgClasses.Contains(classes[pair]))
+                                    {
+                                        phylums[ogphylum].OrgClasses.Add(classes[pair]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return phylums.Values.ToList();
         }
 
         public List<PathwayCatagory> LoadPathways()
