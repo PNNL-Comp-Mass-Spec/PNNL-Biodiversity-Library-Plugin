@@ -51,7 +51,7 @@ namespace BiodiversityPlugin
                     {
                         while (reader.Read())
                         {
-                            uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Error: Not found in database", "Error: Not found in database", reader.GetString(0)));
+                            uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Not found in database", "Not found in database", reader.GetString(0)));
                             //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
                         }
                     }

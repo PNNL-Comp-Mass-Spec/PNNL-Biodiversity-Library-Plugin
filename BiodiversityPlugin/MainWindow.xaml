@@ -170,7 +170,7 @@
                     </StackPanel>
                 </Button>
                 <Border Opacity=".8" Grid.Row="0" Grid.RowSpan="9" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="AntiqueWhite" FontSize="36" FontWeight="Bold"
+                    <TextBlock VerticalAlignment="Center" Margin="200" Foreground="AntiqueWhite" FontSize="36" FontWeight="Bold"
                        Text="{Binding Path=QueryString, UpdateSourceTrigger=PropertyChanged}">
                     </TextBlock>
                 </Border>
