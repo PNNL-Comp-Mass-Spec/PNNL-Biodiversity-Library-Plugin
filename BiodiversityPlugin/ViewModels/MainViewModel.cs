@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -24,6 +25,16 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
+        public Visibility VisibleProteins
+        {
+            get { return _visibleProteins; }
+            private set
+            {
+                _visibleProteins = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public ObservableCollection<ProteinInformation> FilteredProteins
         {
             get { return m_filteredProteins; }
@@ -31,6 +42,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 m_filteredProteins = value;
                 NumProteinsText = string.Format("Proteins ({0})", value.Count);
+                VisibleProteins = value.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                 RaisePropertyChanged();
             }
         }
@@ -101,6 +113,7 @@ namespace BiodiversityPlugin.ViewModels
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
             _isOrganismSelected = false;
             _isPathwaySelected = false;
+            _visibleProteins = Visibility.Hidden;
         }
 
         public object SelectedOrganismTreeItem
@@ -133,25 +146,50 @@ namespace BiodiversityPlugin.ViewModels
 
         private void ExportToSkyline()
         {
-            if (SelectedPathway != null && SelectedOrganism != null)
+            IsQuerying = true;
+
+            string[] queryingStrings =
+			    {
+				    "Querying Database\nPlease Wait",
+				    "Querying Database.\nPlease Wait",
+				    "Querying Database..\nPlease Wait",
+				    "Querying Database...\nPlease Wait"
+			    };
+
+            Task.Factory.StartNew(() =>
             {
-                var dataAccess = new DatabaseDataLoader(_dbPath);
-                var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
-                foreach (var accession in accessions)
+                int index = 0;
+                while (IsQuerying)
                 {
-                    string proteinName;
-                    if (_proteins.TryGetValue(accession.Accession, out proteinName))
-                    {
-                        accession.Name = proteinName;
-                    }
+                    Thread.Sleep(750);
+                    QueryString = queryingStrings[index % 4];
+                    index++;
                 }
-                FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
-                IsPathwaySelected = true;
-            }
-            else
+            });
+            Task.Factory.StartNew(() =>
             {
-                MessageBox.Show("Please select an organism and pathway.");
-            }
+                if (SelectedPathway != null && SelectedOrganism != null)
+                {
+
+                    var dataAccess = new DatabaseDataLoader(_dbPath);
+                    var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                    foreach (var accession in accessions)
+                    {
+                        string proteinName;
+                        if (_proteins.TryGetValue(accession.Accession, out proteinName))
+                        {
+                            accession.Name = proteinName;
+                        }
+                    }
+                    FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
+                    IsPathwaySelected = true;
+                }
+                else
+                {
+                    MessageBox.Show("Please select an organism and pathway.");
+                }
+                IsQuerying = false;
+            });
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
@@ -182,5 +220,28 @@ namespace BiodiversityPlugin.ViewModels
         private bool _isPathwaySelected;
         private bool _isOrganismSelected;
         private readonly Dictionary<string, string> _proteins;
+        private Visibility _visibleProteins;
+        private  bool _isQuerying;
+        private string _queryString;
+
+        public bool IsQuerying
+        {
+            get { return _isQuerying; }
+            private set
+            {
+                _isQuerying = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string QueryString
+        {
+            get { return _queryString; }
+            private set
+            {
+                _queryString = value;
+                RaisePropertyChanged();
+            }
+        }
     }
 }
