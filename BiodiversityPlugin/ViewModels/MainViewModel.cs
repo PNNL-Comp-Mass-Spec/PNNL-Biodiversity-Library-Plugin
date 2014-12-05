@@ -99,6 +99,19 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        public RelayCommand NextTabCommand { get; private set; }
+        public RelayCommand PreviousTabCommand { get; private set; }
+
+        public int SelectedTabIndex
+        {
+            get { return _selectedTabIndex; }
+            set
+            {
+                _selectedTabIndex = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public RelayCommand ExportToSkylineCommand { get; private set; }
 
         private readonly string _dbPath;
@@ -110,7 +123,10 @@ namespace BiodiversityPlugin.ViewModels
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             FilteredProteins = new ObservableCollection<ProteinInformation>();
+            PreviousTabCommand = new RelayCommand(PreviousTab);
+            NextTabCommand = new RelayCommand(NextTab);
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
+            _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
@@ -144,9 +160,24 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        private void PreviousTab()
+        {
+            if (SelectedTabIndex > 0)
+                SelectedTabIndex--;
+        }
+
+        private void NextTab()
+        {
+            if (SelectedTabIndex == 0 && SelectedOrganism == null) return;
+            if (SelectedTabIndex == 1 && SelectedPathway == null) return;
+            SelectedTabIndex++;
+        }
+
         private void ExportToSkyline()
         {
             IsQuerying = true;
+
+            SelectedTabIndex++;
 
             string[] queryingStrings =
 			    {
@@ -223,6 +254,7 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility _visibleProteins;
         private  bool _isQuerying;
         private string _queryString;
+        private int _selectedTabIndex;
 
         public bool IsQuerying
         {
