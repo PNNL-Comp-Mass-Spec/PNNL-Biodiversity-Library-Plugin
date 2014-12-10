@@ -25,6 +25,31 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
+        public Visibility UrlVisible
+        {
+            get { return _visibleUrl; }
+            private set
+            {
+                _visibleUrl = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public System.Uri MapUrl
+        {
+            get { return _url; }
+            private set
+            {
+                _url = value;
+                UrlVisible = Visibility.Hidden;
+                if (!string.IsNullOrWhiteSpace(_url.AbsolutePath))
+                {
+                    UrlVisible = Visibility.Visible;
+                }
+                RaisePropertyChanged();
+            }
+        }
+
         public Visibility VisibleProteins
         {
             get { return _visibleProteins; }
@@ -99,19 +124,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public RelayCommand NextTabCommand { get; private set; }
-        public RelayCommand PreviousTabCommand { get; private set; }
-
-        public int SelectedTabIndex
-        {
-            get { return _selectedTabIndex; }
-            set
-            {
-                _selectedTabIndex = value;
-                RaisePropertyChanged();
-            }
-        }
-
         public RelayCommand ExportToSkylineCommand { get; private set; }
 
         private readonly string _dbPath;
@@ -123,13 +135,12 @@ namespace BiodiversityPlugin.ViewModels
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             FilteredProteins = new ObservableCollection<ProteinInformation>();
-            PreviousTabCommand = new RelayCommand(PreviousTab);
-            NextTabCommand = new RelayCommand(NextTab);
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
-            _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
+            _url = new Uri("http://www.google.com");
+            _visibleUrl = Visibility.Hidden;
         }
 
         public object SelectedOrganismTreeItem
@@ -160,24 +171,9 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        private void PreviousTab()
-        {
-            if (SelectedTabIndex > 0)
-                SelectedTabIndex--;
-        }
-
-        private void NextTab()
-        {
-            if (SelectedTabIndex == 0 && SelectedOrganism == null) return;
-            if (SelectedTabIndex == 1 && SelectedPathway == null) return;
-            SelectedTabIndex++;
-        }
-
         private void ExportToSkyline()
         {
             IsQuerying = true;
-
-            SelectedTabIndex++;
 
             string[] queryingStrings =
 			    {
@@ -204,6 +200,11 @@ namespace BiodiversityPlugin.ViewModels
 
                     var dataAccess = new DatabaseDataLoader(_dbPath);
                     var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                    if (SelectedOrganism.OrgCode != "")
+                    {
+                        MapUrl = new Uri(string.Format("http://www.genome.jp/kegg-bin/show_pathway?org_name={0}&mapno={1}",
+                            SelectedOrganism.OrgCode, SelectedPathway.KeggId));
+                    }
                     foreach (var accession in accessions)
                     {
                         string proteinName;
@@ -254,7 +255,8 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility _visibleProteins;
         private  bool _isQuerying;
         private string _queryString;
-        private int _selectedTabIndex;
+        private System.Uri _url;
+        private Visibility _visibleUrl;
 
         public bool IsQuerying
         {

@@ -110,6 +110,7 @@
     <Compile Include="DatabaseDataLoader.cs" />
     <Compile Include="HardCodedData.cs" />
     <Compile Include="IDataAccess.cs" />
+    <Compile Include="Models\AccessionsFromDatabase.cs" />
     <Compile Include="Models\PathwayCatagory.cs" />
     <Compile Include="Models\PathwayGroup.cs" />
     <Compile Include="Models\ProteinInformation.cs" />

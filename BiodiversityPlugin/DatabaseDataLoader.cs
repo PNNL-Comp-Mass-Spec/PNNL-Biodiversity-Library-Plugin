@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
-using System.Xml.Linq;
 using BiodiversityPlugin.Models;
 
 namespace BiodiversityPlugin
@@ -15,6 +15,11 @@ namespace BiodiversityPlugin
         public DatabaseDataLoader(string organismDb)
         {
             m_databasePath = organismDb;
+        }
+
+        public void LoadAccessions()
+        {
+            
         }
 
         public List<ProteinInformation> ExportAccessions(Pathway pathway, Organism org)
@@ -32,17 +37,15 @@ namespace BiodiversityPlugin
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selectionText = 
-                            string.Format(" SELECT refseq_uniprot_map.refseq_id " +
-                                      " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map, ncbi_protein " +
-                                      " WHERE observed_kegg_gene.is_observed = 1 AND " +
-                                      " observed_kegg_gene.kegg_pathway_id = '{0}' AND " +
-                                      " observed_kegg_gene.kegg_org_code LIKE '%{1}%' AND " +
-                                      " kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
-                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc " +
-                                      " group by refseq_uniprot_map.refseq_id",
+                    var selectionText =
+                            string.Format(" SELECT refseq_uniprot_map.refseq_id, observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code " +
+                                      " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map " +
+                                      " WHERE kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
+                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc ",
                             pathwayId, orgCode);
 
                     
@@ -51,32 +54,44 @@ namespace BiodiversityPlugin
                     {
                         while (reader.Read())
                         {
-                            uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Not found in database", "Not found in database", reader.GetString(0)));
+                            var obs = reader.GetInt32(1);
+                            var pat = reader.GetString(2);
+                            var or  = reader.GetString(3);
+                            //if (pat == "00010")
+                            //{
+                                //Console.WriteLine(string.Format("Should match {0}", (reader.GetString(2) == pathwayId)));
+                                //if (or == "acr")
+                                    //Console.WriteLine(string.Format("Should return true: {0}",
+                                    //    reader.GetString(3).Contains(orgCode)));
+                            //}
+                            if(reader.GetInt32(1) == 1 && reader.GetString(2) == pathwayId && reader.GetString(3).Contains(orgCode) && !uniprotAccessions.ContainsKey(reader.GetString(0)))
+                                uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Not found in database", "Not found in database", reader.GetString(0)));
                             //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
                         }
                     }
+                    stopwatch.Stop();
+
+                    var ts = stopwatch.ElapsedTicks;
+                    Console.WriteLine(string.Format("Pulling refSeq took {0} ticks",ts));
+                    stopwatch.Reset();
+                    stopwatch.Start();
                     selectionText =
                         string.Format(" Select * " +
                                       " From ncbi_protein " +
-                                      " Where refseq_id_versioned in(SELECT refseq_uniprot_map.refseq_id " +
-                                      " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map, ncbi_protein " +
-                                      " WHERE observed_kegg_gene.is_observed = 1 AND " +
-                                      " observed_kegg_gene.kegg_pathway_id = '{0}' AND " +
-                                      " observed_kegg_gene.kegg_org_code LIKE '%{1}%' AND " +
-                                      " kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
-                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc " +
-                                      " group by refseq_uniprot_map.refseq_id)",
-                            pathwayId, orgCode);
+                                      " Where refseq_id_versioned in( '" + String.Join("', '",uniprotAccessions.Keys) + "')");
                     cmd.CommandText = selectionText;
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            uniprotAccessions[reader.GetString(3)].Description = reader.GetString(5);
+                            uniprotAccessions[reader.GetString(3)].Description = reader.IsDBNull(5) ? "": reader.GetString(5);
                             uniprotAccessions[reader.GetString(3)].Name = reader.GetString(4);
                             //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
                         }
                     }
+                    stopwatch.Stop();
+                    ts = stopwatch.ElapsedTicks;
+                    Console.WriteLine(string.Format("Pulling protData took {0} ticks", ts));
                 }
             }
 
