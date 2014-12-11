@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -25,26 +27,26 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
-        public Visibility UrlVisible
+        public Visibility PathwayVisibility
         {
-            get { return _visibleUrl; }
+            get { return _visiblePathway; }
             private set
             {
-                _visibleUrl = value;
+                _visiblePathway = value;
                 RaisePropertyChanged();
             }
         }
 
-        public System.Uri MapUrl
+        public ImageBrush PathwayImage
         {
-            get { return _url; }
+            get { return _image; }
             private set
             {
-                _url = value;
-                UrlVisible = Visibility.Hidden;
-                if (!string.IsNullOrWhiteSpace(_url.AbsolutePath))
+                _image = value;
+                PathwayVisibility = Visibility.Hidden;
+                if (_image.ImageSource != null)
                 {
-                    UrlVisible = Visibility.Visible;
+                    PathwayVisibility = Visibility.Visible;
                 }
                 RaisePropertyChanged();
             }
@@ -155,8 +157,8 @@ namespace BiodiversityPlugin.ViewModels
             _isOrganismSelected = false;
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
-            _url = new Uri("http://www.google.com");
-            _visibleUrl = Visibility.Hidden;
+            _image = new ImageBrush();
+            _visiblePathway = Visibility.Hidden;
         }
 
         public object SelectedOrganismTreeItem
@@ -231,11 +233,7 @@ namespace BiodiversityPlugin.ViewModels
 
                     var dataAccess = new DatabaseDataLoader(_dbPath);
                     var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
-                    if (SelectedOrganism.OrgCode != "")
-                    {
-                        MapUrl = new Uri(string.Format("http://www.genome.jp/kegg-bin/show_pathway?org_name={0}&mapno={1}",
-                            SelectedOrganism.OrgCode, SelectedPathway.KeggId));
-                    }
+                    
                     foreach (var accession in accessions)
                     {
                         string proteinName;
@@ -253,6 +251,14 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 IsQuerying = false;
             });
+            if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" || SelectedPathway.KeggId == "00195")
+            {
+                var imageSource =
+                        new BitmapImage(
+                            new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId), UriKind.Relative));
+                PathwayImage.ImageSource = imageSource;
+                PathwayVisibility = Visibility.Visible;
+            }
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
@@ -287,8 +293,8 @@ namespace BiodiversityPlugin.ViewModels
         private  bool _isQuerying;
         private string _queryString;
         private int _selectedTabIndex;
-        private System.Uri _url;
-        private Visibility _visibleUrl;
+        private ImageBrush _image;
+        private Visibility _visiblePathway;
 
         public bool IsQuerying
         {
