@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace BiodiversityPlugin.ViewModels
 {
@@ -147,6 +148,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
+            Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             FilteredProteins = new ObservableCollection<ProteinInformation>();
@@ -159,6 +161,7 @@ namespace BiodiversityPlugin.ViewModels
             _visibleProteins = Visibility.Hidden;
             _image = new ImageBrush();
             _visiblePathway = Visibility.Hidden;
+            _pathwaysSelected = 0;
         }
 
         public object SelectedOrganismTreeItem
@@ -186,6 +189,26 @@ namespace BiodiversityPlugin.ViewModels
                 if (SelectedPathway != null)
                     SelectedPathwayText = string.Format("Pathway: {0}", SelectedPathway.Name);
                 RaisePropertyChanged();
+            }
+        }
+
+        private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
+        {
+            if (message.PropertyName == "Selected" && message.Sender is Pathway)
+            {
+                if(message.NewValue == true)
+                {
+                    _pathwaysSelected++;
+                    IsPathwaySelected = true;
+                }
+                else
+                {
+                    _pathwaysSelected--;
+                    if (_pathwaysSelected == 0)
+                    {
+                        IsPathwaySelected = false;
+                    }
+                }
             }
         }
 
@@ -295,6 +318,7 @@ namespace BiodiversityPlugin.ViewModels
         private int _selectedTabIndex;
         private ImageBrush _image;
         private Visibility _visiblePathway;
+        private int _pathwaysSelected;
 
         public bool IsQuerying
         {

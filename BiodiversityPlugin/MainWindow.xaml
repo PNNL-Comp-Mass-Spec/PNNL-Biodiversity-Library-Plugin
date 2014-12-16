@@ -119,7 +119,7 @@
                                     <ColumnDefinition Width="20*" />
                                     <ColumnDefinition Width="80*" />
                                 </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" IsChecked="{Binding Selected, Mode=TwoWay}" />
+                                <CheckBox Grid.Column="0" IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" /> <!-- Checked="{Binding IncChecked}" Unchecked="{Binding DecChecked}"/> -->
                                 <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="Regular" />
                             </Grid>  
                         </HierarchicalDataTemplate>
