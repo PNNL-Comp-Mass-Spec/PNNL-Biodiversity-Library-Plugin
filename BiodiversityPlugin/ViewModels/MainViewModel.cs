@@ -38,14 +38,29 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public ImageBrush PathwayImage
+        //public ImageBrush PathwayImage
+        //{
+        //    get { return _image; }
+        //    private set
+        //    {
+        //        _image = value;
+        //        PathwayVisibility = Visibility.Hidden;
+        //        if (_image.ImageSource != null)
+        //        {
+        //            PathwayVisibility = Visibility.Visible;
+        //        }
+        //        RaisePropertyChanged();
+        //    }
+        //}
+
+        public string PathwayImage
         {
-            get { return _image; }
+            get { return _imageString; }
             private set
             {
-                _image = value;
+                _imageString = value;
                 PathwayVisibility = Visibility.Hidden;
-                if (_image.ImageSource != null)
+                if (!string.IsNullOrEmpty(_imageString))
                 {
                     PathwayVisibility = Visibility.Visible;
                 }
@@ -162,6 +177,8 @@ namespace BiodiversityPlugin.ViewModels
             _image = new ImageBrush();
             _visiblePathway = Visibility.Hidden;
             _pathwaysSelected = 0;
+            _imageString = "..\\..\\..\\resources\\images\\map00010.png";
+            PathwayImage = _imageString;
         }
 
         public object SelectedOrganismTreeItem
@@ -237,9 +254,21 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     foreach(var pathway in group.Pathways)
                     {
-                        if(pathway.Selected)
+                        if (pathway.Selected)
                         {
                             selectedPaths.Add(pathway);
+                            if (selectedPaths.Count == 1)
+                            {
+                                SelectedPathwayText = string.Format("Pathway: {0}", pathway.Name);
+                            }
+                            else if (selectedPaths.Count % 4 == 0)
+                            {
+                                SelectedPathwayText += string.Format("\n\t{0}", pathway.Name);
+                            }
+                            else
+                            {
+                                SelectedPathwayText += string.Format(", {0}", pathway.Name);
+                            }
                         }
                     }
                 }
@@ -291,16 +320,16 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 IsQuerying = false;
             });
-            /*
+            
             if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" || SelectedPathway.KeggId == "00195")
             {
                 var imageSource =
                         new BitmapImage(
                             new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId), UriKind.Relative));
-                PathwayImage.ImageSource = imageSource;
+                PathwayImage = string.Format("..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
                 PathwayVisibility = Visibility.Visible;
             }
-             */
+            
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
@@ -338,6 +367,7 @@ namespace BiodiversityPlugin.ViewModels
         private ImageBrush _image;
         private Visibility _visiblePathway;
         private int _pathwaysSelected;
+        private string _imageString;
 
         public bool IsQuerying
         {
