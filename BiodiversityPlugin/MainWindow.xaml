@@ -179,9 +179,9 @@
                         <TextBlock FontSize="20" VerticalAlignment="Center">Export</TextBlock>
                     </StackPanel>
                 </Button>
-                <ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Grid.RowSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <!--<ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Grid.RowSpan="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                     <Canvas x:Name ="PathwayImage" Background="{Binding PathwayImage}"  Visibility="{Binding PathwayVisibility}"></Canvas>
-                </ScrollViewer>
+                </ScrollViewer> -->
                 <Border Opacity=".8" Grid.Row="0" Grid.RowSpan="9" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
                     <TextBlock VerticalAlignment="Center" Margin="200" Foreground="AntiqueWhite" FontSize="36" FontWeight="Bold"
                        Text="{Binding Path=QueryString, UpdateSourceTrigger=PropertyChanged}">

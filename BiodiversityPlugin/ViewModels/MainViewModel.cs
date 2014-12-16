@@ -230,6 +230,22 @@ namespace BiodiversityPlugin.ViewModels
             IsQuerying = true;
 
             SelectedTabIndex++;
+            var selectedPaths = new List<Pathway>();
+            foreach(var catagory in Pathways)
+            {
+                foreach(var group in catagory.PathwayGroups)
+                {
+                    foreach(var pathway in group.Pathways)
+                    {
+                        if(pathway.Selected)
+                        {
+                            selectedPaths.Add(pathway);
+                        }
+                    }
+                }
+            }
+
+            SelectedPathway = selectedPaths.First();
 
             string[] queryingStrings =
 			    {
@@ -255,7 +271,8 @@ namespace BiodiversityPlugin.ViewModels
                 {
 
                     var dataAccess = new DatabaseDataLoader(_dbPath);
-                    var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                    //var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                    var accessions = dataAccess.ExportAccessions(selectedPaths, SelectedOrganism);
                     
                     foreach (var accession in accessions)
                     {
@@ -274,6 +291,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 IsQuerying = false;
             });
+            /*
             if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" || SelectedPathway.KeggId == "00195")
             {
                 var imageSource =
@@ -282,6 +300,7 @@ namespace BiodiversityPlugin.ViewModels
                 PathwayImage.ImageSource = imageSource;
                 PathwayVisibility = Visibility.Visible;
             }
+             */
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)

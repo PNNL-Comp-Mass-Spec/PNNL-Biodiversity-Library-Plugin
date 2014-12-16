@@ -22,14 +22,18 @@ namespace BiodiversityPlugin
             
         }
 
-        public List<ProteinInformation> ExportAccessions(Pathway pathway, Organism org)
+        //public List<ProteinInformation> ExportAccessions(Pathway pathway, Organism org)
+        public List<ProteinInformation> ExportAccessions(List<Pathway> pathways, Organism org)
         {
-            if (pathway == null || org == null)
+            if (pathways == null || org == null)
             {
                 return null;
             }
-
-            var pathwayId = pathway.KeggId;
+            var pathwayIds = new List<string>();
+            foreach (var pathway in pathways)
+            {
+                pathwayIds.Add(pathway.KeggId);
+            }
             var orgCode = org.OrgCode;
             var uniprotAccessions = new Dictionary<string, ProteinInformation>();
 //            var uniprotAccessions = new List<ProteinInformation>();
@@ -45,8 +49,8 @@ namespace BiodiversityPlugin
                             string.Format(" SELECT refseq_uniprot_map.refseq_id, observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code " +
                                       " FROM kegg_gene_uniprot_map, observed_kegg_gene, refseq_uniprot_map " +
                                       " WHERE kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
-                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc ",
-                            pathwayId, orgCode);
+                                      " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc ");//,
+//                            pathwayId, orgCode);
 
                     
                     cmd.CommandText = selectionText;
@@ -64,7 +68,7 @@ namespace BiodiversityPlugin
                                     //Console.WriteLine(string.Format("Should return true: {0}",
                                     //    reader.GetString(3).Contains(orgCode)));
                             //}
-                            if(reader.GetInt32(1) == 1 && reader.GetString(2) == pathwayId && reader.GetString(3).Contains(orgCode) && !uniprotAccessions.ContainsKey(reader.GetString(0)))
+                            if(reader.GetInt32(1) == 1 && pathwayIds.Contains(reader.GetString(2)) && reader.GetString(3).Contains(orgCode) && !uniprotAccessions.ContainsKey(reader.GetString(0)))
                                 uniprotAccessions.Add(reader.GetString(0), new ProteinInformation("Not found in database", "Not found in database", reader.GetString(0)));
                             //uniprotAccessions.Add(new ProteinInformation(reader.GetString(4), reader.GetString(5), reader.GetString(2)));
                         }
