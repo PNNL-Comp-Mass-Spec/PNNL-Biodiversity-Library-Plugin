@@ -13,6 +13,12 @@ namespace BiodiversityPlugin.Models
     public class Pathway
     {
         /// <summary>
+        /// Whether the pathway is selected by the user or not.
+        /// </summary>
+        public bool Selected { get; set; }
+
+
+        /// <summary>
         /// KEGG Pathway name
         /// </summary>
         public string Name { get; set; }
@@ -31,6 +37,7 @@ namespace BiodiversityPlugin.Models
         {
             Name = name;
             KeggId = keggId;
+            Selected = false;
         }
     }
 }

@@ -114,7 +114,14 @@
                         <TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="14"/>
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
-                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="Regular" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20*" />
+                                    <ColumnDefinition Width="80*" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Column="0" IsChecked="{Binding Selected, Mode=TwoWay}" />
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="Regular" />
+                            </Grid>  
                         </HierarchicalDataTemplate>
                     </biodiversityPlugin:MvvmTreeView.Resources>
                     <biodiversityPlugin:MvvmTreeView.InputBindings>
