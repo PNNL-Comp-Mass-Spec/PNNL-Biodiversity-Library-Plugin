@@ -152,14 +152,25 @@
                     </Image>
                 </Canvas>
                 -->
+                
+                <TabControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type models:Pathway}">
+                        <TextBlock Text="{Binding Name}"></TextBlock>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
         
                 <TabControl.ContentTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
-                        <TabItem Header="{Binding Name}">
-                            <Grid>
+                        <Grid>
+                            
                             <Canvas>
-                                <Image Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None">
+                                <ScrollViewer VerticalAlignment="Top"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                                <Image Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 </Image>
+
+                                </ScrollViewer>
                             </Canvas>
                             <!--
                             <StackPanel Margin="10" Orientation="Horizontal">
@@ -167,8 +178,7 @@
                                 <TextBlock Text="{Binding KeggId}"></TextBlock>
                             </StackPanel>
                             -->
-                            </Grid>
-                        </TabItem>
+                        </Grid>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
