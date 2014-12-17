@@ -14,6 +14,7 @@ namespace BiodiversityPlugin.Models
     public class Pathway : ViewModelBase 
     {
         private bool m_selected;
+        private Uri _imageString;
 
         /// <summary>
         /// Whether the pathway is selected by the user or not.
@@ -29,6 +30,15 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        public Uri PathwayImage
+        {
+            get { return _imageString; }
+            set
+            {
+                _imageString = value;
+                RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// KEGG Pathway name

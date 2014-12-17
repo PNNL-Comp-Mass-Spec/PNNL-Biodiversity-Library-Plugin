@@ -28,6 +28,17 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
+        //This is for testing dynamic tab control
+        public ObservableCollection<Pathway> SelectedPathways
+        {
+            get { return _selectedPathways; }
+            private set
+            {
+                _selectedPathways = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public Visibility PathwayVisibility
         {
             get { return _visiblePathway; }
@@ -53,14 +64,14 @@ namespace BiodiversityPlugin.ViewModels
         //    }
         //}
 
-        public string PathwayImage
+        public Uri PathwayImage
         {
             get { return _imageString; }
             private set
             {
                 _imageString = value;
                 PathwayVisibility = Visibility.Hidden;
-                if (!string.IsNullOrEmpty(_imageString))
+                if (!string.IsNullOrEmpty(_imageString.OriginalString))
                 {
                     PathwayVisibility = Visibility.Visible;
                 }
@@ -175,10 +186,12 @@ namespace BiodiversityPlugin.ViewModels
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
             _image = new ImageBrush();
+            _imageString = new Uri(string.Format("..\\..\\..\\resources\\images\\map00010.png"), UriKind.Relative);
             _visiblePathway = Visibility.Hidden;
             _pathwaysSelected = 0;
-            _imageString = "..\\..\\..\\resources\\images\\map00010.png";
             PathwayImage = _imageString;
+            _selectedPathways = new ObservableCollection<Pathway>();
+            SelectedPathways = _selectedPathways;
         }
 
         public object SelectedOrganismTreeItem
@@ -246,6 +259,13 @@ namespace BiodiversityPlugin.ViewModels
         {
             IsQuerying = true;
 
+            var pwd = Directory.GetCurrentDirectory();
+            var pieces = pwd.Split('\\');
+            var absPath = "";
+            for (var i = 0; i < pieces.Count() - 3; i++)
+            {
+                absPath += string.Format("{0}{1}", pieces[i], '\\');
+            }
             SelectedTabIndex++;
             var selectedPaths = new List<Pathway>();
             foreach(var catagory in Pathways)
@@ -256,6 +276,7 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
+                            pathway.PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId), UriKind.Absolute);
                             selectedPaths.Add(pathway);
                             if (selectedPaths.Count == 1)
                             {
@@ -274,6 +295,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
 
+            SelectedPathways = new ObservableCollection<Pathway>(selectedPaths);
             SelectedPathway = selectedPaths.First();
 
             string[] queryingStrings =
@@ -323,10 +345,12 @@ namespace BiodiversityPlugin.ViewModels
             
             if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" || SelectedPathway.KeggId == "00195")
             {
+                var thing = File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
+                var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
                 var imageSource =
                         new BitmapImage(
                             new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId), UriKind.Relative));
-                PathwayImage = string.Format("..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
+                PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId), UriKind.Absolute);//string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
                 PathwayVisibility = Visibility.Visible;
             }
             
@@ -367,7 +391,8 @@ namespace BiodiversityPlugin.ViewModels
         private ImageBrush _image;
         private Visibility _visiblePathway;
         private int _pathwaysSelected;
-        private string _imageString;
+        private Uri _imageString;
+        private ObservableCollection<Pathway> _selectedPathways; 
 
         public bool IsQuerying
         {
