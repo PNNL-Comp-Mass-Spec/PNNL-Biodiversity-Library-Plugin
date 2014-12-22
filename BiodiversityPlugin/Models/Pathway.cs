@@ -1,12 +1,15 @@
 ﻿using System.Windows.Controls;
-using System.Windows.Media;
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace BiodiversityPlugin.Models 
 {
@@ -75,6 +78,14 @@ namespace BiodiversityPlugin.Models
             m_selected = false;
 			PathwayCanvas = new Canvas();
 	        PathwayCanvas.ToolTip = "TESTING";
+            var rect = new System.Windows.Shapes.Rectangle();
+            rect.Width = 47;
+            rect.Height = 16;
+            rect.Fill = new SolidColorBrush(Colors.Red);
+            rect.Opacity = .50;
+            PathwayCanvas.Children.Add(rect);
+            Canvas.SetLeft(rect, 416);
+            Canvas.SetTop(rect, 927);
 			PathwayCanvas.Background = Brushes.Black;
         }
     }
