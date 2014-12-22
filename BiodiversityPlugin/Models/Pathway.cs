@@ -91,15 +91,7 @@ namespace BiodiversityPlugin.Models
         {
             var rect = child as System.Windows.Shapes.Rectangle;
             rect.Fill = new SolidColorBrush(Colors.Gray);
-
-            var koName = rect.Tag as string;
-
-            var kos = koName.Split(',');
-            foreach (var ko in kos)
-            {
-                var trimmedko = ko.Trim();
-                SelectedKo.Remove(trimmedko);
-            }
+            SelectedKo.Clear();
         }
 
         private void Select(object child)
@@ -108,6 +100,7 @@ namespace BiodiversityPlugin.Models
             rect.Fill = new SolidColorBrush(Colors.Red);
 
             var koName = rect.Tag as string;
+            SelectedKo.Clear();
 
             var kos = koName.Split(',');
             foreach (var ko in kos)
