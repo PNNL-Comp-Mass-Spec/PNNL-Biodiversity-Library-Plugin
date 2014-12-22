@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using GalaSoft.MvvmLight;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -16,6 +17,7 @@ namespace BiodiversityPlugin.Models
         private bool m_selected;
         private Uri _imageString;
 	    private Canvas _pathwayCanvas;
+        private List<String> _selectedKo;
 
         /// <summary>
         /// Whether the pathway is selected by the user or not.
@@ -29,6 +31,12 @@ namespace BiodiversityPlugin.Models
                 m_selected = value;
                 RaisePropertyChanged("Selected", oldSelected, m_selected, true);
             }
+        }
+
+        public List<String> SelectedKo
+        {
+            get { return _selectedKo; }
+            set { _selectedKo = value; }
         }
 
         public Uri PathwayImage
@@ -72,24 +80,46 @@ namespace BiodiversityPlugin.Models
                 ToolTip = koName,
                 Width = 47,
                 Height = 17,
-                Fill = new SolidColorBrush(Colors.Gray),
+                Fill = new SolidColorBrush(Colors.Red),
                 Opacity = .50
             };
             rect.MouseDown += rect_MouseDown;
             PathwayCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
+            var kos = koName.Split(',');
+            foreach (var ko in kos)
+            {
+                var trimmedko = ko.Trim();
+                SelectedKo.Add(trimmedko);
+            }
         }
 
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var parent = sender as System.Windows.Shapes.Rectangle;
+            var parent = sender as System.Windows.Shapes.Rectangle; 
+            var koName = parent.Tag as string;
             var color = parent.Fill;
-            if(((SolidColorBrush)color).Color == Colors.Red)
+            if (((SolidColorBrush) color).Color == Colors.Red)
+            {
                 parent.Fill = new SolidColorBrush(Colors.Gray);
+                var kos = koName.Split(',');
+                foreach (var ko in kos)
+                {
+                    var trimmedko = ko.Trim();
+                    SelectedKo.Remove(trimmedko);
+                }
+            }
             else
+            {
                 parent.Fill = new SolidColorBrush(Colors.Red);
-            var koName = parent.Tag;
+                var kos = koName.Split(',');
+                foreach (var ko in kos)
+                {
+                    var trimmedko = ko.Trim();
+                    SelectedKo.Add(trimmedko);
+                }
+            }
         }
 
         /// <summary>
@@ -103,6 +133,7 @@ namespace BiodiversityPlugin.Models
             KeggId = keggId;
             m_selected = false;
 			PathwayCanvas = new Canvas();
+            SelectedKo = new List<string>();
         }
     }
 }
