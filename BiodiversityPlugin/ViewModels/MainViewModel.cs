@@ -285,7 +285,30 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
+                            var koToCoordDict = new Dictionary<string,Tuple<int, int>>();
+                            using (
+                                var reader =
+                                    new StreamReader(
+                                        string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt", absPath,
+                                            pathway.KeggId))))
+                            {
+                                var line = reader.ReadLine();
+                                line = reader.ReadLine();
+                                while (!string.IsNullOrEmpty(line))
+                                {
+                                    var linepieces = line.Split('\t');
+                                    var coord = linepieces[2];
+                                    var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
+                                    if(!koToCoordDict.ContainsKey(linepieces[1]))
+                                        koToCoordDict.Add(linepieces[1], new Tuple<int, int>(Convert.ToInt32(coordPieces[0]), Convert.ToInt32(coordPieces[1])));
+                                    line = reader.ReadLine();
+                                }
+                            }
                             var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                            foreach (var ko in koWithData)
+                            {
+                                pathway.AddRectangle(koToCoordDict[ko].Item1, koToCoordDict[ko].Item2);
+                            }
                             pathway.PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId), UriKind.Absolute);
                             selectedPaths.Add(pathway);
                             if (selectedPaths.Count == 1)

@@ -66,6 +66,21 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public string KeggId { get; set; }
 
+        public void AddRectangle(int xCoord, int yCoord)
+        {
+
+            var rect = new System.Windows.Shapes.Rectangle
+            {
+                Width = 47,
+                Height = 17,
+                Fill = new SolidColorBrush(Colors.Red),
+                Opacity = .50
+            };
+            PathwayCanvas.Children.Add(rect);
+            Canvas.SetLeft(rect, xCoord);
+            Canvas.SetTop(rect, yCoord);
+        }
+
         /// <summary>
         /// Constructor to populate with necessary data
         /// </summary>
@@ -77,14 +92,6 @@ namespace BiodiversityPlugin.Models
             KeggId = keggId;
             m_selected = false;
 			PathwayCanvas = new Canvas();
-            var rect = new System.Windows.Shapes.Rectangle();
-            rect.Width = 47;
-            rect.Height = 17;
-            rect.Fill = new SolidColorBrush(Colors.Red);
-            rect.Opacity = .50;
-            PathwayCanvas.Children.Add(rect);
-            Canvas.SetLeft(rect, 416);
-            Canvas.SetTop(rect, 927);
         }
     }
 }

@@ -206,7 +206,7 @@ namespace BiodiversityPlugin
             return catList;
         }
 
-        internal object ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
+        internal List<string> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
         {
             if (pathway == null || SelectedOrganism == null)
             {
