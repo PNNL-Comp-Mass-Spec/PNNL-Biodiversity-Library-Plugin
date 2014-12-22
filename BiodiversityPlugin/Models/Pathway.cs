@@ -69,6 +69,7 @@ namespace BiodiversityPlugin.Models
             var rect = new System.Windows.Shapes.Rectangle
             {
                 Tag = koName,
+                ToolTip = koName,
                 Width = 47,
                 Height = 17,
                 Fill = new SolidColorBrush(Colors.Gray),
@@ -83,7 +84,11 @@ namespace BiodiversityPlugin.Models
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var parent = sender as System.Windows.Shapes.Rectangle;
-            parent.Fill = new SolidColorBrush(Colors.Red);
+            var color = parent.Fill;
+            if(((SolidColorBrush)color).Color == Colors.Red)
+                parent.Fill = new SolidColorBrush(Colors.Gray);
+            else
+                parent.Fill = new SolidColorBrush(Colors.Red);
             var koName = parent.Tag;
         }
 

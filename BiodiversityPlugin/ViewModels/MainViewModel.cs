@@ -304,12 +304,27 @@ namespace BiodiversityPlugin.ViewModels
                                     line = reader.ReadLine();
                                 }
                             }
-                            var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
-                            foreach (var ko in koWithData)
+                            if (SelectedTabIndex == 2)
                             {
-                                pathway.AddRectangle(ko, koToCoordDict[ko].Item1, koToCoordDict[ko].Item2);
+                                var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                                var coordToName = new Dictionary<Tuple<int, int>, List<string>>();
+                                foreach (var ko in koWithData)
+                                {
+                                    if (!coordToName.ContainsKey(koToCoordDict[ko]))
+                                    {
+                                        coordToName[koToCoordDict[ko]] = new List<string>();
+                                    }
+                                    coordToName[koToCoordDict[ko]].Add(ko);
+                                    //pathway.AddRectangle(ko, koToCoordDict[ko].Item1, koToCoordDict[ko].Item2);
+                                }
+                                foreach (var coord in coordToName)
+                                {
+                                    pathway.AddRectangle(coord.Value.Aggregate((working, next) => working + ", " + next), coord.Key.Item1, coord.Key.Item2);
+                                }
+                                pathway.PathwayImage =
+                                    new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId),
+                                        UriKind.Absolute);
                             }
-                            pathway.PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId), UriKind.Absolute);
                             selectedPaths.Add(pathway);
                             if (selectedPaths.Count == 1)
                             {
