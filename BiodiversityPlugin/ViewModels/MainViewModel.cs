@@ -268,6 +268,7 @@ namespace BiodiversityPlugin.ViewModels
             IsQuerying = true;
 
             var pwd = Directory.GetCurrentDirectory();
+            var dataAccess = new DatabaseDataLoader(_dbPath);
             var pieces = pwd.Split('\\');
             var absPath = "";
             for (var i = 0; i < pieces.Count() - 3; i++)
@@ -284,6 +285,7 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
+                            var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                             pathway.PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId), UriKind.Absolute);
                             selectedPaths.Add(pathway);
                             if (selectedPaths.Count == 1)
@@ -329,8 +331,6 @@ namespace BiodiversityPlugin.ViewModels
                 var accessions = new List<ProteinInformation>();
                     if (SelectedPathway != null && SelectedOrganism != null)
                     {
-
-                        var dataAccess = new DatabaseDataLoader(_dbPath);
                         //var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
                         var temp = dataAccess.ExportAccessions(selectedPaths, SelectedOrganism);
                         accessions.AddRange(dataAccess.ExportAccessions(selectedPaths, SelectedOrganism));

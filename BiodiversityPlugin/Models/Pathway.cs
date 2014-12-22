@@ -77,16 +77,14 @@ namespace BiodiversityPlugin.Models
             KeggId = keggId;
             m_selected = false;
 			PathwayCanvas = new Canvas();
-	        PathwayCanvas.ToolTip = "TESTING";
             var rect = new System.Windows.Shapes.Rectangle();
             rect.Width = 47;
-            rect.Height = 16;
+            rect.Height = 17;
             rect.Fill = new SolidColorBrush(Colors.Red);
             rect.Opacity = .50;
             PathwayCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, 416);
             Canvas.SetTop(rect, 927);
-			PathwayCanvas.Background = Brushes.Black;
         }
     }
 }

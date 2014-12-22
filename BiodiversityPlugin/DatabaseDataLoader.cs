@@ -205,5 +205,44 @@ namespace BiodiversityPlugin
 
             return catList;
         }
+
+        internal object ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
+        {
+            if (pathway == null || SelectedOrganism == null)
+            {
+                return null;
+            }
+            var orgCode = SelectedOrganism.OrgCode;
+            var KoIds = new List<string>();
+            //            var uniprotAccessions = new List<ProteinInformation>();
+
+            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var selectionText =
+                            string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id " +
+                                      " FROM kegg_gene_ko_map, observed_kegg_gene " +
+                                      " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id ");//,
+                    //                            pathwayId, orgCode);
+
+
+                    cmd.CommandText = selectionText;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.GetInt32(0) == 1 && pathway.KeggId.Contains(reader.GetString(1)) && reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                                KoIds.Add(reader.GetString(3));
+                        }
+                    }
+                }
+            }
+
+            return KoIds;
+        }
     }
 }
