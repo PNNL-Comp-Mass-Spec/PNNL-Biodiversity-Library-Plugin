@@ -173,7 +173,17 @@
                 <TabControl.ContentTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
 						<Grid>
-							<ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="15" />
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="15" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"  HorizontalScrollBarVisibility="Auto">
 									<Grid>
 										<Grid.RowDefinitions>
 											<RowDefinition Height="Auto"/>
@@ -193,7 +203,9 @@
                                 <TextBlock Text="{Binding KeggId}"></TextBlock>
                             </StackPanel>
                             -->
-                        </Grid>
+                                <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
+                                <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
+                            </Grid>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>

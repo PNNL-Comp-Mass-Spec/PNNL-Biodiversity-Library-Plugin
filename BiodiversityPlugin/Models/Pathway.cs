@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Xml.Serialization;
 using Brushes = System.Windows.Media.Brushes;
+using GalaSoft.MvvmLight.CommandWpf;
 
 namespace BiodiversityPlugin.Models 
 {
@@ -69,7 +71,51 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public string KeggId { get; set; }
 
+        public void SelectAll()
+        {
+            foreach (var child in PathwayCanvas.Children)
+            {
+                Select(child);
+            }
+        }
 
+        public void DeselectAll()
+        {
+            foreach (var child in PathwayCanvas.Children)
+            {
+                Deselect(child);
+            }
+        }
+
+        private void Deselect(object child)
+        {
+            var rect = child as System.Windows.Shapes.Rectangle;
+            rect.Fill = new SolidColorBrush(Colors.Gray);
+
+            var koName = rect.Tag as string;
+
+            var kos = koName.Split(',');
+            foreach (var ko in kos)
+            {
+                var trimmedko = ko.Trim();
+                SelectedKo.Remove(trimmedko);
+            }
+        }
+
+        private void Select(object child)
+        {
+            var rect = child as System.Windows.Shapes.Rectangle;
+            rect.Fill = new SolidColorBrush(Colors.Red);
+
+            var koName = rect.Tag as string;
+
+            var kos = koName.Split(',');
+            foreach (var ko in kos)
+            {
+                var trimmedko = ko.Trim();
+                SelectedKo.Add(trimmedko);
+            }
+        }
 
         public void AddRectangle(string koName, int xCoord, int yCoord)
         {
@@ -134,6 +180,12 @@ namespace BiodiversityPlugin.Models
             m_selected = false;
 			PathwayCanvas = new Canvas();
             SelectedKo = new List<string>();
+            SelectAllCommand = new RelayCommand(SelectAll);
+            DeselectAllCommand = new RelayCommand(DeselectAll);
         }
+
+        public RelayCommand SelectAllCommand { get; set; }
+
+        public RelayCommand DeselectAllCommand { get; set; }
     }
 }
