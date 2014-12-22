@@ -9,9 +9,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -364,22 +366,22 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
 
-                if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" ||
-                    SelectedPathway.KeggId == "00195")
-                {
-                    var thing =
-                        File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
-                    var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
-                    var imageSource =
-                        new BitmapImage(
-                            new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId),
-                                UriKind.Relative));
-                    PathwayImage =
-                        new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId),
-                            UriKind.Absolute);
-                        //string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
-                    PathwayVisibility = Visibility.Visible;
-                }
+				//if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" ||
+				//	SelectedPathway.KeggId == "00195")
+				//{
+				//	var thing =
+				//		File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
+				//	var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
+				//	var imageSource =
+				//		new BitmapImage(
+				//			new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId),
+				//				UriKind.Relative));
+				//	PathwayImage =
+				//		new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId),
+				//			UriKind.Absolute);
+				//		//string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
+				//	PathwayVisibility = Visibility.Visible;
+				//}
             }
 
         }

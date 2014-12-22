@@ -174,7 +174,18 @@
                     <DataTemplate DataType="{x:Type models:Pathway}">
 						<Grid>
 							<ScrollViewer VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-								<Image Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									<Grid>
+										<Grid.RowDefinitions>
+											<RowDefinition Height="Auto"/>
+										</Grid.RowDefinitions>
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="Auto"/>
+										</Grid.ColumnDefinitions>
+										<Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+										<Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvasX">
+											<ContentPresenter Content="{Binding PathwayCanvas, UpdateSourceTrigger=PropertyChanged}"/>
+										</Canvas>
+									</Grid>
 							</ScrollViewer>
 							<!--
                             <StackPanel Margin="10" Orientation="Horizontal">

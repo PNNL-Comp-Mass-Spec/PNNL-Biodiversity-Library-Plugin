@@ -1,4 +1,6 @@
-﻿using GalaSoft.MvvmLight;
+﻿using System.Windows.Controls;
+using System.Windows.Media;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +17,7 @@ namespace BiodiversityPlugin.Models
     {
         private bool m_selected;
         private Uri _imageString;
+	    private Canvas _pathwayCanvas;
 
         /// <summary>
         /// Whether the pathway is selected by the user or not.
@@ -40,6 +43,16 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+		public Canvas PathwayCanvas
+		{
+			get { return _pathwayCanvas; }
+			private set
+			{
+				_pathwayCanvas = value;
+				RaisePropertyChanged();
+			}
+		}
+
         /// <summary>
         /// KEGG Pathway name
         /// </summary>
@@ -60,6 +73,9 @@ namespace BiodiversityPlugin.Models
             Name = name;
             KeggId = keggId;
             m_selected = false;
+			PathwayCanvas = new Canvas();
+	        PathwayCanvas.ToolTip = "TESTING";
+			PathwayCanvas.Background = Brushes.Black;
         }
     }
 }
