@@ -267,7 +267,7 @@ namespace BiodiversityPlugin
                 {
                     foreach (var pathway in pathways)
                     {
-                        var Kos = pathway.SelectedKo.Aggregate((working, next) => '\"'+working + "\", " + '\"' + next + '\"');
+                        var Kos = pathway.SelectedKo.Aggregate((working, next) => working + "\", " + '"' + next);
                             var
                         selectionText =
                             string.Format(
@@ -298,12 +298,6 @@ namespace BiodiversityPlugin
                                             reader.GetString(0)));
                             }
                         }
-                        stopwatch.Stop();
-
-                        var ts = stopwatch.ElapsedTicks;
-                        Console.WriteLine(string.Format("Pulling refSeq took {0} ticks", ts));
-                        stopwatch.Reset();
-                        stopwatch.Start();
                         selectionText =
                             string.Format(" Select * " +
                                           " From ncbi_protein " +
@@ -320,9 +314,6 @@ namespace BiodiversityPlugin
                                 uniprotAccessions[reader.GetString(3)].Name = reader.GetString(4);
                             }
                         }
-                        stopwatch.Stop();
-                        ts = stopwatch.ElapsedTicks;
-                        Console.WriteLine(string.Format("Pulling protData took {0} ticks", ts));
                     }
                 }
             }

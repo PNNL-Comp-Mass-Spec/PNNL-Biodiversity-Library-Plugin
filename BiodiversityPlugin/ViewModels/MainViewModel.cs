@@ -1,19 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -51,21 +42,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        //public ImageBrush PathwayImage
-        //{
-        //    get { return _image; }
-        //    private set
-        //    {
-        //        _image = value;
-        //        PathwayVisibility = Visibility.Hidden;
-        //        if (_image.ImageSource != null)
-        //        {
-        //            PathwayVisibility = Visibility.Visible;
-        //        }
-        //        RaisePropertyChanged();
-        //    }
-        //}
-
         public Uri PathwayImage
         {
             get { return _imageString; }
@@ -95,9 +71,6 @@ namespace BiodiversityPlugin.ViewModels
         {
             get
             {
-
-                NumProteinsText = string.Format("Proteins ({0})", m_filteredProteins.Count);
-                VisibleProteins = m_filteredProteins.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                 return m_filteredProteins;
             }
             private set
@@ -348,24 +321,24 @@ namespace BiodiversityPlugin.ViewModels
 
             if (SelectedTabIndex == 3)
             {
-                string[] queryingStrings =
-                {
-                    "Querying Database\nPlease Wait",
-                    "Querying Database.\nPlease Wait",
-                    "Querying Database..\nPlease Wait",
-                    "Querying Database...\nPlease Wait"
-                };
+                //string[] queryingStrings =
+                //{
+                //    "Querying Database\nPlease Wait",
+                //    "Querying Database.\nPlease Wait",
+                //    "Querying Database..\nPlease Wait",
+                //    "Querying Database...\nPlease Wait"
+                //};
 
-                Task.Factory.StartNew(() =>
-                {
-                    int index = 0;
-                    while (IsQuerying)
-                    {
-                        Thread.Sleep(750);
-                        QueryString = queryingStrings[index%4];
-                        index++;
-                    }
-                });
+                //Task.Factory.StartNew(() =>
+                //{
+                //    int index = 0;
+                //    while (IsQuerying)
+                //    {
+                //        Thread.Sleep(750);
+                //        QueryString = queryingStrings[index%4];
+                //        index++;
+                //    }
+                //});
                 var accessions = new List<ProteinInformation>();
                     if (SelectedPathway != null && SelectedOrganism != null)
                     {
@@ -388,7 +361,6 @@ namespace BiodiversityPlugin.ViewModels
                     }
                     IsQuerying = false;
                 
-
                 if (FilteredProteins == null)
                     FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
                 else
@@ -399,6 +371,8 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             _protNames.Add(acc.Accession);
                             FilteredProteins.Add(acc);
+                            NumProteinsText = string.Format("Proteins ({0})", FilteredProteins.Count);
+                            VisibleProteins = FilteredProteins.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                         }
                     }
                 }
