@@ -369,7 +369,6 @@ namespace BiodiversityPlugin.ViewModels
                 var accessions = new List<ProteinInformation>();
                     if (SelectedPathway != null && SelectedOrganism != null)
                     {
-                        //var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
                         var temp = dataAccess.ExportAccessions(selectedPaths, SelectedOrganism);
                         accessions.AddRange(dataAccess.ExportAccessions(selectedPaths, SelectedOrganism));
 
@@ -403,25 +402,7 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                 }
-
-				//if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" ||
-				//	SelectedPathway.KeggId == "00195")
-				//{
-				//	var thing =
-				//		File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
-				//	var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
-				//	var imageSource =
-				//		new BitmapImage(
-				//			new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId),
-				//				UriKind.Relative));
-				//	PathwayImage =
-				//		new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId),
-				//			UriKind.Absolute);
-				//		//string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
-				//	PathwayVisibility = Visibility.Visible;
-				//}
             }
-
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
