@@ -91,12 +91,16 @@ namespace BiodiversityPlugin.ViewModels
 
         public ObservableCollection<ProteinInformation> FilteredProteins
         {
-            get { return m_filteredProteins; }
+            get
+            {
+
+                NumProteinsText = string.Format("Proteins ({0})", m_filteredProteins.Count);
+                VisibleProteins = m_filteredProteins.Count > 0 ? Visibility.Visible : Visibility.Hidden;
+                return m_filteredProteins;
+            }
             private set
             {
                 m_filteredProteins = value;
-                NumProteinsText = string.Format("Proteins ({0})", value.Count);
-                VisibleProteins = value.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                 RaisePropertyChanged();
             }
         }
@@ -250,8 +254,10 @@ namespace BiodiversityPlugin.ViewModels
 
         private void NextTab()
         {
+            // Do nothing if no selected organism
             if (SelectedTabIndex == 0 && SelectedOrganism == null) return;
-            if (SelectedTabIndex == 1 && SelectedPathway == null) return;
+            // Do nothing if no selected pathway
+            if (SelectedTabIndex == 1 && !IsPathwaySelected) return;
             SelectedTabIndex++;
         }
 
@@ -298,62 +304,84 @@ namespace BiodiversityPlugin.ViewModels
             SelectedPathways = new ObservableCollection<Pathway>(selectedPaths);
             SelectedPathway = selectedPaths.First();
 
-            string[] queryingStrings =
-			    {
-				    "Querying Database\nPlease Wait",
-				    "Querying Database.\nPlease Wait",
-				    "Querying Database..\nPlease Wait",
-				    "Querying Database...\nPlease Wait"
-			    };
-
-            Task.Factory.StartNew(() =>
+            if (SelectedTabIndex == 3)
             {
-                int index = 0;
-                while (IsQuerying)
+                string[] queryingStrings =
                 {
-                    Thread.Sleep(750);
-                    QueryString = queryingStrings[index % 4];
-                    index++;
-                }
-            });
-            Task.Factory.StartNew(() =>
-            {
-                if (SelectedPathway != null && SelectedOrganism != null)
-                {
+                    "Querying Database\nPlease Wait",
+                    "Querying Database.\nPlease Wait",
+                    "Querying Database..\nPlease Wait",
+                    "Querying Database...\nPlease Wait"
+                };
 
-                    var dataAccess = new DatabaseDataLoader(_dbPath);
-                    //var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
-                    var accessions = dataAccess.ExportAccessions(selectedPaths, SelectedOrganism);
-                    
-                    foreach (var accession in accessions)
+                Task.Factory.StartNew(() =>
+                {
+                    int index = 0;
+                    while (IsQuerying)
                     {
-                        string proteinName;
-                        if (_proteins.TryGetValue(accession.Accession, out proteinName))
-                        {
-                            accession.Name = proteinName;
-                        }
+                        Thread.Sleep(750);
+                        QueryString = queryingStrings[index%4];
+                        index++;
                     }
+                });
+                var accessions = new List<ProteinInformation>();
+                    if (SelectedPathway != null && SelectedOrganism != null)
+                    {
+
+                        var dataAccess = new DatabaseDataLoader(_dbPath);
+                        //var accessions = dataAccess.ExportAccessions(SelectedPathway, SelectedOrganism);
+                        var temp = dataAccess.ExportAccessions(selectedPaths, SelectedOrganism);
+                        accessions.AddRange(dataAccess.ExportAccessions(selectedPaths, SelectedOrganism));
+
+                        foreach (var accession in accessions)
+                        {
+                            string proteinName;
+                            if (_proteins.TryGetValue(accession.Accession, out proteinName))
+                            {
+                                accession.Name = proteinName;
+                            }
+                        }
+                        IsPathwaySelected = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please select an organism and pathway.");
+                    }
+                    IsQuerying = false;
+                
+
+                if (FilteredProteins == null)
                     FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
-                    IsPathwaySelected = true;
-                }
                 else
                 {
-                    MessageBox.Show("Please select an organism and pathway.");
+                    foreach (var acc in accessions)
+                    {
+                        if (!_protNames.Contains(acc.Accession))
+                        {
+                            _protNames.Add(acc.Accession);
+                            FilteredProteins.Add(acc);
+                        }
+                    }
                 }
-                IsQuerying = false;
-            });
-            
-            if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" || SelectedPathway.KeggId == "00195")
-            {
-                var thing = File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
-                var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
-                var imageSource =
+
+                if (SelectedPathway.KeggId == "00010" || SelectedPathway.KeggId == "00020" ||
+                    SelectedPathway.KeggId == "00195")
+                {
+                    var thing =
+                        File.Exists(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId));
+                    var dirThing = Directory.Exists("..\\..\\..\\resources\\images");
+                    var imageSource =
                         new BitmapImage(
-                            new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId), UriKind.Relative));
-                PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId), UriKind.Absolute);//string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
-                PathwayVisibility = Visibility.Visible;
+                            new Uri(string.Format("..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId),
+                                UriKind.Relative));
+                    PathwayImage =
+                        new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, SelectedPathway.KeggId),
+                            UriKind.Absolute);
+                        //string.Format("/BiodiversityPlugin;component\\..\\..\\..\\resources\\images\\map{0}.png", SelectedPathway.KeggId);
+                    PathwayVisibility = Visibility.Visible;
+                }
             }
-            
+
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
@@ -392,7 +420,10 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility _visiblePathway;
         private int _pathwaysSelected;
         private Uri _imageString;
-        private ObservableCollection<Pathway> _selectedPathways; 
+        private ObservableCollection<Pathway> _selectedPathways;
+
+
+        private List<string> _protNames = new List<string>();
 
         public bool IsQuerying
         {
