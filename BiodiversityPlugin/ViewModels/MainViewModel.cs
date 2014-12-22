@@ -307,7 +307,7 @@ namespace BiodiversityPlugin.ViewModels
                             var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                             foreach (var ko in koWithData)
                             {
-                                pathway.AddRectangle(koToCoordDict[ko].Item1, koToCoordDict[ko].Item2);
+                                pathway.AddRectangle(ko, koToCoordDict[ko].Item1, koToCoordDict[ko].Item2);
                             }
                             pathway.PathwayImage = new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId), UriKind.Absolute);
                             selectedPaths.Add(pathway);

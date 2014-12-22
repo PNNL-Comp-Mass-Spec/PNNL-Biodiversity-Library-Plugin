@@ -1,12 +1,7 @@
 ﻿using System.Windows.Controls;
 using GalaSoft.MvvmLight;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Brushes = System.Windows.Media.Brushes;
@@ -66,19 +61,30 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public string KeggId { get; set; }
 
-        public void AddRectangle(int xCoord, int yCoord)
+
+
+        public void AddRectangle(string koName, int xCoord, int yCoord)
         {
 
             var rect = new System.Windows.Shapes.Rectangle
             {
+                Tag = koName,
                 Width = 47,
                 Height = 17,
-                Fill = new SolidColorBrush(Colors.Red),
+                Fill = new SolidColorBrush(Colors.Gray),
                 Opacity = .50
             };
+            rect.MouseDown += rect_MouseDown;
             PathwayCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
+        }
+
+        void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var parent = sender as System.Windows.Shapes.Rectangle;
+            parent.Fill = new SolidColorBrush(Colors.Red);
+            var koName = parent.Tag;
         }
 
         /// <summary>
