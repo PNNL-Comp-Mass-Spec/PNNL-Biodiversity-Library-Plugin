@@ -153,6 +153,8 @@ namespace BiodiversityPlugin.ViewModels
 
         public RelayCommand SelectAdditionalOrganismCommand { get; private set; }
 
+        public RelayCommand OrganismReviewCommand { get; private set; }
+
         private readonly string _dbPath;
 
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, string proteinsPath)
@@ -169,6 +171,7 @@ namespace BiodiversityPlugin.ViewModels
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
+            OrganismReviewCommand = new RelayCommand(OrganismReview);
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
@@ -246,6 +249,33 @@ namespace BiodiversityPlugin.ViewModels
             SelectedTabIndex++;
         }
 
+        private void OrganismReview()
+        {
+            SelectedTabIndex++;
+            var org = SelectedOrganism;
+            var orgPathList = new List<Tuple<Organism, Pathway>>();
+            if (m_organismPathwayHistory != null)
+            {
+                orgPathList = m_organismPathwayHistory.ToList();
+            }
+
+            foreach (var pathway in SelectedPathways)
+            {
+                orgPathList.Add(new Tuple<Organism, Pathway>(org, pathway));
+            }
+            OrganismPathwayHistory = new ObservableCollection<Tuple<Organism, Pathway>>(orgPathList);
+        }
+
+        public ObservableCollection<Tuple<Organism, Pathway>> OrganismPathwayHistory
+        {
+            get { return m_organismPathwayHistory;}
+            private set
+            {
+                m_organismPathwayHistory = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private void DisplayPathwayImages()
         {
             IsQuerying = true;
@@ -268,65 +298,64 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
+                            pathway.PathwayImage =
+                                new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId),
+                                    UriKind.Absolute);
+                            pathway.ClearRectangles();
+                            var koToCoordDict = new Dictionary<string, Tuple<int, int>>();
+                            using (
+                                var reader =
+                                    new StreamReader(
+                                        string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
+                                            absPath,
+                                            pathway.KeggId))))
                             {
-                                pathway.ClearRectangles();
-                                var koToCoordDict = new Dictionary<string, Tuple<int, int>>();
-                                using (
-                                    var reader =
-                                        new StreamReader(
-                                            string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
-                                                absPath,
-                                                pathway.KeggId))))
+                                var line = reader.ReadLine();
+                                line = reader.ReadLine();
+                                while (!string.IsNullOrEmpty(line))
                                 {
-                                    var line = reader.ReadLine();
+                                    var linepieces = line.Split('\t');
+                                    var coord = linepieces[2];
+                                    var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
+                                    if (!koToCoordDict.ContainsKey(linepieces[1]))
+                                        koToCoordDict.Add(linepieces[1],
+                                            new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
+                                                Convert.ToInt32(coordPieces[1])));
                                     line = reader.ReadLine();
-                                    while (!string.IsNullOrEmpty(line))
-                                    {
-                                        var linepieces = line.Split('\t');
-                                        var coord = linepieces[2];
-                                        var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
-                                        if (!koToCoordDict.ContainsKey(linepieces[1]))
-                                            koToCoordDict.Add(linepieces[1],
-                                                new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
-                                                    Convert.ToInt32(coordPieces[1])));
-                                        line = reader.ReadLine();
-                                    }
                                 }
-                                var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
-                                var coordToName = new Dictionary<Tuple<int, int>, List<string>>();
-                                foreach (var ko in koWithData)
-                                {
-                                    if (!coordToName.ContainsKey(koToCoordDict[ko]))
-                                    {
-                                        coordToName[koToCoordDict[ko]] = new List<string>();
-                                    }
-                                    coordToName[koToCoordDict[ko]].Add(ko);
-                                }
-                                foreach (var coord in coordToName)
-                                {
-                                    pathway.AddRectangle(
-                                        coord.Value.Aggregate((working, next) => working + ", " + next), coord.Key.Item1,
-                                        coord.Key.Item2);
-                                }
-                                pathway.PathwayImage =
-                                    new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId),
-                                        UriKind.Absolute);
                             }
-                            selectedPaths.Add(pathway);
-                        }
-                        if (selectedPaths.Count == 1)
-                        {
-                            SelectedPathwayText = string.Format("Pathway: {0}", pathway.Name);
-                        }
-                        else if (selectedPaths.Count % 4 == 0)
-                        {
-                            SelectedPathwayText += string.Format("\n\t{0}", pathway.Name);
-                        }
-                        else
-                        {
-                            SelectedPathwayText += string.Format(", {0}", pathway.Name);
-                        }
+                            var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                            var coordToName = new Dictionary<Tuple<int, int>, List<string>>();
+                            foreach (var ko in koWithData)
+                            {
+                                if (!coordToName.ContainsKey(koToCoordDict[ko]))
+                                {
+                                    coordToName[koToCoordDict[ko]] = new List<string>();
+                                }
+                                coordToName[koToCoordDict[ko]].Add(ko);
+                            }
+                            foreach (var coord in coordToName)
+                            {
+                                pathway.AddRectangle(
+                                    coord.Value.Aggregate((working, next) => working + ", " + next), coord.Key.Item1,
+                                    coord.Key.Item2);
+                            }
 
+                            selectedPaths.Add(pathway);
+
+                            if (selectedPaths.Count == 1)
+                            {
+                                SelectedPathwayText = string.Format("Pathway: {0}", pathway.Name);
+                            }
+                            else if (selectedPaths.Count%4 == 0)
+                            {
+                                SelectedPathwayText += string.Format("\n\t{0}", pathway.Name);
+                            }
+                            else
+                            {
+                                SelectedPathwayText += string.Format(", {0}", pathway.Name);
+                            }
+                        }
                     }
                 }
             }
@@ -418,8 +447,22 @@ namespace BiodiversityPlugin.ViewModels
             }
             SelectedTabIndex = 0;
             SelectedOrganism = null;
-            SelectedPathways.Clear();
             FilteredProteins.Clear();
+
+            foreach (var pathwayCatagory in Pathways)
+            {
+                foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
+                {
+                    foreach (var pathway in pathwayGroup.Pathways)
+                    {
+                        if (pathway.PathwayImage != null)
+                        {
+                            pathway.PathwayCanvas.Children.Clear();
+                            pathway.PathwayImage = null;
+                        }
+                    }
+                }
+            }
         }
 
         private void ExportToSkyline()
@@ -476,6 +519,7 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<Pathway> _selectedPathways;
         private List<ProteinInformation> m_proteinsToExport;
         private List<string> _protNames = new List<string>();
+        private ObservableCollection<Tuple<Organism, Pathway>> m_organismPathwayHistory;
 
         public List<ProteinInformation> ProteinsToExport
         {

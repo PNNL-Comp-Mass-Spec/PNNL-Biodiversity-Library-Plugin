@@ -155,7 +155,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <TabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
+                <TabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="0" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
                 
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
@@ -184,8 +184,8 @@
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
-										<Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-										<Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvasX">
+										<Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+										<Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvasX" Visibility="Visible">
 											<ContentPresenter Content="{Binding PathwayCanvas, UpdateSourceTrigger=PropertyChanged}"/>
 										</Canvas>
 									</Grid>
@@ -206,9 +206,14 @@
             </Grid>
         </TabItem>
         
-        <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="20" 
+        <TabItem Width="200" Height="150" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="False">
+            <TabItem.Header>
+                <TextBlock TextAlignment="Center">
+                    Review Selected <LineBreak /> Proteins
+                </TextBlock>
+            </TabItem.Header>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30" />
@@ -227,7 +232,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                  
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Data for Export</TextBlock>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Selected Proteins</TextBlock>
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
@@ -251,13 +256,52 @@
                     </StackPanel>
                 </Button>
                 <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding OrganismReviewCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="20" VerticalAlignment="Center">Export</TextBlock>
                     </StackPanel>
                 </Button>
             </Grid>
+        </TabItem>
+
+        <TabItem Header="Export To Skyline" Width="200" Height="150" FontSize="20" 
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 IsEnabled="False">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="18*" />
+                    <RowDefinition Height="15" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <DataGrid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding OrganismPathwayHistory}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Organism" Width="110" Binding="{Binding Item1.Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Pathway" Width="70*" Binding="{Binding Item2.Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="16" Command="{Binding PreviousTabCommand}">&lt; Back to Review</Button>
+            <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="16" Command="{Binding ExportToSkylineCommand}" >
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
+                    <TextBlock FontSize="16" VerticalAlignment="Center">Export</TextBlock>
+                </StackPanel>
+            </Button>
+                </Grid>
         </TabItem>
     </TabControl>
 </Window>
