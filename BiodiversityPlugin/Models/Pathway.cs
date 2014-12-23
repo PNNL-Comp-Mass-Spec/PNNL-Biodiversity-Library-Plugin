@@ -87,6 +87,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        public void ClearRectangles()
+        {
+            PathwayCanvas.Children.Clear();
+        }
+
         private void Deselect(object child)
         {
             var rect = child as System.Windows.Shapes.Rectangle;

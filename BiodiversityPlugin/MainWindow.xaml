@@ -129,9 +129,8 @@
                         <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
                     </biodiversityPlugin:MvvmTreeView.InputBindings>
                 </biodiversityPlugin:MvvmTreeView>
-                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <!-- <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding NextTabCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button> -->
-                <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button>
+                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt;Previous</Button>
+                <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button>
         </Grid>
         </TabItem>
 
@@ -157,12 +156,6 @@
                 </Grid.ColumnDefinitions>
 
                 <TabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
-                <!--
-                <Canvas>
-                    <Image Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Stretch="None">
-                    </Image>
-                </Canvas>
-                -->
                 
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
@@ -197,25 +190,21 @@
 										</Canvas>
 									</Grid>
 							</ScrollViewer>
-							<!--
-                            <StackPanel Margin="10" Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}"></TextBlock>
-                                <TextBlock Text="{Binding KeggId}"></TextBlock>
-                            </StackPanel>
-                            -->
                                 <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
                                 <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
                             </Grid>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-                <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}">Next &gt;</Button>
-                <!-- <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding ExportToSkylineCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button> -->
+                <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="20" VerticalAlignment="Center">&lt;</TextBlock>
+                        <TextBlock FontSize="17" VerticalAlignment="Center">Select Pathways</TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
             </Grid>
-
         </TabItem>
-        
         
         <TabItem Header="Export to Skyline"  Width="200" Height="150" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
@@ -235,18 +224,19 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                  
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Data for Export</TextBlock>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Data for Export</TextBlock>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
                     No proteins found for this<LineBreak/>
                     Organism/Pathway combination
                 </TextBlock>
-                <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" Background="White" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" Visibility="{Binding VisibleProteins}" />
-                <DataGrid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
+                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Background="White" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" Visibility="{Binding VisibleProteins}" />
+                <DataGrid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="110" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
@@ -254,8 +244,14 @@
                         </DataGrid.Columns>
                 </DataGrid>
 
-                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="12" Command="{Binding SelectAdditionalOrganismCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
+                        <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="20" VerticalAlignment="Center">Export</TextBlock>
@@ -263,6 +259,5 @@
                 </Button>
             </Grid>
         </TabItem>
- 
     </TabControl>
 </Window>
