@@ -135,6 +135,12 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand NextTabCommand { get; private set; }
         public RelayCommand PreviousTabCommand { get; private set; }
 
+        public int PathwayTabIndex
+        {
+            get { return m_pathwayTabIndex; }
+            set { m_pathwayTabIndex = value; RaisePropertyChanged(); }
+        }
+
         public int SelectedTabIndex
         {
             get { return _selectedTabIndex; }
@@ -362,6 +368,7 @@ namespace BiodiversityPlugin.ViewModels
 
             SelectedPathways = new ObservableCollection<Pathway>(selectedPaths);
             SelectedPathway = selectedPaths.First();
+            PathwayTabIndex = 0;
 
         }
 
@@ -520,6 +527,7 @@ namespace BiodiversityPlugin.ViewModels
         private List<ProteinInformation> m_proteinsToExport;
         private List<string> _protNames = new List<string>();
         private ObservableCollection<Tuple<Organism, Pathway>> m_organismPathwayHistory;
+        private int m_pathwayTabIndex;
 
         public List<ProteinInformation> ProteinsToExport
         {
