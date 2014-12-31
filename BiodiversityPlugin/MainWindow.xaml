@@ -129,7 +129,7 @@
                         <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
                     </biodiversityPlugin:MvvmTreeView.InputBindings>
                 </biodiversityPlugin:MvvmTreeView>
-                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt;Previous</Button>
+                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                 <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button>
         </Grid>
         </TabItem>
@@ -146,6 +146,7 @@
             </TabItem.Header>
             <Grid>
                 <Grid.RowDefinitions>
+					<RowDefinition Height="30"/>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="40" />
@@ -154,8 +155,8 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
-                <TabControl Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
+				<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20" Text="{Binding Path=SelectedOrganismText}"/>
+                <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
                 
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
@@ -176,7 +177,7 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"  HorizontalScrollBarVisibility="Auto">
+                                <ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
 									<Grid>
 										<Grid.RowDefinitions>
 											<RowDefinition Height="Auto"/>
@@ -190,19 +191,18 @@
 										</Canvas>
 									</Grid>
 							</ScrollViewer>
-                                <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
-                                <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
+                                <Button Grid.Row="2" Grid.Column="0" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
+                                <Button Grid.Row="2" Grid.Column="1" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
                             </Grid>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-                <Button Grid.Row="2" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
+                <Button Grid.Row="3" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="20" VerticalAlignment="Center">&lt;</TextBlock>
-                        <TextBlock FontSize="17" VerticalAlignment="Center">Select Pathways</TextBlock>
-                    </StackPanel>
+						<TextBlock FontSize="20" VerticalAlignment="Center">&lt; Previous</TextBlock>
+					</StackPanel>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
+                <Button Grid.Row="3" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
             </Grid>
         </TabItem>
         
