@@ -334,11 +334,14 @@ namespace BiodiversityPlugin.ViewModels
                             var coordToName = new Dictionary<Tuple<int, int>, List<string>>();
                             foreach (var ko in koWithData)
                             {
-                                if (!coordToName.ContainsKey(koToCoordDict[ko]))
-                                {
-                                    coordToName[koToCoordDict[ko]] = new List<string>();
-                                }
-                                coordToName[koToCoordDict[ko]].Add(ko);
+                                if (koToCoordDict.ContainsKey(ko))
+                                    if (!coordToName.ContainsKey(koToCoordDict[ko]))
+                                    {
+                                        {
+                                            coordToName[koToCoordDict[ko]] = new List<string>();
+                                        }
+                                        coordToName[koToCoordDict[ko]].Add(ko);
+                                    }
                             }
                             foreach (var coord in coordToName)
                             {
