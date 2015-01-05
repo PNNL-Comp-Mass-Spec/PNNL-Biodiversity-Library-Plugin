@@ -160,7 +160,7 @@
                 
                 <TabControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Pathway}">
-                        <TextBlock Text="{Binding Name}"></TextBlock>
+                        <TextBlock Text="{Binding Name}" FontSize="14"></TextBlock>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
         
