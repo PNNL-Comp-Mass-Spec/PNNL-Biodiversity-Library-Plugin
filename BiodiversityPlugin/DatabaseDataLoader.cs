@@ -206,7 +206,7 @@ namespace BiodiversityPlugin
             return catList;
         }
 
-        internal List<string> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
+        internal List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
         {
             if (pathway == null || SelectedOrganism == null)
             {
@@ -214,6 +214,7 @@ namespace BiodiversityPlugin
             }
             var orgCode = SelectedOrganism.OrgCode;
             var KoIds = new List<string>();
+            var koInformation = new List<KeggKoInformation>();
             //            var uniprotAccessions = new List<ProteinInformation>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
@@ -224,9 +225,11 @@ namespace BiodiversityPlugin
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
                     var selectionText =
-                            string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id " +
-                                      " FROM kegg_gene_ko_map, observed_kegg_gene " +
-                                      " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id ");//,
+                            string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id, " +
+                                      " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
+                                      " FROM kegg_gene_ko_map, observed_kegg_gene, kegg_ko " +
+                                      " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id " + 
+                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");//,
                     //                            pathwayId, orgCode);
 
 
@@ -235,14 +238,21 @@ namespace BiodiversityPlugin
                     {
                         while (reader.Read())
                         {
-                            if (reader.GetInt32(0) == 1 && pathway.KeggId.Contains(reader.GetString(1)) && reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                            if (reader.GetInt32(0) == 1 && pathway.KeggId.Contains(reader.GetString(1)) &&
+                                reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                            {
                                 KoIds.Add(reader.GetString(3));
+                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "");
+                                koToAdd.KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "";
+                                koToAdd.KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : "";
+                                koInformation.Add(koToAdd);
+                            }
                         }
                     }
                 }
             }
 
-            return KoIds;
+            return koInformation;
         }
 
 

@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml.Serialization;
@@ -115,13 +116,27 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        public void AddRectangle(string koName, int xCoord, int yCoord)
+        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord)
         {
+            //coord.Value.Aggregate((working, next) => working + ", " + next)
+            var koIds = koInformation.First().KeggKoId;// koInformation.Aggregate((working, next) => working.KeggKoId + ", " + next.KeggKoId);
+            var keggGeneNames = koInformation.First().KeggGeneName;// koInformation
+            var keggEcs = koInformation.First().KeggEc;
 
+            foreach(var ko in koInformation)
+                if (ko != koInformation.First())
+                {
+                    koIds += ", " + ko.KeggKoId;
+                    keggGeneNames += ", " + ko.KeggGeneName;
+                    keggEcs += ", " + ko.KeggEc;
+                }
+
+            var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
+                keggGeneNames, keggEcs);
             var rect = new System.Windows.Shapes.Rectangle
             {
-                Tag = koName,
-                ToolTip = koName,
+                Tag = koIds,
+                ToolTip = tooltip,
                 Width = 47,
                 Height = 17,
                 Fill = new SolidColorBrush(Colors.Red),
@@ -131,7 +146,7 @@ namespace BiodiversityPlugin.Models
             PathwayCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
-            var kos = koName.Split(',');
+            var kos = koIds.Split(',');
             foreach (var ko in kos)
             {
                 var trimmedko = ko.Trim();

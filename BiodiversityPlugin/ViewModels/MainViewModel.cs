@@ -331,22 +331,26 @@ namespace BiodiversityPlugin.ViewModels
                                 }
                             }
                             var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
-                            var coordToName = new Dictionary<Tuple<int, int>, List<string>>();
+                            var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                             foreach (var ko in koWithData)
                             {
-                                if (koToCoordDict.ContainsKey(ko))
-                                    if (!coordToName.ContainsKey(koToCoordDict[ko]))
+                                if (koToCoordDict.ContainsKey(ko.KeggKoId))
+                                    if (!coordToName.ContainsKey(koToCoordDict[ko.KeggKoId]))
                                     {
                                         {
-                                            coordToName[koToCoordDict[ko]] = new List<string>();
+                                            coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
                                         }
-                                        coordToName[koToCoordDict[ko]].Add(ko);
+                                        coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
                                     }
                             }
                             foreach (var coord in coordToName)
                             {
+                                if (coord.Value.Count > 1)
+                                {
+                                    Console.WriteLine("hey, multiko");
+                                }
                                 pathway.AddRectangle(
-                                    coord.Value.Aggregate((working, next) => working + ", " + next), coord.Key.Item1,
+                                    coord.Value, coord.Key.Item1,
                                     coord.Key.Item2);
                             }
 
