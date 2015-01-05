@@ -335,19 +335,20 @@ namespace BiodiversityPlugin.ViewModels
                             foreach (var ko in koWithData)
                             {
                                 if (koToCoordDict.ContainsKey(ko.KeggKoId))
+                                {
                                     if (!coordToName.ContainsKey(koToCoordDict[ko.KeggKoId]))
                                     {
-                                        {
-                                            coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
-                                        }
-                                        coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
+
+                                        coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
                                     }
+                                    coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
+                                }
                             }
                             foreach (var coord in coordToName)
                             {
                                 if (coord.Value.Count > 1)
                                 {
-                                    Console.WriteLine("hey, multiko");
+                                    Console.WriteLine(string.Format("hey, multiko at{0} {1}", coord.Key.Item1, coord.Key.Item2));
                                 }
                                 pathway.AddRectangle(
                                     coord.Value, coord.Key.Item1,
