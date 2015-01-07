@@ -308,53 +308,58 @@ namespace BiodiversityPlugin.ViewModels
                                 new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId),
                                     UriKind.Absolute);
                             pathway.ClearRectangles();
-                            var koToCoordDict = new Dictionary<string, Tuple<int, int>>();
-                            using (
-                                var reader =
-                                    new StreamReader(
-                                        string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
-                                            absPath,
-                                            pathway.KeggId))))
+                            if (File.Exists(string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
+                                absPath,
+                                pathway.KeggId))))
                             {
-                                var line = reader.ReadLine();
-                                line = reader.ReadLine();
-                                while (!string.IsNullOrEmpty(line))
+                                var koToCoordDict = new Dictionary<string, Tuple<int, int>>();
+                                using (
+                                    var reader =
+                                        new StreamReader(
+                                            string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
+                                                absPath,
+                                                pathway.KeggId))))
                                 {
-                                    var linepieces = line.Split('\t');
-                                    var coord = linepieces[2];
-                                    var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
-                                    if (!koToCoordDict.ContainsKey(linepieces[1]))
-                                        koToCoordDict.Add(linepieces[1],
-                                            new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
-                                                Convert.ToInt32(coordPieces[1])));
+                                    var line = reader.ReadLine();
                                     line = reader.ReadLine();
-                                }
-                            }
-                            var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
-                            var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
-                            foreach (var ko in koWithData)
-                            {
-                                if (koToCoordDict.ContainsKey(ko.KeggKoId))
-                                {
-                                    if (!coordToName.ContainsKey(koToCoordDict[ko.KeggKoId]))
+                                    while (!string.IsNullOrEmpty(line))
                                     {
-
-                                        coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
+                                        var linepieces = line.Split('\t');
+                                        var coord = linepieces[2];
+                                        var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
+                                        if (!koToCoordDict.ContainsKey(linepieces[1]))
+                                            koToCoordDict.Add(linepieces[1],
+                                                new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
+                                                    Convert.ToInt32(coordPieces[1])));
+                                        line = reader.ReadLine();
                                     }
-                                    coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
                                 }
-                            }
-                            foreach (var coord in coordToName)
-                            {
-                                if (coord.Value.Count > 1)
+                                var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                                var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
+                                foreach (var ko in koWithData)
                                 {
-                                    Console.WriteLine(string.Format("hey, multiko at{0} {1}", coord.Key.Item1, coord.Key.Item2));
-                                }
-                                pathway.AddRectangle(
-                                    coord.Value, coord.Key.Item1,
-                                    coord.Key.Item2);
-                            }
+                                    if (koToCoordDict.ContainsKey(ko.KeggKoId))
+                                    {
+                                        if (!coordToName.ContainsKey(koToCoordDict[ko.KeggKoId]))
+                                        {
 
+                                            coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
+                                        }
+                                        coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
+                                    }
+                                }
+                                foreach (var coord in coordToName)
+                                {
+                                    if (coord.Value.Count > 1)
+                                    {
+                                        Console.WriteLine(string.Format("hey, multiko at{0} {1}", coord.Key.Item1,
+                                            coord.Key.Item2));
+                                    }
+                                    pathway.AddRectangle(
+                                        coord.Value, coord.Key.Item1,
+                                        coord.Key.Item2);
+                                }
+                            }
                             selectedPaths.Add(pathway);
 
                             if (selectedPaths.Count == 1)
