@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows;
 using System.Windows.Media;
 using BiodiversityPlugin.Models;
@@ -493,11 +494,48 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     ProteinsToExport.Add(protein);
                 }
-            }
+            } 
+            
+            var accessionList = new List<string>();
+            
             foreach (var protein in ProteinsToExport)
             {
-                Console.WriteLine(string.Format("{0}: {1} - {2}", protein.Accession, protein.Name, protein.Description));
+                //Console.WriteLine(string.Format("{0}: {1} - {2}", protein.Accession, protein.Name, protein.Description));
+                
+                // Build up a list of the accessions, with [accn] appended to it
+
+                accessionList.Add(protein.Accession);//.Split('.').First());//+"[accn]");    
             }
+            var accessionString = String.Join("+OR+", accessionList);
+            //Console.WriteLine(accessionString);
+            var allFastas = GetFastasFromNCBI(accessionString);
+            Console.WriteLine(allFastas);
+        }
+
+        private string GetFastasFromNCBI(string accessionString)
+        {
+            var fastas = "";
+
+            var esearchURL =
+                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
+
+            var esearchGetUrl = WebRequest.Create(esearchURL);
+
+            esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
+
+            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+            var reader = new StreamReader(getStream);
+            var streamLine = "";
+            while (streamLine != null)
+            {
+                streamLine = reader.ReadLine();
+                if (streamLine != null)
+                {
+                    fastas += streamLine+'\n';
+                }
+            }
+
+            return fastas;
         }
 
         private Dictionary<string, string> PopulateProteins(string fileName)
