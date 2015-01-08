@@ -169,7 +169,9 @@ namespace BiodiversityPlugin.ViewModels
             _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
-            Organisms = new ObservableCollection<OrgPhylum>(orgData.LoadOrganisms());
+            var organisms = orgData.LoadOrganisms();
+            organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
+            Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
@@ -351,11 +353,6 @@ namespace BiodiversityPlugin.ViewModels
                                 }
                                 foreach (var coord in coordToName)
                                 {
-                                    if (coord.Value.Count > 1)
-                                    {
-                                        Console.WriteLine(string.Format("hey, multiko at{0} {1}", coord.Key.Item1,
-                                            coord.Key.Item2));
-                                    }
                                     pathway.AddRectangle(
                                         coord.Value, coord.Key.Item1,
                                         coord.Key.Item2);
@@ -500,11 +497,7 @@ namespace BiodiversityPlugin.ViewModels
             
             foreach (var protein in ProteinsToExport)
             {
-                //Console.WriteLine(string.Format("{0}: {1} - {2}", protein.Accession, protein.Name, protein.Description));
-                
-                // Build up a list of the accessions, with [accn] appended to it
-
-                accessionList.Add(protein.Accession);//.Split('.').First());//+"[accn]");    
+                accessionList.Add(protein.Accession);
             }
             var accessionString = String.Join("+OR+", accessionList);
             //Console.WriteLine(accessionString);
@@ -534,6 +527,21 @@ namespace BiodiversityPlugin.ViewModels
                     fastas += streamLine+'\n';
                 }
             }
+            fastas = fastas.Replace("\n\n", "\n");
+
+            var outputpath = "C:\\Temp\\fasta.txt";
+
+            if (File.Exists(outputpath))
+            {
+                File.Delete(outputpath);
+            }
+
+            using (var fastaWriter = new StreamWriter(outputpath))
+            {
+                fastaWriter.Write(fastas, 0, fastas.Length);
+            }
+
+
 
             return fastas;
         }

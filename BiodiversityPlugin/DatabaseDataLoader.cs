@@ -154,6 +154,14 @@ namespace BiodiversityPlugin
                     }
                 }
             }
+            foreach (var phylum in phylums.Values)
+            {
+                phylum.OrgClasses.Sort((x, y) => x.ClassName.CompareTo(y.ClassName));
+                foreach (var orgClass in phylum.OrgClasses)
+                {
+                    orgClass.Organisms.Sort((x, y) => x.Name.CompareTo(y.Name));
+                }
+            }
             return phylums.Values.ToList();
         }
 
