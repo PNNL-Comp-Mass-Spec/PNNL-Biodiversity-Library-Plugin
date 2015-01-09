@@ -60,9 +60,35 @@
         </Style>
     </Window.Resources>
     <TabControl TabStripPlacement="Left" Margin="0" Name="WizardTabs" SelectedIndex="{Binding SelectedTabIndex}">
-        
+
+        <TabItem Header="Overview" Width="200" Height="100" FontSize="20" 
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 IsEnabled="False" Margin="-2,0,2,0">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="18*" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding OverviewText}" Foreground="Black"></TextBlock>
+                
+                <Button Grid.Column="2" Grid.Row="2" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </TabItem>
+
         <!-- Organism selection tab    -->
-        <TabItem Header="Organisms" Width="200" Height="150" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
+        <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -71,11 +97,11 @@
                 <RowDefinition Height="40" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Organisms</TextBlock>
-                <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
+                <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
                         <TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="16" />
@@ -87,13 +113,28 @@
                         <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
-            </biodiversityPlugin:MvvmTreeView>
+                </biodiversityPlugin:MvvmTreeView>
+                <Grid Grid.Row="1" Grid.Column="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="15" />
+                        <RowDefinition Height="40" />
+                    </Grid.RowDefinitions>
+
+                    <ComboBox Grid.Row="0" IsEditable="True" ItemsSource="{Binding OrganismList}" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              FontSize="14">
+                        <ComboBox.InputBindings>
+                            <KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
+                        </ComboBox.InputBindings>
+                    </ComboBox>
+                </Grid>
                 <Button Grid.Row="3" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding NextTabCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
             </Grid>
         </TabItem>
 
         <!-- Pathway selection tab    -->
-        <TabItem Header="Pathways"  Width="200" Height="150" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
+        <TabItem Header="Pathways"  Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
@@ -135,7 +176,7 @@
         </TabItem>
 
         <!-- Protein selection tab from many pathway -->
-        <TabItem Width="200" Height="150" FontSize="20" 
+        <TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="False">
             <TabItem.Header>
@@ -211,12 +252,12 @@
             </Grid>
         </TabItem>
         
-        <TabItem Width="200" Height="150" FontSize="20" 
+        <TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="False">
             <TabItem.Header>
                 <TextBlock TextAlignment="Center">
-                    Review Selected <LineBreak /> Proteins
+                    Review and <LineBreak /> export to Skyline
                 </TextBlock>
             </TabItem.Header>
             <Grid>
@@ -260,56 +301,13 @@
                     </StackPanel>
                 </Button>
                 <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding OrganismReviewCommand}" >
+                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
                     </StackPanel>
                 </Button>
             </Grid>
-        </TabItem>
-
-        <TabItem Header="Export To Skyline" Width="200" Height="150" FontSize="20" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
-                 IsEnabled="False">
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="18*" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="40" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <DataGrid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding OrganismPathwayHistory}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Organism" Width="*" Binding="{Binding Item1.Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Pathway" Width="*" Binding="{Binding Item2.Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-
-                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="16" Command="{Binding SelectAdditionalOrganismCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
-                        <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
-                    </StackPanel></Button>
-            <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="16" Command="{Binding ExportToSkylineCommand}" >
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
-                    <TextBlock FontSize="16" VerticalAlignment="Center">Export</TextBlock>
-                </StackPanel>
-            </Button>
-                </Grid>
         </TabItem>
     </TabControl>
 </Window>

@@ -179,6 +179,8 @@ namespace BiodiversityPlugin.ViewModels
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
+            organismList.Sort();
+            OrganismList = organismList;
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
@@ -203,6 +205,7 @@ namespace BiodiversityPlugin.ViewModels
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
             ProteinsToExport = new List<ProteinInformation>();
+            OverviewText = "PlaceHolder text";
 
             writer = new StreamWriter("C:\\Temp\\log.txt");
             writer.WriteLine("VM constructor complete", true);
@@ -266,9 +269,9 @@ namespace BiodiversityPlugin.ViewModels
         private void NextTab()
         {
             // Do nothing if no selected organism
-            if (SelectedTabIndex == 0 && SelectedOrganism == null) return;
+            if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
             // Do nothing if no selected pathway
-            if (SelectedTabIndex == 1 && !IsPathwaySelected) return;
+            if (SelectedTabIndex == 2 && !IsPathwaySelected) return;
             SelectedTabIndex++;
         }
 
@@ -450,25 +453,6 @@ namespace BiodiversityPlugin.ViewModels
             }
             SelectedTabIndex++;
             var selectedPaths = SelectedPathways.ToList();
-
-            //string[] queryingStrings =
-            //{
-            //    "Querying Database\nPlease Wait",
-            //    "Querying Database.\nPlease Wait",
-            //    "Querying Database..\nPlease Wait",
-            //    "Querying Database...\nPlease Wait"
-            //};
-
-            //Task.Factory.StartNew(() =>
-            //{
-            //    int index = 0;
-            //    while (IsQuerying)
-            //    {
-            //        Thread.Sleep(750);
-            //        QueryString = queryingStrings[index%4];
-            //        index++;
-            //    }
-            //});
             var accessions = new List<ProteinInformation>();
             if (SelectedPathway != null && SelectedOrganism != null)
             {
@@ -640,6 +624,9 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _protNames = new List<string>();
         private ObservableCollection<Tuple<Organism, Pathway>> m_organismPathwayHistory;
         private int m_pathwayTabIndex;
+        private string m_overviewText;
+        private List<string> m_organismList;
+        private string m_selectedValue;
 
         public List<ProteinInformation> ProteinsToExport
         {
@@ -673,6 +660,54 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _queryString = value;
                 RaisePropertyChanged();
+            }
+        }
+
+        public string OverviewText
+        {
+            get { return m_overviewText; }
+            set
+            {
+                m_overviewText = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public List<string> OrganismList
+        {
+            get { return m_organismList; }
+            set
+            {
+                m_organismList = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string SelectedValue
+        {
+            get { return m_selectedValue; }
+            set
+            {
+                m_selectedValue = value;
+                RaisePropertyChanged();
+                if (OrganismList.Contains(value))
+                {
+                    foreach (var phylum in Organisms)
+                    {
+                        foreach (var orgClass in phylum.OrgClasses)
+                        {
+                            foreach (var organism in orgClass.Organisms)
+                            {
+                                if (organism.Name == value)
+                                {
+                                    SelectedOrganismTreeItem = organism;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                SelectedOrganismTreeItem = null;
             }
         }
     }
