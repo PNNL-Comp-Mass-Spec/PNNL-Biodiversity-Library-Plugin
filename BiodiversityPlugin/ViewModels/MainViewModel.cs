@@ -166,6 +166,14 @@ namespace BiodiversityPlugin.ViewModels
 
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, string proteinsPath)
         {
+
+            var writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("In VM constructor");
+            writer.Close();
+            
+            var pwd = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
+            var dir = System.IO.Path.GetDirectoryName(pwd);
+
             _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
@@ -187,13 +195,18 @@ namespace BiodiversityPlugin.ViewModels
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
             _image = new ImageBrush();
-            _imageString = new Uri(string.Format("..\\..\\..\\resources\\images\\map00010.png"), UriKind.Relative);
+            _imageString = new Uri(string.Format("{0}\\DataFiles\\images\\map00010.png", dir),
+                UriKind.Absolute);
             _visiblePathway = Visibility.Hidden;
             _pathwaysSelected = 0;
             PathwayImage = _imageString;
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
             ProteinsToExport = new List<ProteinInformation>();
+
+            writer = new StreamWriter("C:\\Temp\\log.txt");
+            writer.WriteLine("VM constructor complete", true);
+            writer.Close();
         }
 
         public object SelectedOrganismTreeItem
@@ -290,15 +303,16 @@ namespace BiodiversityPlugin.ViewModels
         {
             IsQuerying = true;
 
-            var pwd = Directory.GetCurrentDirectory();
+            var pwd = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
+            var dir = System.IO.Path.GetDirectoryName(pwd);
+            
             var dataAccess = new DatabaseDataLoader(_dbPath);
+            var writer = new StreamWriter("blahblahblah.txt");
+            writer.WriteLine(dir);
             var pieces = pwd.Split('\\');
-            var absPath = "";
-            for (var i = 0; i < pieces.Count() - 3; i++)
-            {
-                absPath += string.Format("{0}{1}", pieces[i], '\\');
-            }
+            var absPath = dir.Substring(6);
             SelectedTabIndex++;
+            writer.WriteLine(absPath);
             var selectedPaths = new List<Pathway>();
             foreach (var catagory in Pathways)
             {
@@ -309,18 +323,26 @@ namespace BiodiversityPlugin.ViewModels
                         if (pathway.Selected)
                         {
                             pathway.PathwayImage =
-                                new Uri(string.Format("{0}resources\\images\\map{1}.png", absPath, pathway.KeggId),
+                                new Uri(string.Format("{0}\\DataFiles\\images\\map{1}.png", dir, pathway.KeggId),
                                     UriKind.Absolute);
+                            if (File.Exists(string.Format("{0}\\DataFiles\\images\\map{1}.png", dir, pathway.KeggId)))
+                            {
+                                writer.WriteLine("image found");
+                            }
                             pathway.ClearRectangles();
-                            if (File.Exists(string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
+                            writer.WriteLine(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
+                                            absPath,
+                                            pathway.KeggId));
+                            if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
                                 absPath,
                                 pathway.KeggId))))
                             {
+                                writer.WriteLine("Coords found");
                                 var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
                                 using (
                                     var reader =
                                         new StreamReader(
-                                            string.Format(string.Format("{0}resources\\coords\\path{1}KoCoords.txt",
+                                            string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
                                                 absPath,
                                                 pathway.KeggId))))
                                 {
@@ -407,7 +429,7 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
             }
-
+            writer.Close();
             SelectedPathways = new ObservableCollection<Pathway>(selectedPaths);
             SelectedPathway = selectedPaths.First();
             PathwayTabIndex = 0;

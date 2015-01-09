@@ -17,13 +17,20 @@ namespace BiodiversityPlugin
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+
+            var writer = new StreamWriter("C:\\Temp\\log.txt", true);
             try
             {
+                writer.WriteLine("Fresh boot");
+                writer.Close();
                 var tsvOrgPath = "Tools/BioDiversity/DataFiles/Organisms.txt";
                 var dbPath = "Tools/BioDiversity/DataFiles/DBs/PBL.db";
                 var proteinsPath = "Tools/BioDiversity/DataFiles/Proteins.txt";
                 //var vm = new MainViewModel(new HardCodedData(), csvPath, csvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("In try");
+                writer.Close();
                 var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
                     proteinsPath);
                 var mainWindow = new MainWindow {DataContext = vm};
@@ -38,6 +45,9 @@ namespace BiodiversityPlugin
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
                 //    proteinsPath);
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("In catch 1");
+                writer.Close();
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     proteinsPath);
                 var mainWindow = new MainWindow {DataContext = vm};
@@ -52,6 +62,9 @@ namespace BiodiversityPlugin
                 //var vm = new MainViewModel(new CsvDataLoader(), tsvOrgPath, tsvPathwaysPath);
                 //var vm = new MainViewModel(new CsvDataLoader(tsvOrgPath, ""), new DatabaseDataLoader(dbPath), dbPath,
                 //    proteinsPath);
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("In catch2");
+                writer.Close();
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     proteinsPath);
                 var mainWindow = new MainWindow { DataContext = vm };
@@ -59,6 +72,8 @@ namespace BiodiversityPlugin
             }
             catch (Exception a)
             {
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("In final catch");
                 MessageBox.Show(a.Message);
                 throw;
             }
