@@ -131,6 +131,10 @@ namespace BiodiversityPlugin
                                 {
                                     var ogphylum = reader1["og_phylum"].ToString();
                                     var ogclass = reader1["og_class"].ToString();
+                                    if (ogclass == "")
+                                    {
+                                        ogclass = "Unclassified";
+                                    }
                                     var pair = new Tuple<string, string>(ogphylum, ogclass);
                                     var org = new Organism(taxonName, taxon, orgCode);
 
