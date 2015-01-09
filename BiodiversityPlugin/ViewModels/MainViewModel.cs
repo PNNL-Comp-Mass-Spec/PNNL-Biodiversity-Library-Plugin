@@ -169,7 +169,8 @@ namespace BiodiversityPlugin.ViewModels
             _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
-            var organisms = orgData.LoadOrganisms();
+            var organismList = new List<string>();
+            var organisms = orgData.LoadOrganisms(ref organismList);
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
@@ -315,7 +316,7 @@ namespace BiodiversityPlugin.ViewModels
                                 absPath,
                                 pathway.KeggId))))
                             {
-                                var koToCoordDict = new Dictionary<string, Tuple<int, int>>();
+                                var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
                                 using (
                                     var reader =
                                         new StreamReader(
@@ -331,8 +332,8 @@ namespace BiodiversityPlugin.ViewModels
                                         var coord = linepieces[2];
                                         var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
                                         if (!koToCoordDict.ContainsKey(linepieces[1]))
-                                            koToCoordDict.Add(linepieces[1],
-                                                new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
+                                            koToCoordDict.Add(linepieces[1], new List<Tuple<int, int>>());
+                                        koToCoordDict[linepieces[1]].Add(new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
                                                     Convert.ToInt32(coordPieces[1])));
                                         line = reader.ReadLine();
                                     }
@@ -343,19 +344,49 @@ namespace BiodiversityPlugin.ViewModels
                                 {
                                     if (koToCoordDict.ContainsKey(ko.KeggKoId))
                                     {
-                                        if (!coordToName.ContainsKey(koToCoordDict[ko.KeggKoId]))
+                                        foreach (var coord in koToCoordDict[ko.KeggKoId])
                                         {
+                                            if (!coordToName.ContainsKey(coord))
+                                            {
 
-                                            coordToName[koToCoordDict[ko.KeggKoId]] = new List<KeggKoInformation>();
+                                                coordToName[coord] = new List<KeggKoInformation>();
+                                            }
+                                            coordToName[coord].Add(ko);
                                         }
-                                        coordToName[koToCoordDict[ko.KeggKoId]].Add(ko);
                                     }
                                 }
                                 foreach (var coord in coordToName)
                                 {
+                                    pathway.AddDataRectangle(
+                                        coord.Value, coord.Key.Item1,
+                                        coord.Key.Item2, Colors.Red);
+                                }
+
+                                var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
+                                var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
+                                foreach (var ko in koWithoutData)
+                                {
+                                    if (koToCoordDict.ContainsKey(ko.KeggKoId))
+                                    {
+                                        foreach (var coord in koToCoordDict[ko.KeggKoId])
+                                        {
+                                            if (!coordToName.ContainsKey(coord))
+                                            {
+                                                if (!coordsToName.ContainsKey(coord))
+                                                {
+
+                                                    coordsToName[coord] = new List<KeggKoInformation>();
+                                                }
+                                                coordsToName[coord].Add(ko);
+                                            }
+                                        }
+                                    }
+                                }
+                                foreach (var coord in coordsToName)
+                                {
                                     pathway.AddRectangle(
                                         coord.Value, coord.Key.Item1,
-                                        coord.Key.Item2);
+                                        coord.Key.Item2, Colors.Blue);
                                 }
                             }
                             selectedPaths.Add(pathway);
@@ -364,7 +395,7 @@ namespace BiodiversityPlugin.ViewModels
                             {
                                 SelectedPathwayText = string.Format("Pathway: {0}", pathway.Name);
                             }
-                            else if (selectedPaths.Count%4 == 0)
+                            else if (selectedPaths.Count%3 == 0)
                             {
                                 SelectedPathwayText += string.Format("\n\t{0}", pathway.Name);
                             }

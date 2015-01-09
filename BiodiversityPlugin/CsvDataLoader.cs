@@ -20,7 +20,7 @@ namespace BiodiversityPlugin
             _pathways = pathways;
         }
 
-        public List<OrgPhylum> LoadOrganisms()
+        public List<OrgPhylum> LoadOrganisms(ref List<string> organismList)
         {
             var phylums = new Dictionary<string, OrgPhylum>();
             var classes = new Dictionary<Tuple<string, string>, OrgClass>();

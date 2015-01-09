@@ -176,8 +176,9 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
+                                <ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
 									<Grid>
 										<Grid.RowDefinitions>
 											<RowDefinition Height="Auto"/>
@@ -186,13 +187,17 @@
 											<ColumnDefinition Width="Auto"/>
 										</Grid.ColumnDefinitions>
 										<Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-										<Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvasX" Visibility="Visible">
-											<ContentPresenter Content="{Binding PathwayCanvas, UpdateSourceTrigger=PropertyChanged}"/>
-										</Canvas>
-									</Grid>
+                                        <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvas" Visibility="Visible">
+                                            <ContentPresenter Content="{Binding PathwayCanvas, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </Canvas>
+                                        <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
+                                            <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </Canvas>
+                                    </Grid>
 							</ScrollViewer>
                                 <Button Grid.Row="2" Grid.Column="0" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
-                                <Button Grid.Row="2" Grid.Column="1" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
+                                <TextBlock Grid.Row="2" Grid.Column="1" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}"></TextBlock>
+                                <Button Grid.Row="2" Grid.Column="2" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
                             </Grid>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
@@ -233,8 +238,8 @@
                 </Grid.ColumnDefinitions>
                  
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Selected Proteins</TextBlock>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding SelectedPathwayText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="18" Text="{Binding SelectedPathwayText}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
                     No proteins found for this<LineBreak/>
                     Organism/Pathway combination
@@ -243,10 +248,9 @@
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" Visibility="{Binding VisibleProteins}" />
                 <DataGrid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="110" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein Description" Width="70*" Binding="{Binding Description}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                        </DataGrid.Columns>
+                    </DataGrid.Columns>
                 </DataGrid>
 
                 <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="12" Command="{Binding SelectAdditionalOrganismCommand}">

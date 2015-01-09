@@ -10,7 +10,7 @@ namespace BiodiversityPlugin
     class HardCodedData:IDataAccess
     {
 
-        public List<OrgPhylum> LoadOrganisms()
+        public List<OrgPhylum> LoadOrganisms(ref List<string> organismList)
         {
             var toReturn = new List<OrgPhylum>();
 

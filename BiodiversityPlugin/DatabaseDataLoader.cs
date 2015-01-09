@@ -103,7 +103,7 @@ namespace BiodiversityPlugin
 //        }
 
 
-        public List<OrgPhylum> LoadOrganisms()
+        public List<OrgPhylum> LoadOrganisms(ref List<string> organismList )
         {
             var phylums = new Dictionary<string, OrgPhylum>();
             var classes = new Dictionary<Tuple<string, string>, OrgClass>();
@@ -160,6 +160,10 @@ namespace BiodiversityPlugin
                 foreach (var orgClass in phylum.OrgClasses)
                 {
                     orgClass.Organisms.Sort((x, y) => x.Name.CompareTo(y.Name));
+                    foreach (var organism in orgClass.Organisms)
+                    {
+                        organismList.Add(organism.Name);
+                    }
                 }
             }
             return phylums.Values.ToList();
@@ -263,6 +267,54 @@ namespace BiodiversityPlugin
             return koInformation;
         }
 
+        internal List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism SelectedOrganism)
+        {
+            if (pathway == null || SelectedOrganism == null)
+            {
+                return null;
+            }
+            var orgCode = SelectedOrganism.OrgCode;
+            var KoIds = new List<string>();
+            var koInformation = new List<KeggKoInformation>();
+            //            var uniprotAccessions = new List<ProteinInformation>();
+
+            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var selectionText =
+                            string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id, " +
+                                      " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
+                                      " FROM kegg_gene_ko_map, observed_kegg_gene, kegg_ko " +
+                                      " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id " +
+                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");//,
+                    //                            pathwayId, orgCode);
+
+
+                    cmd.CommandText = selectionText;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            if (reader.GetInt32(0) == 0 && pathway.KeggId.Contains(reader.GetString(1)) &&
+                                reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                            {
+                                KoIds.Add(reader.GetString(3));
+                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "");
+                                koToAdd.KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "";
+                                koToAdd.KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : "";
+                                koInformation.Add(koToAdd);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return koInformation;
+        }
 
         public List<ProteinInformation> ExportAccessions(List<Pathway> pathways, Organism org)
         {
