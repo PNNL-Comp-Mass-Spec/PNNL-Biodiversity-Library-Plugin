@@ -76,9 +76,10 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                
-                <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding OverviewText}" FontSize="16" FontWeight="Normal" Foreground="Black"></TextBlock>
-                
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                    <Image Source="DataFiles/colorLogo.png" Width="120" Height="120" HorizontalAlignment="Center"></Image>
+                    <TextBlock Text="{Binding OverviewText}" FontSize="16" FontWeight="Normal" Foreground="Black"></TextBlock>
+                </StackPanel>
                 <Button Grid.Column="2" Grid.Row="2" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
