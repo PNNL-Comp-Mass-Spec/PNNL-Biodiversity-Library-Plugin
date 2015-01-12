@@ -51,7 +51,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _imageString = value;
                 PathwayVisibility = Visibility.Hidden;
-                if (!string.IsNullOrEmpty(_imageString.OriginalString))
+                if (value != null && !string.IsNullOrEmpty(_imageString.OriginalString))
                 {
                     PathwayVisibility = Visibility.Visible;
                 }
@@ -173,18 +173,32 @@ namespace BiodiversityPlugin.ViewModels
             writer.Close();
             
             var pwd = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
-            var dir = System.IO.Path.GetDirectoryName(pwd);
+            var dir = System.IO.Path.GetDirectoryName(pwd).Substring(6); 
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("Gotten pwd and dir");
+            writer.WriteLine("pwd = " + pwd);
+            writer.WriteLine("dir = " + dir);
+            writer.Close();
 
             _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("Populated proteins and gotten db path");
+            writer.Close();
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("Registered pathway selected message and loaded orgs");
+            writer.Close();
             organismList.Sort();
             OrganismList = organismList;
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("Assigned orgs and loaded pathways");
+            writer.Close();
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
             NextTabCommand = new RelayCommand(NextTab);
@@ -193,18 +207,33 @@ namespace BiodiversityPlugin.ViewModels
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             OrganismReviewCommand = new RelayCommand(OrganismReview);
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("Assigned commands");
+            writer.Close();
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("PreImageAssigning");
+            writer.Close();
             _image = new ImageBrush();
-            _imageString = new Uri(string.Format("{0}\\DataFiles\\images\\map00010.png", dir),
-                UriKind.Absolute);
+            _imageString = null;//new Uri(string.Format("{0}\\DataFiles\\images\\map00010.png", dir),
+                //UriKind.Absolute);
             _visiblePathway = Visibility.Hidden;
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("PostImageString");
+            writer.Close();
             _pathwaysSelected = 0;
             PathwayImage = _imageString;
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("PostPathwayImage");
+            writer.Close();
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("PostSelectedPathways");
+            writer.Close();
             ProteinsToExport = new List<ProteinInformation>();
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             OverviewText = "PlaceHolder text";
@@ -603,7 +632,27 @@ namespace BiodiversityPlugin.ViewModels
 
         private Dictionary<string, string> PopulateProteins(string fileName)
         {
+            var writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("In PopulateProteins: input = " + fileName);
+            writer.Close();
+
+            if (File.Exists(fileName))
+            {
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("File exists");
+                writer.Close();
+            }
+            else
+            {
+                writer = new StreamWriter("C:\\Temp\\log.txt", true);
+                writer.WriteLine("File does not exist");
+                writer.Close();
+            }
+
             var file = File.ReadAllLines(fileName);
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("After ReadAllLines");
+            writer.Close();
             int lineIndex = 0;
             var proteins = new Dictionary<string, string>();
             foreach (var line in file)
