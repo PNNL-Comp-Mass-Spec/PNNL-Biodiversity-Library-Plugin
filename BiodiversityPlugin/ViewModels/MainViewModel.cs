@@ -574,6 +574,8 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     foreach (var pathway in pathwayGroup.Pathways)
                     {
+                        pathway.Selected = false;
+                        pathway.SelectedKo.Clear();
                         if (pathway.PathwayImage != null)
                         {
                             pathway.PathwayCanvas.Children.Clear();
