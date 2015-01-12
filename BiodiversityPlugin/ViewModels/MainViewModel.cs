@@ -255,8 +255,8 @@ namespace BiodiversityPlugin.ViewModels
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             OverviewText = overviewText;
 
-            writer = new StreamWriter("C:\\Temp\\log.txt");
-            writer.WriteLine("VM constructor complete", true);
+            writer = new StreamWriter("C:\\Temp\\log.txt", true);
+            writer.WriteLine("VM constructor complete");
             writer.Close();
         }
 
