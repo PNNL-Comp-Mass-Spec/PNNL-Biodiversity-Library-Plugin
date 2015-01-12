@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Media;
+using System.Xml.XPath;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -205,6 +206,7 @@ namespace BiodiversityPlugin.ViewModels
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
             ProteinsToExport = new List<ProteinInformation>();
+            PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             OverviewText = "PlaceHolder text";
 
             writer = new StreamWriter("C:\\Temp\\log.txt");
@@ -456,17 +458,33 @@ namespace BiodiversityPlugin.ViewModels
             var accessions = new List<ProteinInformation>();
             if (SelectedPathway != null && SelectedOrganism != null)
             {
-                accessions.AddRange(dataAccess.ExportAccessions(selectedPaths, SelectedOrganism));
-
-                foreach (var accession in accessions)
+                foreach (var pathway in selectedPaths)
                 {
-                    string proteinName;
-                    if (_proteins.TryGetValue(accession.Accession, out proteinName))
+                    var temp = new List<Pathway> {pathway};
+                    var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
+                    accessions.AddRange(pathwayAcc);
+
+                    var association = new OrganismPathwayProteinAssociation();
+                    association.Pathway = pathway.Name;
+                    association.Organism = SelectedOrganism.Name;
+                    association.GeneList = new ObservableCollection<ProteinInformation>();
+                    foreach (var acc in pathwayAcc)
                     {
-                        accession.Name = proteinName;
+                        association.GeneList.Add(acc);
                     }
+
+                    AddAssociation(association);
+
+                    foreach (var accession in accessions)
+                    {
+                        string proteinName;
+                        if (_proteins.TryGetValue(accession.Accession, out proteinName))
+                        {
+                            accession.Name = proteinName;
+                        }
+                    }
+                    IsPathwaySelected = true;
                 }
-                IsPathwaySelected = true;
             }
             else
             {
@@ -627,6 +645,7 @@ namespace BiodiversityPlugin.ViewModels
         private string m_overviewText;
         private List<string> m_organismList;
         private string m_selectedValue;
+        private ObservableCollection<OrganismPathwayProteinAssociation> m_pathwayProteinAssociation;
 
         public List<ProteinInformation> ProteinsToExport
         {
@@ -709,6 +728,24 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 SelectedOrganismTreeItem = null;
             }
+        }
+
+        public ObservableCollection<OrganismPathwayProteinAssociation> PathwayProteinAssociation
+        {
+            get { return m_pathwayProteinAssociation; }
+            set
+            {
+                m_pathwayProteinAssociation = value;
+                RaisePropertyChanged("PathwayProteinAssociation");
+            }
+        }
+
+        private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
+        {
+            var temp = PathwayProteinAssociation;
+            temp.Add(newAssociation);
+            PathwayProteinAssociation = temp;
+            //RaisePropertyChanged("PathwayProteinAssocation");
         }
     }
 }

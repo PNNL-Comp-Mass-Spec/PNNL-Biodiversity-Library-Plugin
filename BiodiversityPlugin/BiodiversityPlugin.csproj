@@ -115,6 +115,7 @@
     <Compile Include="IDataAccess.cs" />
     <Compile Include="Models\AccessionsFromDatabase.cs" />
     <Compile Include="Models\KeggKoInformation.cs" />
+    <Compile Include="Models\OrganismPathwayProteinAssociation.cs" />
     <Compile Include="Models\PathwayCatagory.cs" />
     <Compile Include="Models\PathwayGroup.cs" />
     <Compile Include="Models\ProteinInformation.cs" />

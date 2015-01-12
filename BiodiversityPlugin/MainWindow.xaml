@@ -91,7 +91,7 @@
         <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
+                <RowDefinition Height="45" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="15" />
                 <RowDefinition Height="40" />
@@ -100,7 +100,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Organisms</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Organisms</TextBlock>
                 <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
@@ -114,16 +114,18 @@
                     </HierarchicalDataTemplate>
                 </biodiversityPlugin:MvvmTreeView.Resources>
                 </biodiversityPlugin:MvvmTreeView>
-                <Grid Grid.Row="1" Grid.Column="3">
+                <Grid Grid.Row="1" Grid.Column="2">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
                         <RowDefinition Height="30" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="15" />
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
+                    
+                    <TextBlock Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
 
-                    <ComboBox Grid.Row="0" IsEditable="True" ItemsSource="{Binding OrganismList}" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              FontSize="14">
+                    <ComboBox Grid.Row="1" IsEditable="True" ItemsSource="{Binding OrganismList}" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              FontSize="12" FontWeight="Normal" Margin="20,0,20,0">
                         <ComboBox.InputBindings>
                             <KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
                         </ComboBox.InputBindings>
@@ -137,7 +139,7 @@
         <TabItem Header="Pathways"  Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
+                <RowDefinition Height="45" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="15" />
                 <RowDefinition Height="40" />
@@ -146,7 +148,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Pathways</TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Pathways</TextBlock>
                 <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
                 <biodiversityPlugin:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
@@ -187,7 +189,7 @@
             </TabItem.Header>
             <Grid>
                 <Grid.RowDefinitions>
-					<RowDefinition Height="30"/>
+					<RowDefinition Height="45"/>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="40" />
@@ -196,7 +198,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-				<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20" Text="{Binding Path=SelectedOrganismText}"/>
+				<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28" Text="{Binding Path=SelectedOrganismText}"/>
                 <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}">
                 
                 <TabControl.ItemTemplate>
@@ -262,10 +264,9 @@
             </TabItem.Header>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30" />
+                    <RowDefinition Height="45" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="30" />
-                    <RowDefinition Height="*" />
                     <RowDefinition Height="30" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="18*" />
@@ -277,31 +278,66 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                 
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="20">Selected Proteins</TextBlock>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="18" Text="{Binding SelectedPathwayText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Selected Proteins</TextBlock>
+                
+                <!-- This is the template for what needs to be in each of the many data grids.-->
+                <!--
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="22" Text="{Binding SelectedOrganismText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="22" Text="{Binding SelectedPathwayText}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
                     No proteins found for this<LineBreak/>
                     Organism/Pathway combination
                 </TextBlock>
-                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" Background="White" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}" />
+                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" Background="White" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}" />
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" Visibility="{Binding VisibleProteins}" />
-                <DataGrid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
+                <DataGrid Margin="5,10,5,0" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
                     <DataGrid.Columns>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                         <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+                 -->
+                <ScrollViewer Grid.Row="2" Grid.RowSpan="4" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible">
+                <ItemsControl Name="OrganismGeneGrid" ItemsSource="{Binding PathwayProteinAssociation, UpdateSourceTrigger=PropertyChanged}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:OrganismPathwayProteinAssociation}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="15" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <TextBlock Foreground="Black" Grid.Row="0" FontSize="22" Text="{Binding SelectedOrganismText}" />
+                                <TextBlock Foreground="Black" Grid.Row="1" FontSize="22" Text="{Binding SelectedPathwayText}" />
+                                <TextBlock Foreground="Black" Grid.Row="2" FontSize="14" Text="{Binding NumProteinsText}"/>
+                                <DataGrid Margin="5,10,5,0" Grid.Row="3" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                </ScrollViewer>
 
-                <Button Grid.Column="0" Grid.Row="8" Width="150" FontSize="12" Command="{Binding SelectAdditionalOrganismCommand}">
+                <Button Grid.Column="0" Grid.Row="7" Width="150" FontSize="12" Command="{Binding SelectAdditionalOrganismCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
                         <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
                     </StackPanel>
                 </Button>
-                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="1" Grid.Row="7" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                <Button Grid.Column="2" Grid.Row="7" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
