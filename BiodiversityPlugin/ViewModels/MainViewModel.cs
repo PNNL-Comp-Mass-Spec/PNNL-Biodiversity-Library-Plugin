@@ -23,6 +23,10 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
+        // temporary overview text for application
+        private const string overviewText =
+            "This Skyline plugin is designed to provide an easy interface for retrieving data from the Biodiversity Library developed by Sam Payne at Pacific Northwest National Laboratory. The steps to follow for normal use are 1) Select an Organism, either through the Phylum/Class explorer or through the Organism search box 2) Select one or more Pathways, as defined by KEGG. 3) From here, a collection of the KEGG pathway images will be displayed with information pertaining to the organism highlighted. Kegg Orthologs which are annotated for the organism but which are not present in the MS data will be highlighted in blue, while orthologs which were observed are highlighted in red. You can deselect any orthologs you are not interested in, denoted by a grey highlight, by clicking on the corresponding box on the pathway. Once you are satisfied with your selection of orthologs in all the pathways you are interested in, click the button to proceed to the review and export tab. From this final tab, you are provided a list genes selected for each organism pathway pair and are able to return to select additional organisms you are interested in. By hitting the export button, a FASTA file will be created with the NCBI information for all the annotated genes selected.";
+
         //This is for testing dynamic tab control
         public ObservableCollection<Pathway> SelectedPathways
         {
@@ -236,7 +240,7 @@ namespace BiodiversityPlugin.ViewModels
             writer.Close();
             ProteinsToExport = new List<ProteinInformation>();
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
-            OverviewText = "PlaceHolder text";
+            OverviewText = overviewText;
 
             writer = new StreamWriter("C:\\Temp\\log.txt");
             writer.WriteLine("VM constructor complete", true);
@@ -792,6 +796,26 @@ namespace BiodiversityPlugin.ViewModels
         private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
         {
             var temp = PathwayProteinAssociation;
+            var orgPathList = new Dictionary<string, List<string>>();
+            foreach (var pair in temp)
+            {
+                if (!orgPathList.ContainsKey(pair.Organism))
+                {
+                    orgPathList.Add(pair.Organism, new List<string>());
+                }
+                orgPathList[pair.Organism].Add(pair.Pathway);
+            }
+            if (orgPathList.ContainsKey(newAssociation.Organism) &&
+                orgPathList[newAssociation.Organism].Contains(newAssociation.Pathway))
+            {
+                var strippedTemp =
+                    temp.Where(x => !(x.Organism == newAssociation.Organism && x.Pathway == newAssociation.Pathway));
+                temp = new ObservableCollection<OrganismPathwayProteinAssociation>();
+                foreach (var pair in strippedTemp)
+                {
+                    temp.Add(pair);
+                }
+            }
             temp.Add(newAssociation);
             PathwayProteinAssociation = temp;
             //RaisePropertyChanged("PathwayProteinAssocation");
