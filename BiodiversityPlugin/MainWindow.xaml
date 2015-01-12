@@ -125,13 +125,16 @@
                         <RowDefinition Height="40" />
                     </Grid.RowDefinitions>
                     
-
-                    <ComboBox Grid.Row="0" IsEditable="True" ItemsSource="{Binding OrganismList}" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Grid.Row="0" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               FontSize="12" FontWeight="Normal" Margin="20,0,20,0">
-                        <ComboBox.InputBindings>
+                        <TextBox.InputBindings>
                             <KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
-                        </ComboBox.InputBindings>
-                    </ComboBox>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+                             FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisibile}">
+                        
+                    </ListBox>
                 </Grid>
                 <Button Grid.Row="4" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding NextTabCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
             </Grid>
