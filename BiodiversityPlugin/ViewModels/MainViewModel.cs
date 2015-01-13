@@ -23,21 +23,6 @@ namespace BiodiversityPlugin.ViewModels
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
 
-        // temporary overview text for application
-        private const string overviewText =
-            "The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data" +
-            "\ncan be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified " +
-            "\nin MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library " +
-            "\ncatalogs MS/MS spectra from 5 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. " +
-            "\nAll proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by " +
-            "\nSam Payne at Pacific Northwest National Laboratory <link to http://omics.pnl.gov/> with data collected over 10+ years in " + 
-            "\nhundreds of collaborative projects.  " + 
-            "\n\n\nThe wizard helps users browse data using the following steps: " + 
-            "\n1) Select an Organism. " + 
-            "\n2) Select pathways on interest. " + 
-            "\n3) Curate protein identifications. " + 
-            "\n4) Review and export data to Skyline. ";
-
         //This is for testing dynamic tab control
         public ObservableCollection<Pathway> SelectedPathways
         {
@@ -240,6 +225,7 @@ namespace BiodiversityPlugin.ViewModels
             writer.WriteLine("PostImageString");
             writer.Close();
             _pathwaysSelected = 0;
+            ListPathways = new ObservableCollection<string>();
             PathwayImage = _imageString;
             writer = new StreamWriter("C:\\Temp\\log.txt", true);
             writer.WriteLine("PostPathwayImage");
@@ -251,7 +237,6 @@ namespace BiodiversityPlugin.ViewModels
             writer.Close();
             ProteinsToExport = new List<ProteinInformation>();
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
-            OverviewText = overviewText;
             SelectedValue = "";
 
             writer = new StreamWriter("C:\\Temp\\log.txt", true);
@@ -292,16 +277,27 @@ namespace BiodiversityPlugin.ViewModels
 
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
         {
+            //TODO: Add pathway to the list of yadda yadda yadda
             if (message.PropertyName == "Selected" && message.Sender is Pathway)
             {
+                var old = ListPathways;
+                var sender = message.Sender as Pathway;
                 if (message.NewValue == true)
                 {
+                    if (!old.Contains(sender.Name))
+                    {
+                        old.Add(sender.Name);
+                    }
+                    ListPathways = old;
                     _pathwaysSelected++;
                     IsPathwaySelected = true;
                 }
                 else
                 {
+                    old.Remove(sender.Name);
+                    ListPathways = old;
                     _pathwaysSelected--;
+
                     if (_pathwaysSelected == 0)
                     {
                         IsPathwaySelected = false;
@@ -646,8 +642,6 @@ namespace BiodiversityPlugin.ViewModels
                 fastaWriter.Write(fastas, 0, fastas.Length);
             }
 
-
-
             return fastas;
         }
 
@@ -718,6 +712,7 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<OrganismPathwayProteinAssociation> m_pathwayProteinAssociation;
         private Visibility m_filterVisibility;
         private ObservableCollection<string> m_filteredOrganisms;
+        private ObservableCollection<string> m_listPathways;
 
         public List<ProteinInformation> ProteinsToExport
         {
@@ -891,5 +886,16 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
         }
+
+        public ObservableCollection<string> ListPathways
+        {
+            get { return m_listPathways; }
+            set
+            {
+                m_listPathways = value;
+                RaisePropertyChanged();
+            }
+        }
+
     }
 }
