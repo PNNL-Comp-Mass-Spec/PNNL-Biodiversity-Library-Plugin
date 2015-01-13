@@ -25,20 +25,18 @@ namespace BiodiversityPlugin.ViewModels
 
         // temporary overview text for application
         private const string overviewText =
-            "This Skyline plugin is designed to provide an easy interface for retrieving data from the Biodiversity Library developed"+
-            "\n by Sam Payne at Pacific Northwest National Laboratory. "+
-        "\n\nThe steps to follow for normal use are: "+
-          "\n1) Select an Organism, either through the Phylum/Class explorer or through the Organism search box. "+
-          "\n2) Select one or more Pathways, as defined by KEGG. "+
-          "\n3) From here, a collection of the KEGG pathway images will be displayed with information pertaining to the organism "+
-                "\n\thighlighted. Kegg Orthologs which are annotated for the organism but which are not present in the MS data " +
-                "\n\twill be highlighted in blue, while orthologs which were observed are highlighted in red. You can deselect " +
-                "\n\tany orthologs you are not interested in, denoted by a grey highlight, by clicking on the corresponding box " +
-                "\n\ton the pathway. Once you are satisfied with your selection of orthologs in all the pathways you are interested "+
-                "\n\tin, click the button to proceed to the review and export tab. " +
-          "\n4) From this final tab, you are provided a list genes selected for each organism pathway pair and "+
-                "\n\tare able to return to select additional organisms you are interested in. By hitting the export button, a FASTA file "+
-                "\n\twill be created with the NCBI information for all the annotated genes selected.";
+            "The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data" +
+            "\ncan be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified " +
+            "\nin MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library " +
+            "\ncatalogs MS/MS spectra from 5 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. " +
+            "\nAll proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by " +
+            "\nSam Payne at Pacific Northwest National Laboratory <link to http://omics.pnl.gov/> with data collected over 10+ years in " + 
+            "\nhundreds of collaborative projects.  " + 
+            "\n\n\nThe wizard helps users browse data using the following steps: " + 
+            "\n1) Select an Organism. " + 
+            "\n2) Select pathways on interest. " + 
+            "\n3) Curate protein identifications. " + 
+            "\n4) Review and export data to Skyline. ";
 
         //This is for testing dynamic tab control
         public ObservableCollection<Pathway> SelectedPathways
