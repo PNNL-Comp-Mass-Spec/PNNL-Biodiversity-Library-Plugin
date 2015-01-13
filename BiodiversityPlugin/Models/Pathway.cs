@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml.Serialization;
@@ -329,6 +330,26 @@ namespace BiodiversityPlugin.Models
                 m_legendSource = value; 
                 RaisePropertyChanged(); 
             } 
+        }
+
+        internal void WriteFoundText(int p1, int p2, string orgName)
+        {
+            var textBlock = new TextBlock();
+            textBlock.Text = "Protein annotated in " + orgName + " and observed in MS/MS data";
+            textBlock.FontSize = 12;
+            PathwayCanvas.Children.Add(textBlock);
+            Canvas.SetLeft(textBlock, p1 + 50);
+            Canvas.SetTop(textBlock, p2);
+        }
+
+        internal void WriteNotfoundText(int p1, int p2, string orgName)
+        {
+            var textBlock = new TextBlock();
+            textBlock.Text = "Protein annotated in " + orgName + " and not observed in MS/MS data";
+            textBlock.FontSize = 12;
+            PathwayCanvas.Children.Add(textBlock);
+            Canvas.SetLeft(textBlock, p1 + 50);
+            Canvas.SetTop(textBlock, p2);
         }
     }
 }

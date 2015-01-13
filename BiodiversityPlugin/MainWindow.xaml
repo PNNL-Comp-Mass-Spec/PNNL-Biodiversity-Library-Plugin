@@ -82,7 +82,7 @@
                         The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data <LineBreak />
                         can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified <LineBreak />
                         in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library <LineBreak />
-                        catalogs MS/MS spectra from 5 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. <LineBreak />
+                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. <LineBreak />
                         All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by <LineBreak />
                         Sam Payne at 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
@@ -320,7 +320,7 @@
                                             <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}"/>
                                         </Canvas>
                                         <!-- <Image Grid.Row="0" Grid.Column="0" Source="DataFiles/pathwayLegend.png" Stretch="None" ></> -->
-                                        <Image Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LegendSource, UpdateSourceTrigger=PropertyChanged}" Stretch="None" ></Image>
+                                        <!-- <Image Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding LegendSource, UpdateSourceTrigger=PropertyChanged}" Stretch="None" ></> -->
                                     </Grid>
 							</ScrollViewer>
                                 <Button Grid.Row="2" Grid.Column="0" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>

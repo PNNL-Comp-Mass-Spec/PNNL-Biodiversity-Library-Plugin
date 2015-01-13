@@ -355,12 +355,9 @@ namespace BiodiversityPlugin.ViewModels
             var dir = System.IO.Path.GetDirectoryName(pwd);
             
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var writer = new StreamWriter("blahblahblah.txt");
-            writer.WriteLine(dir);
             var pieces = pwd.Split('\\');
             var absPath = dir.Substring(6);
             SelectedTabIndex++;
-            writer.WriteLine(absPath);
             var selectedPaths = new List<Pathway>();
             foreach (var catagory in Pathways)
             {
@@ -373,19 +370,11 @@ namespace BiodiversityPlugin.ViewModels
                             pathway.PathwayImage =
                                 new Uri(string.Format("{0}\\DataFiles\\images\\map{1}.png", dir, pathway.KeggId),
                                     UriKind.Absolute);
-                            if (File.Exists(string.Format("{0}\\DataFiles\\images\\map{1}.png", dir, pathway.KeggId)))
-                            {
-                                writer.WriteLine("image found");
-                            }
                             pathway.ClearRectangles();
-                            writer.WriteLine(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
-                                            absPath,
-                                            pathway.KeggId));
                             if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
                                 absPath,
                                 pathway.KeggId))))
                             {
-                                writer.WriteLine("Coords found");
                                 var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
                                 using (
                                     var reader =
@@ -458,6 +447,18 @@ namespace BiodiversityPlugin.ViewModels
                                         coord.Value, coord.Key.Item1,
                                         coord.Key.Item2, Colors.Blue);
                                 }
+                                var legend = new KeggKoInformation("legend", "legend", "legend");
+                                var legendList = new List<KeggKoInformation>();
+                                legendList.Add(legend);
+                                pathway.AddRectangle(legendList, 10,
+                                    5, Colors.Red);
+                                pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
+                                
+                                pathway.AddRectangle(
+                                    legendList, 10,
+                                    22, Colors.Blue);
+                                pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
+
                             }
                             selectedPaths.Add(pathway);
 
@@ -477,7 +478,6 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
             }
-            writer.Close();
             SelectedPathways = new ObservableCollection<Pathway>(selectedPaths);
             SelectedPathway = selectedPaths.First();
             PathwayTabIndex = 0;
