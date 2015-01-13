@@ -63,7 +63,8 @@
 
         <TabItem Header="Overview" Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
-                 Margin="-2,0,2,0">
+                 Margin="-2,0,2,0"
+                 IsEnabled="False">
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -117,7 +118,7 @@
         </TabItem>
 
         <!-- Organism selection tab    -->
-        <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
+        <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5"  IsEnabled="False">
         <Grid>
             <Grid.RowDefinitions>
                     <RowDefinition Height="45" />
@@ -181,7 +182,7 @@
         </TabItem>
 
         <!-- Pathway selection tab    -->
-        <TabItem Header="Pathways"  Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding IsOrganismSelected}">
+        <TabItem Header="Pathways"  Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="False">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="45" />
@@ -241,7 +242,10 @@
                 </biodiversityPlugin:MvvmTreeView>
 
 
-                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" FontSize="12" FontWeight="Normal" Margin="20,0"/>
+                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20,0, 20, 80"/>
+                <Button Grid.Row="3" Grid.Column="1" Height="40" Width="150" VerticalAlignment="Bottom" Margin="0,0,0,30" Command="{Binding DeleteSelectedPathwayCommand}" IsEnabled="{Binding ListPathwaySelected}"> 
+                    Delete
+                </Button>
 
                 <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                 <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding IsPathwaySelected}">Next &gt;</Button>
@@ -251,7 +255,12 @@
         <!-- Protein selection tab from many pathway -->
         <TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
-                 IsEnabled="{Binding IsPathwaySelected}">
+                  IsEnabled="False">
+            <TabItem.InputBindings>
+                <MouseBinding>
+                    
+                </MouseBinding>
+            </TabItem.InputBindings>
             <TabItem.Header>
                 <TextBlock HorizontalAlignment="Center">
                         Select Proteins

@@ -207,6 +207,7 @@ namespace BiodiversityPlugin.ViewModels
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             OrganismReviewCommand = new RelayCommand(OrganismReview);
+            DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
             writer = new StreamWriter("C:\\Temp\\log.txt", true);
             writer.WriteLine("Assigned commands");
             writer.Close();
@@ -242,6 +243,26 @@ namespace BiodiversityPlugin.ViewModels
             writer = new StreamWriter("C:\\Temp\\log.txt", true);
             writer.WriteLine("VM constructor complete");
             writer.Close();
+        }
+
+        private void DeleteSelectedPathway()
+        {
+            foreach (var pathwayCatagory in Pathways)
+            {
+                foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
+                {
+                    foreach (var pathway in pathwayGroup.Pathways)
+                    {
+                        if (ListPathwaySelectedItem == pathway.Name)
+                        {
+                            pathway.Selected = false;
+                            var temp = ListPathways;
+                            temp.Remove(ListPathwaySelectedItem);
+                            ListPathways = temp;
+                        }
+                    }
+                }
+            }
         }
 
         public object SelectedOrganismTreeItem
@@ -716,6 +737,8 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility m_filterVisibility;
         private ObservableCollection<string> m_filteredOrganisms;
         private ObservableCollection<string> m_listPathways;
+        private string m_listPathwaySelectedItem;
+        private bool m_listPathwaySelected;
 
         public List<ProteinInformation> ProteinsToExport
         {
@@ -900,5 +923,31 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        public string ListPathwaySelectedItem
+        {
+            get { return m_listPathwaySelectedItem; }
+            set
+            {
+                m_listPathwaySelectedItem = value;
+                ListPathwaySelected = false;
+                if (ListPathways.Contains(value))
+                {
+                    ListPathwaySelected = true;
+                }
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool ListPathwaySelected
+        {
+            get { return m_listPathwaySelected; }
+            set
+            {
+                m_listPathwaySelected = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public RelayCommand DeleteSelectedPathwayCommand { get; set; }
     }
 }
