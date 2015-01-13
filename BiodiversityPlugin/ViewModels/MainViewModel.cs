@@ -602,7 +602,11 @@ namespace BiodiversityPlugin.ViewModels
             var accessionString = String.Join("+OR+", accessionList);
             //Console.WriteLine(accessionString);
             var allFastas = GetFastasFromNCBI(accessionString);
-            Console.WriteLine(allFastas);
+
+            var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
+
+            MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+
         }
 
         private string GetFastasFromNCBI(string accessionString)
