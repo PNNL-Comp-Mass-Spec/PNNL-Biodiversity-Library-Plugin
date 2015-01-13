@@ -277,7 +277,6 @@ namespace BiodiversityPlugin.ViewModels
 
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
         {
-            //TODO: Add pathway to the list of yadda yadda yadda
             if (message.PropertyName == "Selected" && message.Sender is Pathway)
             {
                 var old = ListPathways;

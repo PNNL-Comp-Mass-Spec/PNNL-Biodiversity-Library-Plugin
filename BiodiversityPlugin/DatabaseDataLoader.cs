@@ -196,22 +196,23 @@ namespace BiodiversityPlugin
                             var catName = reader.GetString(1);
 
                             var pathway = new Pathway(pathName, pathId);
+                            if (subCat != "Global and overview maps")
+                            {
+                                if (!groups.ContainsKey(subCat))
+                                {
+                                    groups[subCat] = new PathwayGroup(subCat, new List<Pathway>());
+                                }
+                                groups[subCat].Pathways.Add(pathway);
 
-                            if (!groups.ContainsKey(subCat))
-                            {
-                                groups[subCat] = new PathwayGroup(subCat, new List<Pathway>());
+                                if (!catagories.ContainsKey(catName))
+                                {
+                                    catagories[catName] = new PathwayCatagory(catName, new List<PathwayGroup>());
+                                }
+                                if (!catagories[catName].PathwayGroups.Contains(groups[subCat]))
+                                {
+                                    catagories[catName].PathwayGroups.Add(groups[subCat]);
+                                }
                             }
-                            groups[subCat].Pathways.Add(pathway);
-
-                            if (!catagories.ContainsKey(catName))
-                            {
-                                catagories[catName] = new PathwayCatagory(catName, new List<PathwayGroup>());
-                            }
-                            if (!catagories[catName].PathwayGroups.Contains(groups[subCat]))
-                            {
-                                catagories[catName].PathwayGroups.Add(groups[subCat]);
-                            }
-                            
                         }
                     }
                 }

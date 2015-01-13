@@ -25,6 +25,7 @@ namespace BiodiversityPlugin.Models
         private string m_informationMessage;
         private int m_numDataBoxes;
         private int m_dataBoxesSelected;
+        private string m_legendSource;
 
         public string InformationMessage
         {
@@ -63,6 +64,8 @@ namespace BiodiversityPlugin.Models
             {
                 _imageString = value;
                 RaisePropertyChanged();
+                var temp = LegendSource;
+                LegendSource = temp;
             }
         }
 
@@ -312,10 +315,20 @@ namespace BiodiversityPlugin.Models
             UpdateMessage();
             m_numDataBoxes = 0;
             m_dataBoxesSelected = 0;
+            LegendSource = "Datafiles/pathwayLegend.png";
         }
 
         public RelayCommand SelectAllCommand { get; set; }
 
         public RelayCommand DeselectAllCommand { get; set; }
+
+        public string LegendSource { 
+            get { return m_legendSource; } 
+            set 
+            { 
+                m_legendSource = value; 
+                RaisePropertyChanged(); 
+            } 
+        }
     }
 }
