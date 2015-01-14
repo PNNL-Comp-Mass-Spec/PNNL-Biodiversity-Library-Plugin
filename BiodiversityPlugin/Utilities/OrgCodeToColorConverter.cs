@@ -2,9 +2,8 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media;
 
-namespace BiodiversityPlugin
+namespace BiodiversityPlugin.Utilities
 {
     public class OrgCodeToColorConverter : IValueConverter
     {

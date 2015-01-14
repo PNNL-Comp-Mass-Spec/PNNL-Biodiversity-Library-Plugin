@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BiodiversityPlugin.Models;
 
-namespace BiodiversityPlugin
+namespace BiodiversityPlugin.DataManagement
 {
     public interface IDataAccess
     {

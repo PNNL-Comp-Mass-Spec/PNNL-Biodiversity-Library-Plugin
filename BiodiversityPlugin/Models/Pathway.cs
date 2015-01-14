@@ -2,13 +2,8 @@
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Xml.Serialization;
-using Brushes = System.Windows.Media.Brushes;
 using GalaSoft.MvvmLight.CommandWpf;
 
 namespace BiodiversityPlugin.Models 

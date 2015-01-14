@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:models="clr-namespace:BiodiversityPlugin.Models"
-        xmlns:biodiversityPlugin="clr-namespace:BiodiversityPlugin"
+        xmlns:utilities="clr-namespace:BiodiversityPlugin.Utilities"
+		xmlns:biodiversityPlugin="clr-namespace:BiodiversityPlugin"
         Title="Biodiversity Plugin" Height="900" Width="1100">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -20,7 +21,7 @@
         <SolidColorBrush x:Key="DisabledBorderBrush" Color="#AAA" />
 
         <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888" />
-        <biodiversityPlugin:OrgCodeToColorConverter x:Key="OrgCodeToColor" />
+        <utilities:OrgCodeToColorConverter x:Key="OrgCodeToColor" />
         <Style TargetType="{x:Type TabItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -78,13 +79,13 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
-                    <Image Source="DataFiles/colorLogo.png" Width="120" Height="120" HorizontalAlignment="Center"></Image>
-                    <TextBlock FontSize="15.8" FontWeight="Normal" Foreground="Black">
-                        The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data <LineBreak />
-                        can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified <LineBreak />
-                        in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library <LineBreak />
-                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. <LineBreak />
-                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by <LineBreak />
+					<Image Source="DataFiles/colorLogo.png" Width="120" Height="120" HorizontalAlignment="Center"></Image>
+                    <TextBlock FontSize="15.8" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15">
+                        The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data 
+                        can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
+                        in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library 
+                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. 
+                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
                         Sam Payne at 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
                         with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak /> <LineBreak /> 
@@ -134,19 +135,19 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Organisms</TextBlock>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black">
+                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         1) Select an Organism.
                     </TextBlock>
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black">
-                        Data in the Biodiversity Library is organized bt the organism. To retrieve data, please select an organism of interest, either <LineBreak />
-                        through the Phylum/Class explorer or through the Organism search box. If you want to analyze data from multiple <LineBreak />
+					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
+                        Data in the Biodiversity Library is organized bt the organism. To retrieve data, please select an organism of interest, either 
+                        through the Phylum/Class explorer or through the Organism search box. If you want to analyze data from multiple 
                         organisms, please export the data one organism at a time.
                     </TextBlock>
                 </StackPanel>
                 <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylum/Class explorer</TextBlock>
                 <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
-                <biodiversityPlugin:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
-                <biodiversityPlugin:MvvmTreeView.Resources>
+                <utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
+                <utilities:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
                         <TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="16" />
                     </HierarchicalDataTemplate>
@@ -156,8 +157,8 @@
                     <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
                         <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
                     </HierarchicalDataTemplate>
-                </biodiversityPlugin:MvvmTreeView.Resources>
-                </biodiversityPlugin:MvvmTreeView>
+                </utilities:MvvmTreeView.Resources>
+                </utilities:MvvmTreeView>
                 <Grid Grid.Row="3" Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
@@ -199,13 +200,13 @@
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Pathways</TextBlock>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black">
+					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         2) Select pathways of interest.
                      </TextBlock>
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black">
+					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
                         Pathway definitions and membership are defined by 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.genome.jp/kegg/pathway.html"> KEGG. </Hyperlink> 
-                        Navigate to pathways and click the checkbox. <LineBreak />
+                        Navigate to pathways and click the checkbox. 
                         Multiple pathways can be selected.
                     </TextBlock>
                 </StackPanel>
@@ -217,8 +218,8 @@
                     Pathways Selected
                 </TextBlock>
 
-                <biodiversityPlugin:MvvmTreeView Grid.Row="3" Grid.Column="0" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
-                <biodiversityPlugin:MvvmTreeView.Resources>
+                <utilities:MvvmTreeView Grid.Row="3" Grid.Column="0" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
+                <utilities:MvvmTreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
                         <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="16" />
                     </HierarchicalDataTemplate>
@@ -235,11 +236,11 @@
                                 <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="Regular" />
                             </Grid>  
                         </HierarchicalDataTemplate>
-                    </biodiversityPlugin:MvvmTreeView.Resources>
-                    <biodiversityPlugin:MvvmTreeView.InputBindings>
+                    </utilities:MvvmTreeView.Resources>
+                    <utilities:MvvmTreeView.InputBindings>
                         <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
-                    </biodiversityPlugin:MvvmTreeView.InputBindings>
-                </biodiversityPlugin:MvvmTreeView>
+                    </utilities:MvvmTreeView.InputBindings>
+                </utilities:MvvmTreeView>
 
 
                 <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20,0, 20, 80"/>
@@ -281,13 +282,13 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28" Text="{Binding Path=SelectedOrganismText}"/>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black">
+					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         3) Curate protein list.
                     </TextBlock>
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black">
-                        Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the <LineBreak />
-                        Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are <LineBreak />
-                        shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the <LineBreak />
+					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+                        Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the 
+                        Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are 
+                        shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the 
                         pathway image. (Deselected proteins appear as grey boxes.)
                     </TextBlock>
                 </StackPanel>
@@ -372,12 +373,12 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Selected Genes</TextBlock>
                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black">
+					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         4) Review and export data to Skyline.
                     </TextBlock>
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black">
-                        From this final tab, a table of genes for each organism and pathway are shown for review. By hitting the export button, all<LineBreak />
-                        relevant data will be transferred to Skyline. This includes a FASTA file for all selected proteins, as well as the identified <LineBreak />
+					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+                        From this final tab, a table of genes for each organism and pathway are shown for review. By hitting the export button, all
+                        relevant data will be transferred to Skyline. This includes a FASTA file for all selected proteins, as well as the identified 
                         peptides in a bibliospec library.
                     </TextBlock>
                 </StackPanel>

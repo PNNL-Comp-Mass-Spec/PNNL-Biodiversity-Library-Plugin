@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace BiodiversityPlugin
+namespace BiodiversityPlugin.Utilities
 {
     /// <summary>
     /// Microsoft has done everything in their power to make using WPF TreeViews a !@#$ing nightmare, especially

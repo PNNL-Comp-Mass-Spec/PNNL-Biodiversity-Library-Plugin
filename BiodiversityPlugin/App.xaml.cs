@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
+using BiodiversityPlugin.DataManagement;
 using BiodiversityPlugin.ViewModels;
 
 namespace BiodiversityPlugin
@@ -12,7 +13,7 @@ namespace BiodiversityPlugin
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-
+			//Built to run in skyline
 	        try
 	        {
 		        const string tsvOrgPath = "Tools\\BiodiversityPlugin\\DataFiles\\Organisms.txt";
@@ -24,6 +25,7 @@ namespace BiodiversityPlugin
 		        var mainWindow = new MainWindow {DataContext = vm};
 		        mainWindow.Show();
 	        }
+			//Last ditch to run in debug or stand-alone mode
 	        catch (DirectoryNotFoundException x)
 	        {
 				const string tsvOrgPath = "DataFiles\\Organisms.txt";
