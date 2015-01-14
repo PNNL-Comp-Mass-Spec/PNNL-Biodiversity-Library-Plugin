@@ -51,6 +51,9 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<string> m_listPathways;
         private string m_listPathwaySelectedItem;
         private bool m_listPathwaySelected;
+        private bool m_pathwaysTabEnabled;
+        private bool m_selectionTabEnabled;
+        private bool m_reviewTabEnabled;
 
         #endregion
 
@@ -341,6 +344,7 @@ namespace BiodiversityPlugin.ViewModels
                             if (organism.Name == value)
                             {
                                 SelectedOrganismTreeItem = organism;
+                                SelectedTabIndex = SelectedTabIndex;
                                 return;
                             }
                         }
@@ -355,6 +359,7 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 m_listPathways = value;
+                SelectedTabIndex = SelectedTabIndex;
                 RaisePropertyChanged();
             }
         }
@@ -380,6 +385,36 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 m_listPathwaySelected = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool PathwaysTabEnabled
+        {
+            get { return m_pathwaysTabEnabled; }
+            set
+            {
+                m_pathwaysTabEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool SelectionTabEnabled
+        {
+            get { return m_selectionTabEnabled; }
+            set
+            {
+                m_selectionTabEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool ReviewTabEnabled
+        {
+            get { return m_reviewTabEnabled; }
+            set
+            {
+                m_reviewTabEnabled = value;
                 RaisePropertyChanged();
             }
         }
@@ -412,7 +447,22 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _selectedTabIndex = value;
+                PathwaysTabEnabled = false;
+                SelectionTabEnabled = false;
+                ReviewTabEnabled = false;
                 RaisePropertyChanged();
+                if (SelectedTabIndex > 2 || SelectedOrganism != null)
+                {
+                    PathwaysTabEnabled = true;
+                }
+                if (SelectedTabIndex > 3 || ListPathways.Count != 0)
+                {
+                    SelectionTabEnabled = true;
+                }
+                if (SelectedTabIndex == 3)
+                {
+                    ReviewTabEnabled = true;
+                }
             }
         }
 
@@ -517,7 +567,9 @@ namespace BiodiversityPlugin.ViewModels
         private void PreviousTab()
         {
             if (SelectedTabIndex > 0)
+            {
                 SelectedTabIndex--;
+            }
         }
 
         private void NextTab()
@@ -531,7 +583,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void OrganismReview()
         {
-            SelectedTabIndex++;
+            SelectedTabIndex = 4;
             var org = SelectedOrganism;
             var orgPathList = new List<Tuple<Organism, Pathway>>();
             if (m_organismPathwayHistory != null)
@@ -556,7 +608,7 @@ namespace BiodiversityPlugin.ViewModels
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var pieces = pwd.Split('\\');
             var absPath = dir.Substring(6);
-            SelectedTabIndex++;
+            SelectedTabIndex = 3;
             var selectedPaths = new List<Pathway>();
             foreach (var catagory in Pathways)
             {
@@ -695,7 +747,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 absPath += string.Format("{0}{1}", pieces[i], '\\');
             }
-            SelectedTabIndex++;
+            SelectedTabIndex = 4;
             var selectedPaths = SelectedPathways.ToList();
             var accessions = new List<ProteinInformation>();
             if (SelectedPathway != null && SelectedOrganism != null)
