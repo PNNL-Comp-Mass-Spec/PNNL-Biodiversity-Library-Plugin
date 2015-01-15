@@ -618,9 +618,7 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
-                            pathway.PathwayImage =
-                                new Uri(string.Format("{0}\\DataFiles\\images\\map{1}.png", dir, pathway.KeggId),
-                                    UriKind.Absolute);
+                            pathway.PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", pathway.KeggId));
                             pathway.ClearRectangles();
                             if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
                                 absPath,
@@ -869,7 +867,7 @@ namespace BiodiversityPlugin.ViewModels
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
 
-            esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
+            //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
 
             var getStream = esearchGetUrl.GetResponse().GetResponseStream();
             var reader = new StreamReader(getStream);
