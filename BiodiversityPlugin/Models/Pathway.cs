@@ -26,6 +26,7 @@ namespace BiodiversityPlugin.Models
         private int m_numDataBoxes;
         private int m_dataBoxesSelected;
         private string m_legendSource;
+        private string m_keggReqId;
 
         public string InformationMessage
         {
@@ -366,14 +367,23 @@ namespace BiodiversityPlugin.Models
 
         internal void LoadImage()
         {
-            PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+            var pathwayline = "";
+            var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd());
+            var esearchGetUrl = WebRequest.Create(esearchURL);
+            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+            var reader = new StreamReader(getStream);
+            pathwayline = reader.ReadLine();
+            m_keggReqId = pathwayline.Substring(8,5);
+            PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", m_keggReqId));
+            reader.Close();
+            esearchGetUrl.Abort();
         }
 
         internal Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
         {
             var coordDict = new Dictionary<string, List<Tuple<int, int>>>();
             var xml = "";
-            var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", KeggId);
+            var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", m_keggReqId);
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
 
@@ -413,6 +423,8 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
+            reader.Close();
+            esearchGetUrl.Abort();
 
             return coordDict;
 
