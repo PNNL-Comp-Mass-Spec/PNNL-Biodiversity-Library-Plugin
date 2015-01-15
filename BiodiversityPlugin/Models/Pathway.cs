@@ -2,8 +2,12 @@
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Windows;
 using System.Windows.Media;
+using System.Xml;
 using GalaSoft.MvvmLight.CommandWpf;
 
 namespace BiodiversityPlugin.Models 
@@ -241,6 +245,19 @@ namespace BiodiversityPlugin.Models
             PathwayCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
+            
+            //Testing adding a rounded rectangel
+            /*
+            var rectGeo = new RectangleGeometry();
+            rectGeo.Rect = new Rect(254-(153/2.0),596-(34/2.0),153,34);
+            rectGeo.RadiusX = 10;
+            rectGeo.RadiusY = 10;
+            var myPath = new System.Windows.Shapes.Path();
+            myPath.Fill = Brushes.SaddleBrown;
+            myPath.Opacity = .5;
+            myPath.Data = rectGeo;
+            PathwayCanvas.Children.Add(myPath);
+             */
         }
 
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -345,6 +362,60 @@ namespace BiodiversityPlugin.Models
             PathwayCanvas.Children.Add(textBlock);
             Canvas.SetLeft(textBlock, p1 + 50);
             Canvas.SetTop(textBlock, p2);
+        }
+
+        internal void LoadImage()
+        {
+            PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+        }
+
+        internal Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
+        {
+            var coordDict = new Dictionary<string, List<Tuple<int, int>>>();
+            var xml = "";
+            var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", KeggId);
+
+            var esearchGetUrl = WebRequest.Create(esearchURL);
+
+            //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
+
+            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+            var reader = new StreamReader(getStream);
+            var settings = new XmlReaderSettings();
+            settings.DtdProcessing = DtdProcessing.Ignore;
+            var xmlRead = XmlReader.Create(esearchURL, settings);
+            xmlRead.ReadToFollowing("pathway");
+            while (xmlRead.ReadToFollowing("entry"))
+            {
+                var wholeName = xmlRead.GetAttribute("name");
+                var backup = wholeName.Split(' ');
+                var pieces = new List<string>();
+                foreach (var piece in backup)
+                {
+                    pieces.Add(piece.Split(':').Last());
+                }
+                xmlRead.ReadToFollowing("graphics");
+                var type = xmlRead.GetAttribute("type");
+                var x = Convert.ToInt32(xmlRead.GetAttribute("x")) - (Convert.ToInt32(xmlRead.GetAttribute("width")) / 2);
+                var y = Convert.ToInt32(xmlRead.GetAttribute("y")) - (Convert.ToInt32(xmlRead.GetAttribute("height")) / 2);
+                if (type == "rectangle")
+                {
+                    foreach (var piece in pieces)
+                    {
+                        if (piece.StartsWith("K"))
+                        {
+                            if (!coordDict.ContainsKey(piece))
+                            {
+                                coordDict[piece] = new List<Tuple<int, int>>();
+                            }
+                            coordDict[piece].Add(new Tuple<int, int>(x, y));
+                        }
+                    }
+                }
+            }
+
+            return coordDict;
+
         }
     }
 }

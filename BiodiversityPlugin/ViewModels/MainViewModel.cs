@@ -618,13 +618,15 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
-                            pathway.PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", pathway.KeggId));
+                            pathway.LoadImage();
                             pathway.ClearRectangles();
-                            if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
-                                absPath,
-                                pathway.KeggId))))
-                            {
-                                var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
+                            var koToCoordDict = pathway.LoadCoordinates();
+                            //if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
+                            //    absPath,
+                            //    pathway.KeggId))))
+                            //{
+                                //var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
+                                /*
                                 using (
                                     var reader =
                                         new StreamReader(
@@ -646,6 +648,7 @@ namespace BiodiversityPlugin.ViewModels
                                         line = reader.ReadLine();
                                     }
                                 }
+                                 */
                                 var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                                 var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                                 foreach (var ko in koWithData)
@@ -708,7 +711,7 @@ namespace BiodiversityPlugin.ViewModels
                                     22, Colors.Blue);
                                 pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
 
-                            }
+                            //}
                             selectedPaths.Add(pathway);
 
                             if (selectedPaths.Count == 1)
