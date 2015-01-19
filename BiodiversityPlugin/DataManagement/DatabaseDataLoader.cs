@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using BiodiversityPlugin.Models;
 
@@ -9,20 +10,14 @@ namespace BiodiversityPlugin.DataManagement
 {
     public class DatabaseDataLoader: IDataAccess
     {
-        //private string m_databasePath = "Tools/BioDiversity/DataFiles/PBL.db";
         private readonly string m_databasePath;
 
         public DatabaseDataLoader(string organismDb)
         {
+
             m_databasePath = organismDb;
         }
-
-        public void LoadAccessions()
-        {
-            
-        }
-
-
+        
         public List<OrgPhylum> LoadOrganisms(ref List<string> organismList )
         {
             var phylums = new Dictionary<string, OrgPhylum>();
@@ -33,7 +28,7 @@ namespace BiodiversityPlugin.DataManagement
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selectionText = "SELECT * FROM organism";
+                    const string selectionText = "SELECT * FROM organism";
                     cmd.CommandText = selectionText;
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -84,10 +79,7 @@ namespace BiodiversityPlugin.DataManagement
                 foreach (var orgClass in phylum.OrgClasses)
                 {
                     orgClass.Organisms.Sort((x, y) => x.Name.CompareTo(y.Name));
-                    foreach (var organism in orgClass.Organisms)
-                    {
-                        organismList.Add(organism.Name);
-                    }
+                    organismList.AddRange(orgClass.Organisms.Select(organism => organism.Name));
                 }
             }
             return phylums.Values.ToList();
@@ -104,7 +96,7 @@ namespace BiodiversityPlugin.DataManagement
 
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selectionText = "SELECT * FROM kegg_pathway";
+                    const string selectionText = "SELECT * FROM kegg_pathway";
                     cmd.CommandText = selectionText;
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -150,9 +142,8 @@ namespace BiodiversityPlugin.DataManagement
                 return null;
             }
             var orgCode = SelectedOrganism.OrgCode;
-            var KoIds = new List<string>();
+            var koIds = new List<string>();
             var koInformation = new List<KeggKoInformation>();
-            //            var uniprotAccessions = new List<ProteinInformation>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
@@ -166,8 +157,7 @@ namespace BiodiversityPlugin.DataManagement
                                       " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
                                       " FROM kegg_gene_ko_map, observed_kegg_gene, kegg_ko " +
                                       " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id " + 
-                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");//,
-                    //                            pathwayId, orgCode);
+                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");
 
 
                     cmd.CommandText = selectionText;
@@ -176,12 +166,14 @@ namespace BiodiversityPlugin.DataManagement
                         while (reader.Read())
                         {
                             if (reader.GetInt32(0) == 1 && pathway.KeggId.Contains(reader.GetString(1)) &&
-                                reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                                reader.GetString(2).Contains(orgCode) && !koIds.Contains(reader.GetString(3)))
                             {
-                                KoIds.Add(reader.GetString(3));
-                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "");
-                                koToAdd.KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "";
-                                koToAdd.KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : "";
+                                koIds.Add(reader.GetString(3));
+                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "")
+                                {
+                                    KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "",
+                                    KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : ""
+                                };
                                 koInformation.Add(koToAdd);
                             }
                         }
@@ -199,9 +191,8 @@ namespace BiodiversityPlugin.DataManagement
                 return null;
             }
             var orgCode = SelectedOrganism.OrgCode;
-            var KoIds = new List<string>();
+            var koIds = new List<string>();
             var koInformation = new List<KeggKoInformation>();
-            //            var uniprotAccessions = new List<ProteinInformation>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
@@ -215,8 +206,7 @@ namespace BiodiversityPlugin.DataManagement
                                       " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
                                       " FROM kegg_gene_ko_map, observed_kegg_gene, kegg_ko " +
                                       " WHERE kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id " +
-                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");//,
-                    //                            pathwayId, orgCode);
+                                      " AND kegg_ko.kegg_ko_id = kegg_gene_ko_map.kegg_ko_id");
 
 
                     cmd.CommandText = selectionText;
@@ -225,12 +215,14 @@ namespace BiodiversityPlugin.DataManagement
                         while (reader.Read())
                         {
                             if (reader.GetInt32(0) == 0 && pathway.KeggId.Contains(reader.GetString(1)) &&
-                                reader.GetString(2).Contains(orgCode) && !KoIds.Contains(reader.GetString(3)))
+                                reader.GetString(2).Contains(orgCode) && !koIds.Contains(reader.GetString(3)))
                             {
-                                KoIds.Add(reader.GetString(3));
-                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "");
-                                koToAdd.KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "";
-                                koToAdd.KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : "";
+                                koIds.Add(reader.GetString(3));
+                                var koToAdd = new KeggKoInformation(reader.GetString(3), "", "")
+                                {
+                                    KeggGeneName = !reader.IsDBNull(4) ? reader.GetString(4) : "",
+                                    KeggEc = !reader.IsDBNull(5) ? reader.GetString(5) : ""
+                                };
                                 koInformation.Add(koToAdd);
                             }
                         }
@@ -250,9 +242,7 @@ namespace BiodiversityPlugin.DataManagement
 
             var orgCode = org.OrgCode;
             var uniprotAccessions = new Dictionary<string, ProteinInformation>();
-
-
-
+            
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
@@ -283,10 +273,6 @@ namespace BiodiversityPlugin.DataManagement
                             {
                                 while (reader.Read())
                                 {
-
-                                    var obs = reader.GetInt32(1);
-                                    var pat = reader.GetString(2);
-                                    var or = reader.GetString(3);
                                     if (reader.GetInt32(1) == 1 && pathway.KeggId == reader.GetString(2) &&
                                         reader.GetString(3).Contains(orgCode) &&
                                         !uniprotAccessions.ContainsKey(reader.GetString(0)))

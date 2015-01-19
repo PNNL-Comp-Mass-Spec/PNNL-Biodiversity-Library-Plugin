@@ -322,7 +322,7 @@
 										</Grid.ColumnDefinitions>
 										<Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayCanvas" Visibility="Visible">
-                                            <ContentPresenter Content="{Binding PathwayCanvas, UpdateSourceTrigger=PropertyChanged}"/>
+                                            <ContentPresenter Content="{Binding PathwayNonDataCanvas, UpdateSourceTrigger=PropertyChanged}"/>
                                         </Canvas>
                                         <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
                                             <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}"/>

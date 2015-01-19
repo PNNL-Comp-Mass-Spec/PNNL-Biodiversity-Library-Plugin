@@ -2,11 +2,10 @@
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Windows;
+using System.Runtime.InteropServices;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Xml;
 using GalaSoft.MvvmLight.CommandWpf;
 
@@ -15,8 +14,10 @@ namespace BiodiversityPlugin.Models
     /// <summary>
     /// Class for KEGG Pathways from Chris Overall's SQLite database
     /// </summary>
-    public class Pathway : ViewModelBase 
+    public class Pathway : ViewModelBase
     {
+        private Color _selectedColor = Colors.Red;
+
         private bool m_selected;
         private Uri _imageString;
 	    private Canvas _pathwayDataCanvas;
@@ -27,7 +28,7 @@ namespace BiodiversityPlugin.Models
         private int m_dataBoxesSelected;
         private string m_legendSource;
         private string m_keggReqId;
-
+        
         public string InformationMessage
         {
             get { return m_informationMessage; }
@@ -52,12 +53,18 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// List of Kegg Orthologs selected within the pathway
+        /// </summary>
         public List<String> SelectedKo
         {
             get { return _selectedKo; }
             set { _selectedKo = value; }
         }
 
+        /// <summary>
+        /// Image for the pathway
+        /// </summary>
         public Uri PathwayImage
         {
             get { return _imageString; }
@@ -70,7 +77,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-		public Canvas PathwayCanvas
+        /// <summary>
+        /// Canvas for anything drawn that user cannot interact with.
+        /// </summary>
+		public Canvas PathwayNonDataCanvas
 		{
 			get { return _pathwayCanvas; }
 			private set
@@ -80,6 +90,10 @@ namespace BiodiversityPlugin.Models
 			}
 		}
 
+        /// <summary>
+        /// Canvas for anything drawn user can interact with:
+        /// e.g. Kegg Ortholog boxes for selection that have data from MSMS
+        /// </summary>
         public Canvas PathwayDataCanvas
         {
             get { return _pathwayDataCanvas; }
@@ -116,6 +130,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to select all the members in the Data Canvas which adds all
+        /// of the Kegg Orthologs to the list of selected Orthologs
+        /// </summary>
         public void SelectAll()
         {
             foreach (var child in PathwayDataCanvas.Children)
@@ -126,6 +144,11 @@ namespace BiodiversityPlugin.Models
             UpdateMessage();
         }
 
+
+        /// <summary>
+        /// Method to deselect all the members in the Data Canvas which clears
+        /// the list of selected Orthologs
+        /// </summary>
         public void DeselectAll()
         {
             foreach (var child in PathwayDataCanvas.Children)
@@ -136,20 +159,34 @@ namespace BiodiversityPlugin.Models
             UpdateMessage();
         }
 
+        /// <summary>
+        /// Used to remove everything from the canvases and reset the information
+        /// related to them
+        /// </summary>
         public void ClearRectangles()
         {
             PathwayDataCanvas.Children.Clear();
-            PathwayCanvas.Children.Clear();
+            PathwayNonDataCanvas.Children.Clear();
             m_dataBoxesSelected = 0;
             m_numDataBoxes = 0;
         }
 
+        /// <summary>
+        /// Change the child to deselected. This alters the color of the child to
+        /// Gray, grabs the string Tag for the child, splits it into individual instances
+        /// and removes those from the list of selected Orthologs.
+        /// </summary>
+        /// <param name="child">The rectangle that is clicked with a string tag.</param>
         private void Deselect(object child)
         {
+            // Shape must be a rectangle.
             var rect = child as System.Windows.Shapes.Rectangle;
-            rect.Fill = new SolidColorBrush(Colors.Gray);
+            if (rect == null) return;
+            // Tag must be a string
             var koName = rect.Tag as string;
-            //SelectedKo.Clear();
+            if (koName == null) return;
+
+            rect.Fill = new SolidColorBrush(Colors.Gray);
             m_dataBoxesSelected--;
             UpdateMessage();
 
@@ -162,16 +199,27 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+
+        /// <summary>
+        /// Change the child to selected. This alters the color of the child to
+        /// Red, grabs the string Tag for the child, splits it into individual instances
+        /// and adds those to the list of selected Orthologs if they are not already in the
+        /// list of selected orthologs.
+        /// </summary>
+        /// <param name="child">The rectangle that is clicked with a string tag.</param>
         private void Select(object child)
         {
+            // Shape must be a rectangle.
             var rect = child as System.Windows.Shapes.Rectangle;
+            if (rect == null) return;
+            // Tag must be a string
+            var koName = rect.Tag as string;
+            if (koName == null) return;
             rect.Fill = new SolidColorBrush(Colors.Red);
 
-            var koName = rect.Tag as string;
-            //SelectedKo.Clear();
             m_dataBoxesSelected++;
             UpdateMessage();
-
+            
             var kos = koName.Split(',');
             foreach (var ko in kos)
             {
@@ -181,13 +229,32 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        public void AddDataRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, System.Windows.Media.Color color)
+        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData)
         {
-            //coord.Value.Aggregate((working, next) => working + ", " + next)
-            var koIds = koInformation.First().KeggKoId;// koInformation.Aggregate((working, next) => working.KeggKoId + ", " + next.KeggKoId);
-            var keggGeneNames = koInformation.First().KeggGeneName;// koInformation
-            var keggEcs = koInformation.First().KeggEc;
+            if (isData)
+            {
+                AddDataRectangle(koInformation, xCoord, yCoord);
+            }
+            else
+            {
+                AddNonDataRectangle(koInformation, xCoord, yCoord);
+            }
+        }
 
+        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData, Color color)
+        {
+            var child = isData ? 
+                            AddDataRectangle(koInformation, xCoord, yCoord) :
+                            AddNonDataRectangle(koInformation, xCoord, yCoord);
+            child.Fill = new SolidColorBrush(color);
+        }
+
+        private Rectangle AddDataRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord)
+        {
+            var koIds = koInformation.First().KeggKoId;
+            var keggGeneNames = koInformation.First().KeggGeneName;
+            var keggEcs = koInformation.First().KeggEc;
+            
             foreach(var ko in koInformation)
                 if (ko != koInformation.First())
                 {
@@ -204,7 +271,6 @@ namespace BiodiversityPlugin.Models
                 ToolTip = tooltip,
                 Width = 47,
                 Height = 17,
-                Fill = new SolidColorBrush(color),
                 Opacity = .50
             };
             rect.MouseDown += rect_MouseDown;
@@ -215,13 +281,13 @@ namespace BiodiversityPlugin.Models
             Select(rect);
 
             UpdateMessage();
+            return rect;
         }
 
-        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, System.Windows.Media.Color color)
+        private Rectangle AddNonDataRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord)
         {
-            //coord.Value.Aggregate((working, next) => working + ", " + next)
-            var koIds = koInformation.First().KeggKoId;// koInformation.Aggregate((working, next) => working.KeggKoId + ", " + next.KeggKoId);
-            var keggGeneNames = koInformation.First().KeggGeneName;// koInformation
+            var koIds = koInformation.First().KeggKoId;
+            var keggGeneNames = koInformation.First().KeggGeneName;
             var keggEcs = koInformation.First().KeggEc;
 
             foreach (var ko in koInformation)
@@ -240,25 +306,13 @@ namespace BiodiversityPlugin.Models
                 ToolTip = tooltip,
                 Width = 47,
                 Height = 17,
-                Fill = new SolidColorBrush(color),
+                Fill = new SolidColorBrush(Colors.Blue),
                 Opacity = .50
             };
-            PathwayCanvas.Children.Add(rect);
+            PathwayNonDataCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
-            
-            //Testing adding a rounded rectangel
-            /*
-            var rectGeo = new RectangleGeometry();
-            rectGeo.Rect = new Rect(254-(153/2.0),596-(34/2.0),153,34);
-            rectGeo.RadiusX = 10;
-            rectGeo.RadiusY = 10;
-            var myPath = new System.Windows.Shapes.Path();
-            myPath.Fill = Brushes.SaddleBrown;
-            myPath.Opacity = .5;
-            myPath.Data = rectGeo;
-            PathwayCanvas.Children.Add(myPath);
-             */
+            return rect;
         }
 
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -321,7 +375,7 @@ namespace BiodiversityPlugin.Models
             Name = name;
             KeggId = keggId;
             m_selected = false;
-			PathwayCanvas = new Canvas();
+			PathwayNonDataCanvas = new Canvas();
             PathwayDataCanvas = new Canvas();
             SelectedKo = new List<string>();
             SelectAllCommand = new RelayCommand(SelectAll);
@@ -350,7 +404,7 @@ namespace BiodiversityPlugin.Models
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and observed in MS/MS data";
             textBlock.FontSize = 12;
-            PathwayCanvas.Children.Add(textBlock);
+            PathwayNonDataCanvas.Children.Add(textBlock);
             Canvas.SetLeft(textBlock, p1 + 50);
             Canvas.SetTop(textBlock, p2);
         }
@@ -360,40 +414,55 @@ namespace BiodiversityPlugin.Models
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and not observed in MS/MS data";
             textBlock.FontSize = 12;
-            PathwayCanvas.Children.Add(textBlock);
+            PathwayNonDataCanvas.Children.Add(textBlock);
             Canvas.SetLeft(textBlock, p1 + 50);
             Canvas.SetTop(textBlock, p2);
         }
 
         internal void LoadImage()
         {
-            var pathwayline = "";
-            var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd());
-            var esearchGetUrl = WebRequest.Create(esearchURL);
-            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
-            var reader = new StreamReader(getStream);
-            pathwayline = reader.ReadLine();
-            m_keggReqId = pathwayline.Substring(8,5);
-            PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", m_keggReqId));
-            reader.Close();
-            esearchGetUrl.Abort();
+            try
+            {
+
+                var pathwayline = "";
+                var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
+                //var esearchGetUrl = WebRequest.Create(esearchURL);
+                //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+                //var reader = new StreamReader(getStream);
+                //pathwayline = reader.ReadLine();
+                m_keggReqId = pathwayline.Substring(8, 5);
+                PathwayImage = new Uri(string.Format("C:\\Temp\\PullerDownload\\Images\\map{0}.png", m_keggReqId), UriKind.RelativeOrAbsolute);
+                //reader.Close();
+                //esearchGetUrl.Abort();
+            }
+            catch (Exception)
+            {
+                m_keggReqId = KeggId;
+                PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+            }
         }
 
         internal Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
         {
             var coordDict = new Dictionary<string, List<Tuple<int, int>>>();
             var xml = "";
-            var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", m_keggReqId);
+            var xmlSettings = new XmlReaderSettings();
+            xmlSettings.DtdProcessing = DtdProcessing.Ignore;
 
-            var esearchGetUrl = WebRequest.Create(esearchURL);
+            //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", m_keggReqId);
+
+            //var esearchGetUrl = WebRequest.Create(esearchURL);
 
             //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
 
-            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
-            var reader = new StreamReader(getStream);
-            var settings = new XmlReaderSettings();
-            settings.DtdProcessing = DtdProcessing.Ignore;
-            var xmlRead = XmlReader.Create(esearchURL, settings);
+            //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+            //var reader = new StreamReader(getStream);
+            
+            var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", m_keggReqId);
+
+            //var xmlRead = XmlReader.Create(esearchURL, settings);
+            var xmlRead = XmlReader.Create(path, xmlSettings);           
+            
             xmlRead.ReadToFollowing("pathway");
             while (xmlRead.ReadToFollowing("entry"))
             {
@@ -423,8 +492,8 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            reader.Close();
-            esearchGetUrl.Abort();
+            //reader.Close();
+            //esearchGetUrl.Abort();
 
             return coordDict;
 

@@ -6,11 +6,19 @@ using BiodiversityPlugin.Models;
 
 namespace BiodiversityPlugin.DataManagement
 {
+    [Obsolete]
     public class CsvDataLoader : IDataAccess
     {
         private readonly string _organisms;
         private readonly string _pathways;
 
+        /// <summary>
+        /// Constructor for the CSV dataloader for the application.
+        /// This is used (temporarily) to get a list of organisms and pathways
+        /// that will be seen in the database.
+        /// </summary>
+        /// <param name="organisms"></param>
+        /// <param name="pathways"></param>
         public CsvDataLoader(string organisms, string pathways)
         {
             _organisms = organisms;

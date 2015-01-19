@@ -18,7 +18,7 @@ namespace BiodiversityPlugin.ViewModels
     public class MainViewModel : ViewModelBase
     {
         #region Private attributes
-        
+
         private readonly string _dbPath;
         private object _selectedOrganismTreeItem;
         private object _selectedPathwayTreeItem;
@@ -28,12 +28,10 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<ProteinInformation> m_filteredProteins;
         private bool _isPathwaySelected;
         private bool _isOrganismSelected;
-        private readonly Dictionary<string, string> _proteins;
         private Visibility _visibleProteins;
         private bool _isQuerying;
         private string _queryString;
         private int _selectedTabIndex;
-        private ImageBrush _image;
         private Visibility _visiblePathway;
         private int _pathwaysSelected;
         private Uri _imageString;
@@ -144,16 +142,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public string SelectedPathwayText
-        {
-            get { return m_selectedPathwayText; }
-            private set
-            {
-                m_selectedPathwayText = value;
-                IsPathwaySelected = true;
-                RaisePropertyChanged();
-            }
-        }
 
         public bool IsOrganismSelected
         {
@@ -180,12 +168,16 @@ namespace BiodiversityPlugin.ViewModels
             get { return _selectedOrganismTreeItem; }
             set
             {
-                _selectedOrganismTreeItem = value;
-                SelectedOrganism = _selectedOrganismTreeItem as Organism;
-                IsOrganismSelected = false;
-                if (SelectedOrganism != null)
-                    SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
-                RaisePropertyChanged();
+                var orgValue = value as Organism;
+                if (orgValue != null)
+                {
+                    _selectedOrganismTreeItem = value;
+                    SelectedOrganism = _selectedOrganismTreeItem as Organism;
+                    IsOrganismSelected = false;
+                    if (SelectedOrganism != null)
+                        SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
+                    RaisePropertyChanged();
+                }
             }
         }
 
@@ -199,7 +191,6 @@ namespace BiodiversityPlugin.ViewModels
                 IsPathwaySelected = false;
                 if (SelectedPathway != null)
                 {
-                    SelectedPathwayText = string.Format("Pathway: {0}", SelectedPathway.Name);
                     SelectedPathway.Selected = true;
                 }
                 RaisePropertyChanged();
@@ -274,20 +265,10 @@ namespace BiodiversityPlugin.ViewModels
             {
                 m_selectedValue = value;
                 RaisePropertyChanged();
-                var filtered = new List<string>();
-                foreach (var phylum in Organisms)
-                {
-                    foreach (var orgClass in phylum.OrgClasses)
-                    {
-                        foreach (var organism in orgClass.Organisms)
-                        {
-                            if (organism.Name.ToUpper().StartsWith(value.ToUpper()))
-                            {
-                                filtered.Add(organism.Name);
-                            }
-                        }
-                    }
-                }
+                var filtered = (from phylum in Organisms 
+                                    from orgClass in phylum.OrgClasses
+                                        from organism in orgClass.Organisms 
+                                        where organism.Name.ToUpper().StartsWith(value.ToUpper()) select organism.Name).ToList();
                 filtered.Sort();
                 FilteredOrganisms = new ObservableCollection<string>(filtered);
                 FilterBoxVisible = Visibility.Hidden;
@@ -467,22 +448,22 @@ namespace BiodiversityPlugin.ViewModels
         }
 
         #endregion
-        
+
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, string proteinsPath)
         {
-            _proteins = PopulateProteins(proteinsPath);
             _dbPath = dbPath;
-            
+
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
-            
+
             organismList.Sort();
             OrganismList = organismList;
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
-            
+
+
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
             NextTabCommand = new RelayCommand(NextTab);
@@ -492,20 +473,19 @@ namespace BiodiversityPlugin.ViewModels
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             OrganismReviewCommand = new RelayCommand(OrganismReview);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
-            
+
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
             _visibleProteins = Visibility.Hidden;
-            
-            _image = new ImageBrush();
+
             _imageString = null;
             _visiblePathway = Visibility.Hidden;
-           
+
             _pathwaysSelected = 0;
             ListPathways = new ObservableCollection<string>();
             PathwayImage = _imageString;
-            
+
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
             
@@ -533,7 +513,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
         }
-        
+
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
         {
             if (message.PropertyName == "Selected" && message.Sender is Pathway)
@@ -591,20 +571,18 @@ namespace BiodiversityPlugin.ViewModels
                 orgPathList = m_organismPathwayHistory.ToList();
             }
 
-            foreach (var pathway in SelectedPathways)
-            {
-                orgPathList.Add(new Tuple<Organism, Pathway>(org, pathway));
-            }
+            orgPathList.AddRange(SelectedPathways.Select(pathway => new Tuple<Organism, Pathway>(org, pathway)));
+
             OrganismPathwayHistory = new ObservableCollection<Tuple<Organism, Pathway>>(orgPathList);
         }
-        
+
         private void DisplayPathwayImages()
         {
             IsQuerying = true;
 
             var pwd = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
-            var dir = System.IO.Path.GetDirectoryName(pwd);
-            
+            var dir = Path.GetDirectoryName(pwd);
+
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var pieces = pwd.Split('\\');
             var absPath = dir.Substring(6);
@@ -621,111 +599,71 @@ namespace BiodiversityPlugin.ViewModels
                             pathway.LoadImage();
                             pathway.ClearRectangles();
                             var koToCoordDict = pathway.LoadCoordinates();
-                            //if (File.Exists(string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
-                            //    absPath,
-                            //    pathway.KeggId))))
-                            //{
-                                //var koToCoordDict = new Dictionary<string, List<Tuple<int, int>>>();
-                                /*
-                                using (
-                                    var reader =
-                                        new StreamReader(
-                                            string.Format(string.Format("{0}\\DataFiles\\coords\\path{1}KoCoords.txt",
-                                                absPath,
-                                                pathway.KeggId))))
+                            var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                            var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
+                            foreach (var ko in koWithData)
+                            {
+                                if (koToCoordDict.ContainsKey(ko.KeggKoId))
                                 {
-                                    var line = reader.ReadLine();
-                                    line = reader.ReadLine();
-                                    while (!string.IsNullOrEmpty(line))
+                                    foreach (var coord in koToCoordDict[ko.KeggKoId])
                                     {
-                                        var linepieces = line.Split('\t');
-                                        var coord = linepieces[2];
-                                        var coordPieces = coord.Substring(1, coord.Length - 2).Split(',');
-                                        if (!koToCoordDict.ContainsKey(linepieces[1]))
-                                            koToCoordDict.Add(linepieces[1], new List<Tuple<int, int>>());
-                                        koToCoordDict[linepieces[1]].Add(new Tuple<int, int>(Convert.ToInt32(coordPieces[0]),
-                                                    Convert.ToInt32(coordPieces[1])));
-                                        line = reader.ReadLine();
-                                    }
-                                }
-                                 */
-                                var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
-                                var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
-                                foreach (var ko in koWithData)
-                                {
-                                    if (koToCoordDict.ContainsKey(ko.KeggKoId))
-                                    {
-                                        foreach (var coord in koToCoordDict[ko.KeggKoId])
+                                        if (!coordToName.ContainsKey(coord))
                                         {
-                                            if (!coordToName.ContainsKey(coord))
-                                            {
 
-                                                coordToName[coord] = new List<KeggKoInformation>();
-                                            }
-                                            coordToName[coord].Add(ko);
+                                            coordToName[coord] = new List<KeggKoInformation>();
                                         }
+                                        coordToName[coord].Add(ko);
                                     }
                                 }
-                                foreach (var coord in coordToName)
-                                {
-                                    pathway.AddDataRectangle(
-                                        coord.Value, coord.Key.Item1,
-                                        coord.Key.Item2, Colors.Red);
-                                }
-
-                                var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
-                                var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
-                                foreach (var ko in koWithoutData)
-                                {
-                                    if (koToCoordDict.ContainsKey(ko.KeggKoId))
-                                    {
-                                        foreach (var coord in koToCoordDict[ko.KeggKoId])
-                                        {
-                                            if (!coordToName.ContainsKey(coord))
-                                            {
-                                                if (!coordsToName.ContainsKey(coord))
-                                                {
-
-                                                    coordsToName[coord] = new List<KeggKoInformation>();
-                                                }
-                                                coordsToName[coord].Add(ko);
-                                            }
-                                        }
-                                    }
-                                }
-                                foreach (var coord in coordsToName)
-                                {
-                                    pathway.AddRectangle(
-                                        coord.Value, coord.Key.Item1,
-                                        coord.Key.Item2, Colors.Blue);
-                                }
-                                var legend = new KeggKoInformation("legend", "legend", "legend");
-                                var legendList = new List<KeggKoInformation>();
-                                legendList.Add(legend);
-                                pathway.AddRectangle(legendList, 10,
-                                    5, Colors.Red);
-                                pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
-                                
+                            }
+                            foreach (var coord in coordToName)
+                            {
                                 pathway.AddRectangle(
-                                    legendList, 10,
-                                    22, Colors.Blue);
-                                pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
+                                    coord.Value, coord.Key.Item1,
+                                    coord.Key.Item2, true);
+                            }
 
-                            //}
+                            var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
+                            var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
+                            foreach (var ko in koWithoutData)
+                            {
+                                if (koToCoordDict.ContainsKey(ko.KeggKoId))
+                                {
+                                    foreach (var coord in koToCoordDict[ko.KeggKoId])
+                                    {
+                                        if (!coordToName.ContainsKey(coord))
+                                        {
+                                            if (!coordsToName.ContainsKey(coord))
+                                            {
+
+                                                coordsToName[coord] = new List<KeggKoInformation>();
+                                            }
+                                            coordsToName[coord].Add(ko);
+                                        }
+                                    }
+                                }
+                            }
+                            foreach (var coord in coordsToName)
+                            {
+                                pathway.AddRectangle(
+                                    coord.Value, coord.Key.Item1,
+                                    coord.Key.Item2, false);
+                            }
+                            // Create placeholder information for creating legend
+                            var legend = new KeggKoInformation("legend", "legend", "legend");
+                            var legendList = new List<KeggKoInformation>();
+                            legendList.Add(legend);
+
+                            // Draw the information for the Legend on each image.
+                            pathway.AddRectangle(legendList, 10,
+                                5, false, Colors.Red);
+                            pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
+                            pathway.AddRectangle(
+                                legendList, 10,
+                                22, false, Colors.Blue);
+                            pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
+
                             selectedPaths.Add(pathway);
-
-                            if (selectedPaths.Count == 1)
-                            {
-                                SelectedPathwayText = string.Format("Pathway: {0}", pathway.Name);
-                            }
-                            else if (selectedPaths.Count%3 == 0)
-                            {
-                                SelectedPathwayText += string.Format("\n\t{0}", pathway.Name);
-                            }
-                            else
-                            {
-                                SelectedPathwayText += string.Format(", {0}", pathway.Name);
-                            }
                         }
                     }
                 }
@@ -740,14 +678,8 @@ namespace BiodiversityPlugin.ViewModels
         {
             IsQuerying = true;
 
-            var pwd = Directory.GetCurrentDirectory();
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var pieces = pwd.Split('\\');
-            var absPath = "";
-            for (var i = 0; i < pieces.Count() - 3; i++)
-            {
-                absPath += string.Format("{0}{1}", pieces[i], '\\');
-            }
+
             SelectedTabIndex = 4;
             var selectedPaths = SelectedPathways.ToList();
             var accessions = new List<ProteinInformation>();
@@ -755,7 +687,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 foreach (var pathway in selectedPaths)
                 {
-                    var temp = new List<Pathway> {pathway};
+                    var temp = new List<Pathway> { pathway };
                     var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
                     accessions.AddRange(pathwayAcc);
 
@@ -770,14 +702,6 @@ namespace BiodiversityPlugin.ViewModels
 
                     AddAssociation(association);
 
-                    foreach (var accession in accessions)
-                    {
-                        string proteinName;
-                        if (_proteins.TryGetValue(accession.Accession, out proteinName))
-                        {
-                            accession.Name = proteinName;
-                        }
-                    }
                     IsPathwaySelected = true;
                 }
             }
@@ -813,7 +737,7 @@ namespace BiodiversityPlugin.ViewModels
                     ProteinsToExport.Add(protein);
                 }
             }
-            SelectedTabIndex = 0;
+            SelectedTabIndex = 1;
             SelectedOrganism = null;
             FilteredProteins.Clear();
 
@@ -827,7 +751,7 @@ namespace BiodiversityPlugin.ViewModels
                         pathway.SelectedKo.Clear();
                         if (pathway.PathwayImage != null)
                         {
-                            pathway.PathwayCanvas.Children.Clear();
+                            pathway.PathwayNonDataCanvas.Children.Clear();
                             pathway.PathwayImage = null;
                         }
                     }
@@ -843,16 +767,18 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     ProteinsToExport.Add(protein);
                 }
-            } 
-            
+            }
+
             var accessionList = new List<string>();
-            
+
             foreach (var protein in ProteinsToExport)
             {
                 accessionList.Add(protein.Accession);
             }
             var accessionString = String.Join("+OR+", accessionList);
-            //Console.WriteLine(accessionString);
+
+            // Write the Fasta(s) from NCBI to file. This could eventually
+            // follow a different workflow depending on what Skyline needs.
             var allFastas = GetFastasFromNCBI(accessionString);
 
             var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
@@ -869,9 +795,7 @@ namespace BiodiversityPlugin.ViewModels
                 "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
-
-            //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
-
+            
             var getStream = esearchGetUrl.GetResponse().GetResponseStream();
             var reader = new StreamReader(getStream);
             var streamLine = "";
@@ -880,7 +804,7 @@ namespace BiodiversityPlugin.ViewModels
                 streamLine = reader.ReadLine();
                 if (streamLine != null)
                 {
-                    fastas += streamLine+'\n';
+                    fastas += streamLine + '\n';
                 }
             }
             fastas = fastas.Replace("\n\n", "\n");
@@ -904,7 +828,7 @@ namespace BiodiversityPlugin.ViewModels
         {
 
             var file = File.ReadAllLines(fileName);
-            
+
             int lineIndex = 0;
             var proteins = new Dictionary<string, string>();
             foreach (var line in file)
@@ -919,18 +843,17 @@ namespace BiodiversityPlugin.ViewModels
             }
             return proteins;
         }
-        
+
         public void AddToExport(ProteinInformation proteinToAdd)
         {
             ProteinsToExport.Add(proteinToAdd);
         }
 
-
         private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
         {
-            var temp = PathwayProteinAssociation;
+            var curList = PathwayProteinAssociation;
             var orgPathList = new Dictionary<string, List<string>>();
-            foreach (var pair in temp)
+            foreach (var pair in curList)
             {
                 if (!orgPathList.ContainsKey(pair.Organism))
                 {
@@ -942,15 +865,15 @@ namespace BiodiversityPlugin.ViewModels
                 orgPathList[newAssociation.Organism].Contains(newAssociation.Pathway))
             {
                 var strippedTemp =
-                    temp.Where(x => !(x.Organism == newAssociation.Organism && x.Pathway == newAssociation.Pathway));
-                temp = new ObservableCollection<OrganismPathwayProteinAssociation>();
+                    curList.Where(x => !(x.Organism == newAssociation.Organism && x.Pathway == newAssociation.Pathway));
+                curList = new ObservableCollection<OrganismPathwayProteinAssociation>();
                 foreach (var pair in strippedTemp)
                 {
-                    temp.Add(pair);
+                    curList.Add(pair);
                 }
             }
-            temp.Add(newAssociation);
-            PathwayProteinAssociation = temp;
-        }    
+            curList.Add(newAssociation);
+            PathwayProteinAssociation = curList;
+        }
     }
 }
