@@ -192,6 +192,9 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property for the filter in the Organism text box
+        /// </summary>
         public string SelectedValue
         {
             get { return _selectedValue; }
@@ -350,12 +353,21 @@ namespace BiodiversityPlugin.ViewModels
 
         #region TabIndexes
 
+        /// <summary>
+        /// Property for the inner tab control where pathways are housed during
+        /// selection of proteins
+        /// </summary>
         public int PathwayTabIndex
         {
             get { return _pathwayTabIndex; }
             set { _pathwayTabIndex = value; RaisePropertyChanged(); }
         }
 
+        /// <summary>
+        /// Property for the Selected Tab Index.
+        /// This also constantly refreshes what tabs are enabled and which ones
+        /// are not for tab control navigation
+        /// </summary>
         public int SelectedTabIndex
         {
             get { return _selectedTabIndex; }
@@ -491,8 +503,8 @@ namespace BiodiversityPlugin.ViewModels
         private void DisplayPathwayImages()
         {
             IsQuerying = true;
-            
             var dataAccess = new DatabaseDataLoader(_dbPath);
+            
             SelectedTabIndex = 3;
             var selectedPaths = new List<Pathway>();
             foreach (var catagory in Pathways)
@@ -503,10 +515,14 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (pathway.Selected)
                         {
+                            // Load the image (From the static location)
                             pathway.LoadImage();
+
+                            // Remove any rectangles from the canvas to provide accurate visualization
                             pathway.ClearRectangles();
 
-                            // Create placeholder information for creating legend
+                            // Create placeholder information for creating legend, KO is needed for adding
+                            // the rectangles
                             var legend = new KeggKoInformation("legend", "legend", "legend");
                             var legendList = new List<KeggKoInformation> {legend};
 
@@ -519,7 +535,12 @@ namespace BiodiversityPlugin.ViewModels
                                 22, false, Colors.Blue);
                             pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
 
+                            // Now that we have the base image and the legend, load the coordinates
+                            // for every rectangle on the image, keyed on KO name.
                             var koToCoordDict = pathway.LoadCoordinates();
+
+                            // Use the database to determine which orthologs have data in MSMS and load
+                            // the coordinates
                             var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                             var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                             foreach (var ko in koWithData)
@@ -539,11 +560,14 @@ namespace BiodiversityPlugin.ViewModels
                             }
                             foreach (var coord in coordToName)
                             {
+                                // Draw data rectangles for each of these coordinates
+                                // These rectangles are able to be interacted with by the user
                                 pathway.AddRectangle(
                                     coord.Value, coord.Key.Item1,
                                     coord.Key.Item2, true);
                             }
 
+                            // Do the same for orthologs without data in MSMS, loading the coordinates needed
                             var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
                             var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                             foreach (var ko in koWithoutData)
@@ -566,6 +590,8 @@ namespace BiodiversityPlugin.ViewModels
                             }
                             foreach (var coord in coordsToName)
                             {
+                                // Draw non-data rectangles for each of these coordinates
+                                // These rectangles have no interaction from the user
                                 pathway.AddRectangle(
                                     coord.Value, coord.Key.Item1,
                                     coord.Key.Item2, false);
@@ -593,6 +619,7 @@ namespace BiodiversityPlugin.ViewModels
             var accessions = new List<ProteinInformation>();
             if (SelectedPathway != null && SelectedOrganism != null)
             {
+                // Load accessions for the pathway based on the selected proteins
                 foreach (var pathway in selectedPaths)
                 {
                     var temp = new List<Pathway> { pathway };
@@ -610,8 +637,8 @@ namespace BiodiversityPlugin.ViewModels
                         association.GeneList.Add(acc);
                     }
 
+                    // Create an association for the pathway/organism pair
                     AddAssociation(association);
-
                     IsPathwaySelected = true;
                 }
             }
@@ -629,6 +656,8 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     if (!_protNames.Contains(acc.Accession))
                     {
+                        // if the accession hasn't been seen yet, add it to
+                        // the list of filtered proteins.
                         _protNames.Add(acc.Accession);
                         FilteredProteins.Add(acc);
                     }
@@ -636,15 +665,14 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Reset the tracking information, to prep for a new organism.
+        /// This does NOT clear the list of proteins that have been
+        /// selected by the user, it just clears the pathway information
+        /// and the selected organism from prior
+        /// </summary>
         private void SelectAdditionalOrganism()
         {
-            foreach (var protein in FilteredProteins)
-            {
-                if (!ProteinsToExport.Contains(protein))
-                {
-                    ProteinsToExport.Add(protein);
-                }
-            }
             SelectedTabIndex = 1;
             SelectedOrganism = null;
             FilteredProteins.Clear();
@@ -660,6 +688,7 @@ namespace BiodiversityPlugin.ViewModels
                         if (pathway.PathwayImage != null)
                         {
                             pathway.PathwayNonDataCanvas.Children.Clear();
+                            pathway.PathwayDataCanvas.Children.Clear();
                             pathway.PathwayImage = null;
                         }
                     }
@@ -732,11 +761,6 @@ namespace BiodiversityPlugin.ViewModels
             return fastas;
         }
         
-        public void AddToExport(ProteinInformation proteinToAdd)
-        {
-            ProteinsToExport.Add(proteinToAdd);
-        }
-
         private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
         {
             var curList = PathwayProteinAssociation;
