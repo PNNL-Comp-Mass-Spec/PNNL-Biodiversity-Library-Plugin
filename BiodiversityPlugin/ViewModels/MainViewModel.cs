@@ -20,38 +20,37 @@ namespace BiodiversityPlugin.ViewModels
         #region Private attributes
 
         private readonly string _dbPath;
+
         private object _selectedOrganismTreeItem;
         private object _selectedPathwayTreeItem;
-        private string m_selectedOrganismText;
-        private string m_selectedPathwayText;
-        private string m_numberProteinsText;
-        private ObservableCollection<ProteinInformation> m_filteredProteins;
-        private bool _isPathwaySelected;
+
+        private string _selectedOrganismText;
+        private string _numberProteinsText;
+        private string _listPathwaySelectedItem;
+        private string _selectedValue;
+        private int _selectedTabIndex;
+        private int _pathwaysSelected;
+        private List<ProteinInformation> _proteinsToExport;
+        private List<string> _protNames = new List<string>();
+        private int _pathwayTabIndex;
+        private List<string> _organismList;
+        private Visibility _filterVisibility;
+
+        private bool _listPathwaySelected;
         private bool _isOrganismSelected;
-        private Visibility _visibleProteins;
+        private bool _pathwaysTabEnabled;
+        private bool _isPathwaySelected;
+        private bool _selectionTabEnabled;
+        private bool _reviewTabEnabled;
+
+        private ObservableCollection<Pathway> _selectedPathways;
+        private ObservableCollection<string> _filteredOrganisms;
+        private ObservableCollection<string> _listPathways;
+        private ObservableCollection<OrganismPathwayProteinAssociation> _pathwayProteinAssociation;
+        private ObservableCollection<ProteinInformation> _filteredProteins;
+
         private bool _isQuerying;
         private string _queryString;
-        private int _selectedTabIndex;
-        private Visibility _visiblePathway;
-        private int _pathwaysSelected;
-        private Uri _imageString;
-        private ObservableCollection<Pathway> _selectedPathways;
-        private List<ProteinInformation> m_proteinsToExport;
-        private List<string> _protNames = new List<string>();
-        private ObservableCollection<Tuple<Organism, Pathway>> m_organismPathwayHistory;
-        private int m_pathwayTabIndex;
-        private string m_overviewText;
-        private List<string> m_organismList;
-        private string m_selectedValue;
-        private ObservableCollection<OrganismPathwayProteinAssociation> m_pathwayProteinAssociation;
-        private Visibility m_filterVisibility;
-        private ObservableCollection<string> m_filteredOrganisms;
-        private ObservableCollection<string> m_listPathways;
-        private string m_listPathwaySelectedItem;
-        private bool m_listPathwaySelected;
-        private bool m_pathwaysTabEnabled;
-        private bool m_selectionTabEnabled;
-        private bool m_reviewTabEnabled;
 
         #endregion
 
@@ -72,71 +71,36 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        public Visibility PathwayVisibility
-        {
-            get { return _visiblePathway; }
-            private set
-            {
-                _visiblePathway = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public Uri PathwayImage
-        {
-            get { return _imageString; }
-            private set
-            {
-                _imageString = value;
-                PathwayVisibility = Visibility.Hidden;
-                if (value != null && !string.IsNullOrEmpty(_imageString.OriginalString))
-                {
-                    PathwayVisibility = Visibility.Visible;
-                }
-                RaisePropertyChanged();
-            }
-        }
-
-        public Visibility VisibleProteins
-        {
-            get { return _visibleProteins; }
-            private set
-            {
-                _visibleProteins = value;
-                RaisePropertyChanged();
-            }
-        }
-
+        
         public ObservableCollection<ProteinInformation> FilteredProteins
         {
             get
             {
-                return m_filteredProteins;
+                return _filteredProteins;
             }
             private set
             {
-                m_filteredProteins = value;
+                _filteredProteins = value;
                 RaisePropertyChanged();
             }
         }
 
         public string NumProteinsText
         {
-            get { return m_numberProteinsText; }
+            get { return _numberProteinsText; }
             private set
             {
-                m_numberProteinsText = value;
+                _numberProteinsText = value;
                 RaisePropertyChanged();
             }
         }
 
         public string SelectedOrganismText
         {
-            get { return m_selectedOrganismText; }
+            get { return _selectedOrganismText; }
             private set
             {
-                m_selectedOrganismText = value;
+                _selectedOrganismText = value;
                 IsOrganismSelected = true;
                 RaisePropertyChanged();
             }
@@ -196,23 +160,13 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        public ObservableCollection<Tuple<Organism, Pathway>> OrganismPathwayHistory
-        {
-            get { return m_organismPathwayHistory; }
-            private set
-            {
-                m_organismPathwayHistory = value;
-                RaisePropertyChanged();
-            }
-        }
-
+        
         public List<ProteinInformation> ProteinsToExport
         {
-            get { return m_proteinsToExport; }
+            get { return _proteinsToExport; }
             private set
             {
-                m_proteinsToExport = value;
+                _proteinsToExport = value;
                 RaisePropertyChanged("ProteinsToExport");
             }
         }
@@ -237,33 +191,23 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        public string OverviewText
-        {
-            get { return m_overviewText; }
-            set
-            {
-                m_overviewText = value;
-                RaisePropertyChanged();
-            }
-        }
-
+        
         public List<string> OrganismList
         {
-            get { return m_organismList; }
+            get { return _organismList; }
             set
             {
-                m_organismList = value;
+                _organismList = value;
                 RaisePropertyChanged();
             }
         }
 
         public string SelectedValue
         {
-            get { return m_selectedValue; }
+            get { return _selectedValue; }
             set
             {
-                m_selectedValue = value;
+                _selectedValue = value;
                 RaisePropertyChanged();
                 var filtered = (from phylum in Organisms 
                                     from orgClass in phylum.OrgClasses
@@ -282,10 +226,10 @@ namespace BiodiversityPlugin.ViewModels
 
         public ObservableCollection<OrganismPathwayProteinAssociation> PathwayProteinAssociation
         {
-            get { return m_pathwayProteinAssociation; }
+            get { return _pathwayProteinAssociation; }
             set
             {
-                m_pathwayProteinAssociation = value;
+                _pathwayProteinAssociation = value;
                 RaisePropertyChanged("PathwayProteinAssociation");
             }
         }
@@ -293,20 +237,20 @@ namespace BiodiversityPlugin.ViewModels
 
         public Visibility FilterBoxVisible
         {
-            get { return m_filterVisibility; }
+            get { return _filterVisibility; }
             set
             {
-                m_filterVisibility = value;
+                _filterVisibility = value;
                 RaisePropertyChanged();
             }
         }
 
         public ObservableCollection<String> FilteredOrganisms
         {
-            get { return m_filteredOrganisms; }
+            get { return _filteredOrganisms; }
             set
             {
-                m_filteredOrganisms = value;
+                _filteredOrganisms = value;
                 RaisePropertyChanged();
             }
         }
@@ -336,10 +280,10 @@ namespace BiodiversityPlugin.ViewModels
 
         public ObservableCollection<string> ListPathways
         {
-            get { return m_listPathways; }
+            get { return _listPathways; }
             set
             {
-                m_listPathways = value;
+                _listPathways = value;
                 SelectedTabIndex = SelectedTabIndex;
                 RaisePropertyChanged();
             }
@@ -347,10 +291,10 @@ namespace BiodiversityPlugin.ViewModels
 
         public string ListPathwaySelectedItem
         {
-            get { return m_listPathwaySelectedItem; }
+            get { return _listPathwaySelectedItem; }
             set
             {
-                m_listPathwaySelectedItem = value;
+                _listPathwaySelectedItem = value;
                 ListPathwaySelected = false;
                 if (ListPathways.Contains(value))
                 {
@@ -362,40 +306,40 @@ namespace BiodiversityPlugin.ViewModels
 
         public bool ListPathwaySelected
         {
-            get { return m_listPathwaySelected; }
+            get { return _listPathwaySelected; }
             set
             {
-                m_listPathwaySelected = value;
+                _listPathwaySelected = value;
                 RaisePropertyChanged();
             }
         }
 
         public bool PathwaysTabEnabled
         {
-            get { return m_pathwaysTabEnabled; }
+            get { return _pathwaysTabEnabled; }
             set
             {
-                m_pathwaysTabEnabled = value;
+                _pathwaysTabEnabled = value;
                 RaisePropertyChanged();
             }
         }
 
         public bool SelectionTabEnabled
         {
-            get { return m_selectionTabEnabled; }
+            get { return _selectionTabEnabled; }
             set
             {
-                m_selectionTabEnabled = value;
+                _selectionTabEnabled = value;
                 RaisePropertyChanged();
             }
         }
 
         public bool ReviewTabEnabled
         {
-            get { return m_reviewTabEnabled; }
+            get { return _reviewTabEnabled; }
             set
             {
-                m_reviewTabEnabled = value;
+                _reviewTabEnabled = value;
                 RaisePropertyChanged();
             }
         }
@@ -418,8 +362,8 @@ namespace BiodiversityPlugin.ViewModels
 
         public int PathwayTabIndex
         {
-            get { return m_pathwayTabIndex; }
-            set { m_pathwayTabIndex = value; RaisePropertyChanged(); }
+            get { return _pathwayTabIndex; }
+            set { _pathwayTabIndex = value; RaisePropertyChanged(); }
         }
 
         public int SelectedTabIndex
@@ -462,8 +406,7 @@ namespace BiodiversityPlugin.ViewModels
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
-
-
+            
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
             NextTabCommand = new RelayCommand(NextTab);
@@ -471,20 +414,14 @@ namespace BiodiversityPlugin.ViewModels
             ExportToSkylineCommand = new RelayCommand(ExportToSkyline);
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
-            OrganismReviewCommand = new RelayCommand(OrganismReview);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
 
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
-            _visibleProteins = Visibility.Hidden;
-
-            _imageString = null;
-            _visiblePathway = Visibility.Hidden;
 
             _pathwaysSelected = 0;
             ListPathways = new ObservableCollection<string>();
-            PathwayImage = _imageString;
 
             _selectedPathways = new ObservableCollection<Pathway>();
             SelectedPathways = _selectedPathways;
@@ -560,32 +497,12 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex == 2 && !IsPathwaySelected) return;
             SelectedTabIndex++;
         }
-
-        private void OrganismReview()
-        {
-            SelectedTabIndex = 4;
-            var org = SelectedOrganism;
-            var orgPathList = new List<Tuple<Organism, Pathway>>();
-            if (m_organismPathwayHistory != null)
-            {
-                orgPathList = m_organismPathwayHistory.ToList();
-            }
-
-            orgPathList.AddRange(SelectedPathways.Select(pathway => new Tuple<Organism, Pathway>(org, pathway)));
-
-            OrganismPathwayHistory = new ObservableCollection<Tuple<Organism, Pathway>>(orgPathList);
-        }
-
+        
         private void DisplayPathwayImages()
         {
             IsQuerying = true;
-
-            var pwd = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
-            var dir = Path.GetDirectoryName(pwd);
-
+            
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var pieces = pwd.Split('\\');
-            var absPath = dir.Substring(6);
             SelectedTabIndex = 3;
             var selectedPaths = new List<Pathway>();
             foreach (var catagory in Pathways)
@@ -598,6 +515,20 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             pathway.LoadImage();
                             pathway.ClearRectangles();
+
+                            // Create placeholder information for creating legend
+                            var legend = new KeggKoInformation("legend", "legend", "legend");
+                            var legendList = new List<KeggKoInformation> {legend};
+
+                            // Draw the information for the Legend on each image.
+                            pathway.AddRectangle(legendList, 10,
+                                5, false, Colors.Red);
+                            pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
+                            pathway.AddRectangle(
+                                legendList, 10,
+                                22, false, Colors.Blue);
+                            pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
+
                             var koToCoordDict = pathway.LoadCoordinates();
                             var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                             var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
@@ -649,19 +580,6 @@ namespace BiodiversityPlugin.ViewModels
                                     coord.Value, coord.Key.Item1,
                                     coord.Key.Item2, false);
                             }
-                            // Create placeholder information for creating legend
-                            var legend = new KeggKoInformation("legend", "legend", "legend");
-                            var legendList = new List<KeggKoInformation>();
-                            legendList.Add(legend);
-
-                            // Draw the information for the Legend on each image.
-                            pathway.AddRectangle(legendList, 10,
-                                5, false, Colors.Red);
-                            pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
-                            pathway.AddRectangle(
-                                legendList, 10,
-                                22, false, Colors.Blue);
-                            pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
 
                             selectedPaths.Add(pathway);
                         }
@@ -691,10 +609,12 @@ namespace BiodiversityPlugin.ViewModels
                     var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
                     accessions.AddRange(pathwayAcc);
 
-                    var association = new OrganismPathwayProteinAssociation();
-                    association.Pathway = pathway.Name;
-                    association.Organism = SelectedOrganism.Name;
-                    association.GeneList = new ObservableCollection<ProteinInformation>();
+                    var association = new OrganismPathwayProteinAssociation
+                    {
+                        Pathway = pathway.Name,
+                        Organism = SelectedOrganism.Name,
+                        GeneList = new ObservableCollection<ProteinInformation>()
+                    };
                     foreach (var acc in pathwayAcc)
                     {
                         association.GeneList.Add(acc);
@@ -722,7 +642,6 @@ namespace BiodiversityPlugin.ViewModels
                         _protNames.Add(acc.Accession);
                         FilteredProteins.Add(acc);
                         NumProteinsText = string.Format("Proteins ({0})", FilteredProteins.Count);
-                        VisibleProteins = FilteredProteins.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                     }
                 }
             }
@@ -823,27 +742,7 @@ namespace BiodiversityPlugin.ViewModels
 
             return fastas;
         }
-
-        private Dictionary<string, string> PopulateProteins(string fileName)
-        {
-
-            var file = File.ReadAllLines(fileName);
-
-            int lineIndex = 0;
-            var proteins = new Dictionary<string, string>();
-            foreach (var line in file)
-            {
-                if (lineIndex++ == 0) continue;
-                var parts = line.Split('\t');
-                if (parts.Length < 3) continue;
-                if (!proteins.ContainsKey(parts[0]))
-                {
-                    proteins.Add(parts[0], parts[2]);
-                }
-            }
-            return proteins;
-        }
-
+        
         public void AddToExport(ProteinInformation proteinToAdd)
         {
             ProteinsToExport.Add(proteinToAdd);

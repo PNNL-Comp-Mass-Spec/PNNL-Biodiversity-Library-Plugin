@@ -4,20 +4,20 @@ namespace BiodiversityPlugin.Models
 {
     public class OrganismPathwayProteinAssociation
     {
-        private string m_organism;
-        private string m_pathway;
-        private ObservableCollection<ProteinInformation> m_genes;
+        private string _organism;
+        private string _pathway;
+        private ObservableCollection<ProteinInformation> _genes;
 
         public string Organism
         {
-            get { return m_organism; }
-            set { m_organism = value; }
+            get { return _organism; }
+            set { _organism = value; }
         }
 
         public string Pathway
         {
-            get { return m_pathway; }
-            set { m_pathway = value; }
+            get { return _pathway; }
+            set { _pathway = value; }
         }
 
         public string SelectedOrganismText
@@ -37,8 +37,8 @@ namespace BiodiversityPlugin.Models
 
         public ObservableCollection<ProteinInformation> GeneList
         {
-            get { return m_genes; }
-            set { m_genes = value; }
+            get { return _genes; }
+            set { _genes = value; }
         }
     }
 }

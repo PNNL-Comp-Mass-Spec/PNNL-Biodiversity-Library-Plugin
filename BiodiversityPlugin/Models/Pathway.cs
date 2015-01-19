@@ -3,7 +3,6 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml;
@@ -16,25 +15,25 @@ namespace BiodiversityPlugin.Models
     /// </summary>
     public class Pathway : ViewModelBase
     {
-        private Color _selectedColor = Colors.Red;
-
-        private bool m_selected;
+        private bool _selected;
         private Uri _imageString;
 	    private Canvas _pathwayDataCanvas;
         private Canvas _pathwayCanvas;
         private List<String> _selectedKo;
-        private string m_informationMessage;
-        private int m_numDataBoxes;
-        private int m_dataBoxesSelected;
-        private string m_legendSource;
-        private string m_keggReqId;
+        private string _informationMessage;
+        private int _numDataBoxes;
+        private int _dataBoxesSelected;
+        private string _legendSource;
+        private string _keggReqId;
+        private Color _selectedColor = Colors.Red;
+        private Color _noDataColor = Colors.Blue;
         
         public string InformationMessage
         {
-            get { return m_informationMessage; }
+            get { return _informationMessage; }
             set
             {
-                m_informationMessage = value;
+                _informationMessage = value;
                 RaisePropertyChanged("InformationMessage");
             }
         }
@@ -44,12 +43,12 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public bool Selected
         {
-            get { return m_selected; }
+            get { return _selected; }
             set
             {
-                var oldSelected = m_selected;
-                m_selected = value;
-                RaisePropertyChanged("Selected", oldSelected, m_selected, true);
+                var oldSelected = _selected;
+                _selected = value;
+                RaisePropertyChanged("Selected", oldSelected, _selected, true);
             }
         }
 
@@ -116,11 +115,11 @@ namespace BiodiversityPlugin.Models
 
         private void UpdateMessage()
         {
-            if (m_dataBoxesSelected == m_numDataBoxes)
+            if (_dataBoxesSelected == _numDataBoxes)
             {
                 InformationMessage = "All Proteins Selected";
             }
-            else if (m_dataBoxesSelected == 0)
+            else if (_dataBoxesSelected == 0)
             {
                 InformationMessage = "All Proteins Deselected";
             }
@@ -140,7 +139,7 @@ namespace BiodiversityPlugin.Models
             {
                 Select(child);
             }
-            m_dataBoxesSelected = m_numDataBoxes;
+            _dataBoxesSelected = _numDataBoxes;
             UpdateMessage();
         }
 
@@ -155,7 +154,7 @@ namespace BiodiversityPlugin.Models
             {
                 Deselect(child);
             }
-            m_dataBoxesSelected = 0;
+            _dataBoxesSelected = 0;
             UpdateMessage();
         }
 
@@ -167,8 +166,8 @@ namespace BiodiversityPlugin.Models
         {
             PathwayDataCanvas.Children.Clear();
             PathwayNonDataCanvas.Children.Clear();
-            m_dataBoxesSelected = 0;
-            m_numDataBoxes = 0;
+            _dataBoxesSelected = 0;
+            _numDataBoxes = 0;
         }
 
         /// <summary>
@@ -187,7 +186,7 @@ namespace BiodiversityPlugin.Models
             if (koName == null) return;
 
             rect.Fill = new SolidColorBrush(Colors.Gray);
-            m_dataBoxesSelected--;
+            _dataBoxesSelected--;
             UpdateMessage();
 
             var kos = koName.Split(',');
@@ -210,14 +209,14 @@ namespace BiodiversityPlugin.Models
         private void Select(object child)
         {
             // Shape must be a rectangle.
-            var rect = child as System.Windows.Shapes.Rectangle;
+            var rect = child as Rectangle;
             if (rect == null) return;
             // Tag must be a string
             var koName = rect.Tag as string;
             if (koName == null) return;
-            rect.Fill = new SolidColorBrush(Colors.Red);
+            rect.Fill = new SolidColorBrush(_selectedColor);
 
-            m_dataBoxesSelected++;
+            _dataBoxesSelected++;
             UpdateMessage();
             
             var kos = koName.Split(',');
@@ -229,6 +228,13 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Factory method to draw a rectangle on the appropriate canvas
+        /// </summary>
+        /// <param name="koInformation"></param>
+        /// <param name="xCoord">Left-most x-coordinate</param>
+        /// <param name="yCoord">Top-most y-coordinate</param>
+        /// <param name="isData">Whether the rectangle contains MSMS data</param>
         public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData)
         {
             if (isData)
@@ -241,11 +247,27 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Factory method to draw a rectangle on the approrpiate canvas using a custom color
+        /// </summary>
+        /// <param name="koInformation"></param>
+        /// <param name="xCoord"></param>
+        /// <param name="yCoord"></param>
+        /// <param name="isData"></param>
+        /// <param name="color"></param>
         public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData, Color color)
         {
-            var child = isData ? 
-                            AddDataRectangle(koInformation, xCoord, yCoord) :
-                            AddNonDataRectangle(koInformation, xCoord, yCoord);
+            Rectangle child;
+            if (isData)
+            {
+                child = AddDataRectangle(koInformation, xCoord, yCoord);
+                _selectedColor = color;
+            }
+            else
+            {
+                child = AddNonDataRectangle(koInformation, xCoord, yCoord);
+                _noDataColor = color;
+            }
             child.Fill = new SolidColorBrush(color);
         }
 
@@ -265,7 +287,7 @@ namespace BiodiversityPlugin.Models
 
             var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
                 keggGeneNames, keggEcs);
-            var rect = new System.Windows.Shapes.Rectangle
+            var rect = new Rectangle
             {
                 Tag = koIds,
                 ToolTip = tooltip,
@@ -277,7 +299,7 @@ namespace BiodiversityPlugin.Models
             PathwayDataCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, xCoord);
             Canvas.SetTop(rect, yCoord);
-            m_numDataBoxes++;
+            _numDataBoxes++;
             Select(rect);
 
             UpdateMessage();
@@ -300,13 +322,13 @@ namespace BiodiversityPlugin.Models
 
             var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
                 keggGeneNames, keggEcs);
-            var rect = new System.Windows.Shapes.Rectangle
+            var rect = new Rectangle
             {
                 Tag = koIds,
                 ToolTip = tooltip,
                 Width = 47,
                 Height = 17,
-                Fill = new SolidColorBrush(Colors.Blue),
+                Fill = new SolidColorBrush(_noDataColor),
                 Opacity = .50
             };
             PathwayNonDataCanvas.Children.Add(rect);
@@ -317,24 +339,22 @@ namespace BiodiversityPlugin.Models
 
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var parent = sender as System.Windows.Shapes.Rectangle; 
+            var parent = sender as Rectangle; 
             var koName = parent.Tag as string;
             var color = parent.Fill;
-            if (((SolidColorBrush) color).Color == Colors.Red)
+            if (((SolidColorBrush) color).Color == _selectedColor)
             {
                 Deselect(parent);
-                //parent.Fill = new SolidColorBrush(Colors.Gray);
                 var kos = koName.Split(',');
                 foreach (var ko in kos)
                 {
                     var trimmedko = ko.Trim();
-                    //SelectedKo.Remove(trimmedko);
                     foreach (var child in PathwayDataCanvas.Children)
                     {
-                        var rect = child as System.Windows.Shapes.Rectangle;
+                        var rect = child as Rectangle;
                         var rectTag = rect.Tag as string;
                         var rectColor = rect.Fill;
-                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.Red)
+                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == _selectedColor)
                         {
                             Deselect(rect);
                         }
@@ -344,16 +364,14 @@ namespace BiodiversityPlugin.Models
             else
             {
                 Select(parent);
-                //parent.Fill = new SolidColorBrush(Colors.Red);
                 var kos = koName.Split(',');
 
                 foreach (var ko in kos)
                 {
                     var trimmedko = ko.Trim();
-                    //SelectedKo.Add(trimmedko);
                     foreach (var child in PathwayDataCanvas.Children)
                     {
-                        var rect = child as System.Windows.Shapes.Rectangle;
+                        var rect = child as Rectangle;
                         var rectTag = rect.Tag as string;
                         var rectColor = rect.Fill;
                         if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.Gray)
@@ -374,15 +392,15 @@ namespace BiodiversityPlugin.Models
         {
             Name = name;
             KeggId = keggId;
-            m_selected = false;
+            _selected = false;
 			PathwayNonDataCanvas = new Canvas();
             PathwayDataCanvas = new Canvas();
             SelectedKo = new List<string>();
             SelectAllCommand = new RelayCommand(SelectAll);
             DeselectAllCommand = new RelayCommand(DeselectAll);
             UpdateMessage();
-            m_numDataBoxes = 0;
-            m_dataBoxesSelected = 0;
+            _numDataBoxes = 0;
+            _dataBoxesSelected = 0;
             LegendSource = "Datafiles/pathwayLegend.png";
         }
 
@@ -391,10 +409,10 @@ namespace BiodiversityPlugin.Models
         public RelayCommand DeselectAllCommand { get; set; }
 
         public string LegendSource { 
-            get { return m_legendSource; } 
+            get { return _legendSource; } 
             set 
             { 
-                m_legendSource = value; 
+                _legendSource = value; 
                 RaisePropertyChanged(); 
             } 
         }
@@ -423,21 +441,21 @@ namespace BiodiversityPlugin.Models
         {
             try
             {
-
                 var pathwayline = "";
                 var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
                 //var esearchGetUrl = WebRequest.Create(esearchURL);
                 //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
                 //var reader = new StreamReader(getStream);
                 //pathwayline = reader.ReadLine();
-                m_keggReqId = pathwayline.Substring(8, 5);
-                PathwayImage = new Uri(string.Format("C:\\Temp\\PullerDownload\\Images\\map{0}.png", m_keggReqId), UriKind.RelativeOrAbsolute);
+                //_keggReqId = pathwayline.Substring(8, 5);
+                _keggReqId = KeggId;
+                PathwayImage = new Uri(string.Format("C:\\Temp\\PullerDownload\\Images\\map{0}.png", _keggReqId), UriKind.RelativeOrAbsolute);
                 //reader.Close();
                 //esearchGetUrl.Abort();
             }
             catch (Exception)
             {
-                m_keggReqId = KeggId;
+                _keggReqId = KeggId;
                 PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
             }
         }
@@ -449,7 +467,7 @@ namespace BiodiversityPlugin.Models
             var xmlSettings = new XmlReaderSettings();
             xmlSettings.DtdProcessing = DtdProcessing.Ignore;
 
-            //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", m_keggReqId);
+            //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", _keggReqId);
 
             //var esearchGetUrl = WebRequest.Create(esearchURL);
 
@@ -458,7 +476,7 @@ namespace BiodiversityPlugin.Models
             //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
             //var reader = new StreamReader(getStream);
             
-            var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", m_keggReqId);
+            var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", _keggReqId);
 
             //var xmlRead = XmlReader.Create(esearchURL, settings);
             var xmlRead = XmlReader.Create(path, xmlSettings);           

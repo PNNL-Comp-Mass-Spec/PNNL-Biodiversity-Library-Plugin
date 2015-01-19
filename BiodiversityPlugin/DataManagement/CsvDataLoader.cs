@@ -27,12 +27,15 @@ namespace BiodiversityPlugin.DataManagement
 
         public List<OrgPhylum> LoadOrganisms(ref List<string> organismList)
         {
+            
             var phylums = new Dictionary<string, OrgPhylum>();
             var classes = new Dictionary<Tuple<string, string>, OrgClass>();
 
             using (var reader = new StreamReader(_organisms))
             {
-                var header = reader.ReadLine();
+                // Read, and then discard, the header line of the file.
+                reader.ReadLine();
+
                 var row = reader.ReadLine();
                 while (!string.IsNullOrWhiteSpace(row))
                 {
@@ -44,6 +47,7 @@ namespace BiodiversityPlugin.DataManagement
                         classes[pair] = new OrgClass(pieces[1], new List<Organism>());
                     }
                     classes[pair].Organisms.Add(org);
+                    organismList.Add(org.Name);
                     
                     if (!phylums.ContainsKey(pieces[0]))
                     {
@@ -69,7 +73,9 @@ namespace BiodiversityPlugin.DataManagement
 
             using (var reader = new StreamReader(_pathways))
             {
-                var header = reader.ReadLine();
+                // Read, and then discard, the header line of the file.
+                reader.ReadLine();
+
                 var row = reader.ReadLine();
                 while (!string.IsNullOrWhiteSpace(row))
                 {
@@ -85,8 +91,7 @@ namespace BiodiversityPlugin.DataManagement
             }
 
             var groupList = groups.Values.ToList();
-            var cats = new List<PathwayCatagory>();
-            cats.Add(new PathwayCatagory("Metabolism", groupList));
+            var cats = new List<PathwayCatagory> {new PathwayCatagory("Metabolism", groupList)};
             return cats;
 
         }

@@ -1,28 +1,16 @@
 ﻿namespace BiodiversityPlugin.Models
 {
+    /// <summary>
+    /// Class for the information for a Kegg Ortholog, containing the KoID number,
+    /// Kegg Gene Name, and Kegg Ec.
+    /// </summary>
     public class KeggKoInformation
     {
-        private string m_keggKoId;
-        private string m_keggGeneName;
-        private string m_keggEc;
+        public string KeggKoId { get; set; }
 
-        public string KeggKoId
-        {
-            get { return m_keggKoId; }
-            set { m_keggKoId = value; }
-        }
+        public string KeggGeneName { get; set; }
 
-        public string KeggGeneName
-        {
-            get { return m_keggGeneName; }
-            set { m_keggGeneName = value; }
-        }
-
-        public string KeggEc
-        {
-            get { return m_keggEc; }
-            set { m_keggEc = value; }
-        }
+        public string KeggEc { get; set; }
 
         public KeggKoInformation(string id, string name, string ec)
         {

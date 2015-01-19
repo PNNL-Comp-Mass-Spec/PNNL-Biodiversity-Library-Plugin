@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using BiodiversityPlugin.Models;
 
@@ -14,7 +13,6 @@ namespace BiodiversityPlugin.DataManagement
 
         public DatabaseDataLoader(string organismDb)
         {
-
             m_databasePath = organismDb;
         }
         

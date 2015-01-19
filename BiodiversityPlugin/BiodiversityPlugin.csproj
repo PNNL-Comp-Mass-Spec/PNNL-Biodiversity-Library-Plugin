@@ -112,7 +112,6 @@
     <Compile Include="DataManagement\CsvDataLoader.cs" />
     <Compile Include="DataManagement\DatabaseDataLoader.cs" />
     <Compile Include="DataManagement\IDataAccess.cs" />
-    <Compile Include="Models\AccessionsFromDatabase.cs" />
     <Compile Include="Models\KeggKoInformation.cs" />
     <Compile Include="Models\OrganismPathwayProteinAssociation.cs" />
     <Compile Include="Models\PathwayCatagory.cs" />
