@@ -17,15 +17,13 @@ namespace BiodiversityPlugin
 	        try
 	        {
 		        const string dbPath = "Tools\\BiodiversityPlugin\\DataFiles\\DBs\\PBL.db";
-		        const string proteinsPath = "Tools\\BiodiversityPlugin\\DataFiles\\Proteins.txt";
 
                 if (!Directory.Exists(dbPath))
                 {
                     var ex = new DirectoryNotFoundException();
                     throw ex;
                 }
-                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-			        proteinsPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath);
 		        var mainWindow = new MainWindow {DataContext = vm};
 		        mainWindow.Show();
 	        }
@@ -33,10 +31,8 @@ namespace BiodiversityPlugin
 	        catch (DirectoryNotFoundException ex)
 	        {
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
-				const string proteinsPath = "DataFiles\\Proteins.txt";
 
-                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-					proteinsPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath);
 				var mainWindow = new MainWindow { DataContext = vm };
 				mainWindow.Show();
 	        }

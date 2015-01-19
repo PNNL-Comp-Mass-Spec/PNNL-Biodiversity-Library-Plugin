@@ -25,14 +25,14 @@ namespace BiodiversityPlugin.ViewModels
         private object _selectedPathwayTreeItem;
 
         private string _selectedOrganismText;
-        private string _numberProteinsText;
         private string _listPathwaySelectedItem;
         private string _selectedValue;
+
         private int _selectedTabIndex;
+        private int _pathwayTabIndex;
         private int _pathwaysSelected;
         private List<ProteinInformation> _proteinsToExport;
         private List<string> _protNames = new List<string>();
-        private int _pathwayTabIndex;
         private List<string> _organismList;
         private Visibility _filterVisibility;
 
@@ -84,17 +84,7 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-        public string NumProteinsText
-        {
-            get { return _numberProteinsText; }
-            private set
-            {
-                _numberProteinsText = value;
-                RaisePropertyChanged();
-            }
-        }
-
+        
         public string SelectedOrganismText
         {
             get { return _selectedOrganismText; }
@@ -393,7 +383,7 @@ namespace BiodiversityPlugin.ViewModels
 
         #endregion
 
-        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, string proteinsPath)
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath)
         {
             _dbPath = dbPath;
 
@@ -641,7 +631,6 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         _protNames.Add(acc.Accession);
                         FilteredProteins.Add(acc);
-                        NumProteinsText = string.Format("Proteins ({0})", FilteredProteins.Count);
                     }
                 }
             }
