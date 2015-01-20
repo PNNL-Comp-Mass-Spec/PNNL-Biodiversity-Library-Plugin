@@ -351,13 +351,16 @@
         <TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="{Binding ReviewTabEnabled}">
-            <TabItem.InputBindings>
-                <MouseBinding MouseAction="LeftClick" Command="{Binding AcquireProteinsCommand}"></MouseBinding>
-            </TabItem.InputBindings>
             <TabItem.Header>
-                <TextBlock TextAlignment="Center">
-                    Review and <LineBreak /> export to Skyline
-                </TextBlock>
+                <StackPanel>
+                    <TextBlock TextAlignment="Center">
+                        Review and
+                        <LineBreak /> export to Skyline></TextBlock>
+                    <StackPanel.InputBindings>
+
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding AcquireProteinsCommand}"></MouseBinding>
+                    </StackPanel.InputBindings>
+                </StackPanel>
             </TabItem.Header>
             <Grid>
                 <Grid.RowDefinitions>

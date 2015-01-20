@@ -72,9 +72,17 @@ namespace BiodiversityPlugin.ViewModels
             }
             set
             {
-                _selectedAssociation = value;
-                RaisePropertyChanged();
-                SelectAssociation();
+                if (value != null)
+                {
+                    _selectedAssociation = value;
+                    var temp = value.AssociationSelected;
+                    _selectedAssociation.AssociationSelected = temp == false;
+                    RaisePropertyChanged();
+                }
+                else
+                {
+                    _selectedAssociation.AssociationSelected = _selectedAssociation.AssociationSelected == false;
+                }
             }
         }
 
@@ -470,7 +478,10 @@ namespace BiodiversityPlugin.ViewModels
 
         private void SelectAssociation()
         {
-            SelectedAssociation.AssociationSelected = SelectedAssociation.AssociationSelected == false;
+            if (SelectedAssociation != null)
+            {
+                SelectedAssociation.AssociationSelected = SelectedAssociation.AssociationSelected == false;
+            }
         }
 
         private void SelectPathway()
