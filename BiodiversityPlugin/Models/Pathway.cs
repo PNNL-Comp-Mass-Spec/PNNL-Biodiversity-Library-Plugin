@@ -442,7 +442,7 @@ namespace BiodiversityPlugin.Models
         {
             try
             {
-                var pathwayline = "";
+                //var pathwayline = "";
                 var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
                 //var esearchGetUrl = WebRequest.Create(esearchURL);
                 //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
@@ -450,14 +450,14 @@ namespace BiodiversityPlugin.Models
                 //pathwayline = reader.ReadLine();
                 //_keggReqId = pathwayline.Substring(8, 5);
                 _keggReqId = KeggId;
-                PathwayImage = new Uri(string.Format("C:\\Temp\\PullerDownload\\Images\\map{0}.png", _keggReqId), UriKind.RelativeOrAbsolute);
+                PathwayImage = new Uri(string.Format("DataFiles\\images\\map{0}.png", _keggReqId), UriKind.RelativeOrAbsolute);
                 //reader.Close();
                 //esearchGetUrl.Abort();
             }
             catch (Exception)
             {
-                _keggReqId = KeggId;
-                PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+                //_keggReqId = KeggId;
+                //PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
             }
         }
 
@@ -479,7 +479,7 @@ namespace BiodiversityPlugin.Models
                 //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
                 //var reader = new StreamReader(getStream);
 
-                var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", _keggReqId);
+                var path = string.Format("DataFiles\\coords\\path{0}.xml", _keggReqId);
 
                 //var xmlRead = XmlReader.Create(esearchURL, settings);
                 var xmlRead = XmlReader.Create(path, xmlSettings);

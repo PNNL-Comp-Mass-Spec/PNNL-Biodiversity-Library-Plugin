@@ -239,9 +239,16 @@
                     </utilities:MvvmTreeView.Resources>
                     <utilities:MvvmTreeView.InputBindings>
                         <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
+                        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
+                        <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
                     </utilities:MvvmTreeView.InputBindings>
                 </utilities:MvvmTreeView>
-                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20,0, 20, 80"/>
+                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20,0, 20, 80">
+                    <ListBox.InputBindings>
+                        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
+                        <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
+                    </ListBox.InputBindings>
+                </ListBox>
                 <Button Grid.Row="3" Grid.Column="1" Height="40" Width="150" VerticalAlignment="Bottom" Margin="0,0,0,30" Command="{Binding DeleteSelectedPathwayCommand}" IsEnabled="{Binding ListPathwaySelected}"> 
                     Delete
                 </Button>

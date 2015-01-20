@@ -475,18 +475,41 @@ namespace BiodiversityPlugin.ViewModels
 
         private void DeleteSelectedPathway()
         {
-            foreach (var pathwayCatagory in Pathways)
+            var treePathway = SelectedPathwayTreeItem as Pathway;
+            if (ListPathwaySelectedItem != null)
             {
-                foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
+                foreach (var pathwayCatagory in Pathways)
                 {
-                    foreach (var pathway in pathwayGroup.Pathways)
+                    foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
                     {
-                        if (ListPathwaySelectedItem == pathway.Name)
+                        foreach (var pathway in pathwayGroup.Pathways)
                         {
-                            pathway.Selected = false;
-                            var temp = ListPathways;
-                            temp.Remove(ListPathwaySelectedItem);
-                            ListPathways = temp;
+                            if (ListPathwaySelectedItem == pathway.Name)
+                            {
+                                pathway.Selected = false;
+                                var temp = ListPathways;
+                                temp.Remove(ListPathwaySelectedItem);
+                                ListPathways = temp;
+                            }
+                        }
+                    }
+                }
+            }
+            if (treePathway != null)
+            {
+                foreach (var pathwayCatagory in Pathways)
+                {
+                    foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
+                    {
+                        foreach (var pathway in pathwayGroup.Pathways)
+                        {
+                            if (treePathway.Name == pathway.Name)
+                            {
+                                pathway.Selected = false;
+                                var temp = ListPathways;
+                                temp.Remove(treePathway.Name);
+                                ListPathways = temp;
+                            }
                         }
                     }
                 }
