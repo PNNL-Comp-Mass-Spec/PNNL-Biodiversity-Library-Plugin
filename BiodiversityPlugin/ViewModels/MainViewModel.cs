@@ -53,6 +53,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _queryString;
         private bool _isAssociationSelected;
         private string _priorOrg;
+        private OrganismPathwayProteinAssociation _selectedAssociation;
 
         #endregion
 
@@ -63,6 +64,21 @@ namespace BiodiversityPlugin.ViewModels
 
         public Organism SelectedOrganism { get; private set; }
         public Pathway SelectedPathway { get; private set; }
+
+        public OrganismPathwayProteinAssociation SelectedAssociation {
+            get
+            {
+                return _selectedAssociation;
+            }
+            set
+            {
+                _selectedAssociation = value;
+                RaisePropertyChanged();
+                SelectAssociation();
+            }
+        }
+
+
 
         public ObservableCollection<Pathway> SelectedPathways
         {
@@ -147,7 +163,7 @@ namespace BiodiversityPlugin.ViewModels
                 IsPathwaySelected = false;
                 if (SelectedPathway != null)
                 {
-                    SelectedPathway.Selected = true;
+                    SelectedPathway.Selected = SelectedPathway.Selected == false;
                 }
                 RaisePropertyChanged();
             }
@@ -364,8 +380,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand DisplayPathwayImagesCommand { get; private set; }
         public RelayCommand SelectAdditionalOrganismCommand { get; private set; }
         public RelayCommand DeleteSelectedPathwayCommand { get; private set; }
-        public RelayCommand ClearSelectionsCommand { get; private set; }
-        public RelayCommand RemoveSelectedAssociationsCommand { get; private set; }
+        public RelayCommand SelectPathwayCommand { get; private set; }
 
         #endregion
 
@@ -418,8 +433,6 @@ namespace BiodiversityPlugin.ViewModels
             _dbPath = dbPath;
 
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
-            Messenger.Default.Register<PropertyChangedMessage<bool>>(this,
-                x => RemoveSelectedAssociationsCommand.RaiseCanExecuteChanged());
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
 
@@ -428,7 +441,6 @@ namespace BiodiversityPlugin.ViewModels
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
-            PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
@@ -438,8 +450,7 @@ namespace BiodiversityPlugin.ViewModels
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
-            ClearSelectionsCommand = new RelayCommand(ClearSelections);
-            RemoveSelectedAssociationsCommand = new RelayCommand(RemoveSelectedAssociations, () => PathwayProteinAssociation.Any(x => x.AssociationSelected));
+            SelectPathwayCommand = new RelayCommand(SelectPathway);
 
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
@@ -457,59 +468,17 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
         }
 
-        private void RemoveSelectedAssociations()
+        private void SelectAssociation()
         {
-            var unselectedAssociations = new ObservableCollection<OrganismPathwayProteinAssociation>();
-            foreach (var association in PathwayProteinAssociation)
-            {
-                if (!association.AssociationSelected)
-                {
-                    unselectedAssociations.Add(association);
-                }
-                else if (association.GeneList.Count != 0)
-                {
-                    //Message box to ask if they are sure they want to remove this association
-                    var messageText =
-                        string.Format("Are you sure you want to remove the {0}:{1} association containing {2} genes?",
-                            association.Organism, 
-                            association.Pathway, 
-                            association.GeneList.Count);
-                    var responce = MessageBox.Show(messageText, "Remove Association?", MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
-                    if (responce == MessageBoxResult.No)
-                    {
-                        unselectedAssociations.Add(association);
-                    }
-                }
-                association.AssociationSelected = false;
-            }
-            if (unselectedAssociations.Count == 0)
-            {
-                var messageText =
-                    string.Format("No organism:pathway associations remaining. \nReturn to Overview page?");
-                var responce = MessageBox.Show(messageText, "Return to Overview Page?", MessageBoxButton.OKCancel,
-                    MessageBoxImage.Question);
-                if (responce == MessageBoxResult.OK)
-                {
-                    ClearSelections();
-                }
-                else
-                {
-                    unselectedAssociations = PathwayProteinAssociation;
-                }
-            }
-            PathwayProteinAssociation = unselectedAssociations;
-            RemoveSelectedAssociationsCommand.RaiseCanExecuteChanged();
+            SelectedAssociation.AssociationSelected = SelectedAssociation.AssociationSelected == false;
         }
 
-        private void ClearSelections()
+        private void SelectPathway()
         {
-            SelectAdditionalOrganism();
-            SelectedTabIndex = 0;
-            PathwayProteinAssociation.Clear();
-            SelectedPathways.Clear();
+            var temp = SelectedPathwayTreeItem;
+            SelectedPathwayTreeItem = temp;
         }
-
+        
         private void DeleteSelectedPathway()
         {
             var treePathway = SelectedPathwayTreeItem as Pathway;
@@ -604,7 +573,6 @@ namespace BiodiversityPlugin.ViewModels
         {
             IsQuerying = true;
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var currentTab = SelectedTabIndex;
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways from @group in pathwayCatagory.PathwayGroups from p in @group.Pathways where p.Selected select p).ToList());
             var same = true;
@@ -761,22 +729,6 @@ namespace BiodiversityPlugin.ViewModels
                 MessageBox.Show("Please select an organism and pathway.");
             }
             IsQuerying = false;
-
-            if (FilteredProteins == null)
-                FilteredProteins = new ObservableCollection<ProteinInformation>(accessions);
-            else
-            {
-                foreach (var acc in accessions)
-                {
-                    if (!_protNames.Contains(acc.Accession))
-                    {
-                        // if the accession hasn't been seen yet, add it to
-                        // the list of filtered proteins.
-                        _protNames.Add(acc.Accession);
-                        FilteredProteins.Add(acc);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -812,6 +764,22 @@ namespace BiodiversityPlugin.ViewModels
 
         private void ExportToSkyline()
         {
+            foreach (var association in PathwayProteinAssociation)
+            {
+                if (association.AssociationSelected)
+                {
+                    if (FilteredProteins == null)
+                        FilteredProteins = new ObservableCollection<ProteinInformation>(association.GeneList);
+                    else
+                    {
+                        foreach (var acc in association.GeneList)
+                        {
+                            FilteredProteins.Add(acc);
+                        }
+                    }
+                }
+            }
+
             foreach (var protein in FilteredProteins)
             {
                 if (!ProteinsToExport.Contains(protein))

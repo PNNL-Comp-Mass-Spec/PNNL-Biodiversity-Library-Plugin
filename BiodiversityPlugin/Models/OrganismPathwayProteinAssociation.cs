@@ -5,7 +5,7 @@ namespace BiodiversityPlugin.Models
 {
     public class OrganismPathwayProteinAssociation : ViewModelBase
     {
-        private bool _selected;
+        private bool _selected = true;
         private string _organism;
         private string _pathway;
         private ObservableCollection<ProteinInformation> _genes;

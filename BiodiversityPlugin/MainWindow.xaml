@@ -243,7 +243,7 @@
                         <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
                     </utilities:MvvmTreeView.InputBindings>
                 </utilities:MvvmTreeView>
-                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20,0, 20, 80">
+                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20, 0">
                     <ListBox.InputBindings>
                         <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
                         <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
@@ -364,9 +364,10 @@
                     <RowDefinition Height="45" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="90" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="1" />
+                    <RowDefinition Height="*"  />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="3*"  />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
@@ -374,10 +375,9 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="4" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Selected Genes</TextBlock>
-                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" >
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Selected Genes</TextBlock>
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
 					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         4) Review and export data to Skyline.
                     </TextBlock>
@@ -388,25 +388,16 @@
                     </TextBlock>
                 </StackPanel>
 
-                <!-- This is the template for what needs to be in each of the many data grids.-->
-                <!--
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="2" FontSize="22" Text="{Binding SelectedOrganismText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="3" FontSize="22" Text="{Binding SelectedPathwayText}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="5" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="30">
-                    No proteins found for this<LineBreak/>
-                    Organism/Pathway combination
-                </TextBlock>
-                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" Background="White" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Foreground="Black" Grid.Row="4" FontSize="14" Text="{Binding NumProteinsText}" Visibility="{Binding VisibleProteins}" />
-                <DataGrid Margin="5,10,5,0" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding FilteredProteins}" Visibility="{Binding VisibleProteins}">
+                <DataGrid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" AutoGenerateColumns="False" RowHeaderWidth="0" FontSize="16" SelectedItem="{Binding SelectedAssociation}" ItemsSource="{Binding PathwayProteinAssociation}" CanUserAddRows="False" Margin="20,0,40,0">
                     <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Organism" Width="*" IsReadOnly="True" Binding="{Binding Organism}" FontWeight="Regular"></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Pathway" Width="*" IsReadOnly="True" Binding="{Binding Pathway}" FontWeight="Regular" ></DataGridTextColumn>
+                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="# of Genes" Width="*" IsReadOnly="True" Binding="{Binding GeneList.Count}" FontWeight="Regular" ></DataGridTextColumn>
+                        <DataGridCheckBoxColumn Binding="{Binding AssociationSelected, Mode=TwoWay}" Header="Export?"></DataGridCheckBoxColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                 -->
                 
-                <ScrollViewer Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible">
+                <ScrollViewer Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible">
                     <ItemsControl Name="OrganismGeneGrid" ItemsSource="{Binding PathwayProteinAssociation, UpdateSourceTrigger=PropertyChanged}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -418,22 +409,13 @@
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="5" />
-                                        <RowDefinition Height="30" />
-                                        <RowDefinition Height="30" />
+                                        <RowDefinition Height="25" />
+                                        <RowDefinition Height="25" />
                                         <RowDefinition Height="15" />
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="10" />
                                     </Grid.RowDefinitions>
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="75" />
-                                            <ColumnDefinition Width="20" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
-                                        <TextBlock Grid.Column="1" Foreground="Black" FontSize="12" HorizontalAlignment="Right">Remove <LineBreak/> association?</TextBlock>
-                                        <CheckBox  Grid.Column="2" IsChecked="{Binding AssociationSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                    </Grid>
+                                    <TextBlock Grid.Row="1" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
                                     <TextBlock Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedPathwayText}" />
                                     <TextBlock Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding NumProteinsText}"/>
                                     <DataGrid Margin="5,10,5,0" Grid.Row="4" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
@@ -447,28 +429,15 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-
-                <Button Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Width="150" Command="{Binding RemoveSelectedAssociationsCommand}">
-                    <TextBlock FontSize="14">
-                        Clear selected<LineBreak/> associations
-                    </TextBlock>
-                </Button>
                 
-                <Button Grid.Column="0" Grid.Row="7" Width="150" Command="{Binding ClearSelectionsCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;&lt;</TextBlock>
-                        <TextBlock VerticalAlignment="Center" FontSize="14"> Clear current <LineBreak/> selections</TextBlock>
-                    </StackPanel>
-                </Button>
-                
-                <Button Grid.Column="1" Grid.Row="7" Width="150" Command="{Binding SelectAdditionalOrganismCommand}">
+                <Button Grid.Column="0" Grid.Row="8" Width="150" Command="{Binding SelectAdditionalOrganismCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
                         <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
                     </StackPanel>
                 </Button>
-                <Button Grid.Column="2" Grid.Row="7" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="3" Grid.Row="7" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
                         <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
