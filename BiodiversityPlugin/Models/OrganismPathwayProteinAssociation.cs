@@ -1,12 +1,25 @@
 ﻿using System.Collections.ObjectModel;
+using GalaSoft.MvvmLight;
 
 namespace BiodiversityPlugin.Models
 {
-    public class OrganismPathwayProteinAssociation
+    public class OrganismPathwayProteinAssociation : ViewModelBase
     {
+        private bool _selected;
         private string _organism;
         private string _pathway;
         private ObservableCollection<ProteinInformation> _genes;
+
+        public bool Selected
+        { 
+            get { return _selected; }
+            set
+            {
+                var oldSelected = _selected;
+                _selected = value;
+                RaisePropertyChanged("Selected", oldSelected, _selected, true);
+            } 
+        }
 
         public string Organism
         {

@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -463,58 +464,65 @@ namespace BiodiversityPlugin.Models
         internal Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
         {
             var coordDict = new Dictionary<string, List<Tuple<int, int>>>();
-            var xml = "";
-            var xmlSettings = new XmlReaderSettings();
-            xmlSettings.DtdProcessing = DtdProcessing.Ignore;
 
-            //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", _keggReqId);
-
-            //var esearchGetUrl = WebRequest.Create(esearchURL);
-
-            //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
-
-            //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
-            //var reader = new StreamReader(getStream);
-            
-            var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", _keggReqId);
-
-            //var xmlRead = XmlReader.Create(esearchURL, settings);
-            var xmlRead = XmlReader.Create(path, xmlSettings);           
-            
-            xmlRead.ReadToFollowing("pathway");
-            while (xmlRead.ReadToFollowing("entry"))
+            try
             {
-                var wholeName = xmlRead.GetAttribute("name");
-                var backup = wholeName.Split(' ');
-                var pieces = new List<string>();
-                foreach (var piece in backup)
+                var xmlSettings = new XmlReaderSettings();
+                xmlSettings.DtdProcessing = DtdProcessing.Ignore;
+
+                //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", _keggReqId);
+
+                //var esearchGetUrl = WebRequest.Create(esearchURL);
+
+                //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
+
+                //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+                //var reader = new StreamReader(getStream);
+
+                var path = string.Format("C:\\Temp\\PullerDownload\\Coords\\path{0}.xml", _keggReqId);
+
+                //var xmlRead = XmlReader.Create(esearchURL, settings);
+                var xmlRead = XmlReader.Create(path, xmlSettings);
+
+                xmlRead.ReadToFollowing("pathway");
+                while (xmlRead.ReadToFollowing("entry"))
                 {
-                    pieces.Add(piece.Split(':').Last());
-                }
-                xmlRead.ReadToFollowing("graphics");
-                var type = xmlRead.GetAttribute("type");
-                var x = Convert.ToInt32(xmlRead.GetAttribute("x")) - (Convert.ToInt32(xmlRead.GetAttribute("width")) / 2);
-                var y = Convert.ToInt32(xmlRead.GetAttribute("y")) - (Convert.ToInt32(xmlRead.GetAttribute("height")) / 2);
-                if (type == "rectangle")
-                {
-                    foreach (var piece in pieces)
+                    var wholeName = xmlRead.GetAttribute("name");
+                    var backup = wholeName.Split(' ');
+                    var pieces = new List<string>();
+                    foreach (var piece in backup)
                     {
-                        if (piece.StartsWith("K"))
+                        pieces.Add(piece.Split(':').Last());
+                    }
+                    xmlRead.ReadToFollowing("graphics");
+                    var type = xmlRead.GetAttribute("type");
+                    var x = Convert.ToInt32(xmlRead.GetAttribute("x")) - (Convert.ToInt32(xmlRead.GetAttribute("width")) / 2);
+                    var y = Convert.ToInt32(xmlRead.GetAttribute("y")) - (Convert.ToInt32(xmlRead.GetAttribute("height")) / 2);
+                    if (type == "rectangle")
+                    {
+                        foreach (var piece in pieces)
                         {
-                            if (!coordDict.ContainsKey(piece))
+                            if (piece.StartsWith("K"))
                             {
-                                coordDict[piece] = new List<Tuple<int, int>>();
+                                if (!coordDict.ContainsKey(piece))
+                                {
+                                    coordDict[piece] = new List<Tuple<int, int>>();
+                                }
+                                coordDict[piece].Add(new Tuple<int, int>(x, y));
                             }
-                            coordDict[piece].Add(new Tuple<int, int>(x, y));
                         }
                     }
                 }
+                //reader.Close();
+                //esearchGetUrl.Abort();
+
             }
-            //reader.Close();
-            //esearchGetUrl.Abort();
+            catch (FileNotFoundException ex)
+            {
+                Console.WriteLine(string.Format("No coordinates for pathway {0}: {1}", Name, KeggId));
+            }
 
             return coordDict;
-
         }
     }
 }

@@ -346,8 +346,9 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand ExportToSkylineCommand { get; private set; }
         public RelayCommand DisplayPathwayImagesCommand { get; private set; }
         public RelayCommand SelectAdditionalOrganismCommand { get; private set; }
-        public RelayCommand OrganismReviewCommand { get; private set; }
-        public RelayCommand DeleteSelectedPathwayCommand { get; set; }
+        public RelayCommand DeleteSelectedPathwayCommand { get; private set; }
+        public RelayCommand ClearSelectionsCommand { get; private set; }
+        public RelayCommand RemoveSelectedAssociationsCommand { get; private set; }
 
         #endregion
 
@@ -417,6 +418,8 @@ namespace BiodiversityPlugin.ViewModels
             DisplayPathwayImagesCommand = new RelayCommand(DisplayPathwayImages);
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
+            ClearSelectionsCommand = new RelayCommand(ClearSelections);
+            RemoveSelectedAssociationsCommand = new RelayCommand(RemoveSelectedAssociations);
 
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
@@ -431,6 +434,43 @@ namespace BiodiversityPlugin.ViewModels
             ProteinsToExport = new List<ProteinInformation>();
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             SelectedValue = "";
+        }
+
+        private void RemoveSelectedAssociations()
+        {
+            var unselectedAssociations = new ObservableCollection<OrganismPathwayProteinAssociation>();
+            foreach (var association in PathwayProteinAssociation)
+            {
+                if (!association.Selected)
+                {
+                    unselectedAssociations.Add(association);
+                }
+                else if (association.GeneList.Count != 0)
+                {
+                    //Message box to ask if they are sure they want to remove this association
+                    var messageText =
+                        string.Format("Are you sure you want to remove the {0}:{1} association containing {2} genes?",
+                            association.Organism, 
+                            association.Pathway, 
+                            association.GeneList.Count);
+                    var responce = MessageBox.Show(messageText, "Remove Association?", MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    if (responce == MessageBoxResult.No)
+                    {
+                        unselectedAssociations.Add(association);
+                        association.Selected = false;
+                    }
+                }
+            }
+            PathwayProteinAssociation = unselectedAssociations;
+        }
+
+        private void ClearSelections()
+        {
+            SelectAdditionalOrganism();
+            SelectedTabIndex = 0;
+            PathwayProteinAssociation.Clear();
+            SelectedPathways.Clear();
         }
 
         private void DeleteSelectedPathway()
@@ -714,14 +754,24 @@ namespace BiodiversityPlugin.ViewModels
             }
             var accessionString = String.Join("+OR+", accessionList);
 
-            // Write the Fasta(s) from NCBI to file. This could eventually
-            // follow a different workflow depending on what Skyline needs.
-            var allFastas = GetFastasFromNCBI(accessionString);
+            // Need to see if there are any NCBI accessions to pull use to 
+            // create the FASTA file.
+            if (!string.IsNullOrWhiteSpace(accessionString))
+            {
+                // Write the Fasta(s) from NCBI to file. This could eventually
+                // follow a different workflow depending on what Skyline needs.
+                var allFastas = GetFastasFromNCBI(accessionString);
 
-            var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
+                var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
 
-            MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+                MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+            }
+            else
+            {
+                var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
 
+                MessageBox.Show(confirmationMessage, "FASTA unable to be created", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            }
         }
 
         private string GetFastasFromNCBI(string accessionString)
