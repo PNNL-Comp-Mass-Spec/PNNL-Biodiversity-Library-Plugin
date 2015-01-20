@@ -10,14 +10,14 @@ namespace BiodiversityPlugin.Models
         private string _pathway;
         private ObservableCollection<ProteinInformation> _genes;
 
-        public bool Selected
+        public bool AssociationSelected
         { 
             get { return _selected; }
             set
             {
                 var oldSelected = _selected;
                 _selected = value;
-                RaisePropertyChanged("Selected", oldSelected, _selected, true);
+                RaisePropertyChanged("AssociationSelected", oldSelected, _selected, true);
             } 
         }
 

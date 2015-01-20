@@ -436,7 +436,7 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
                                         <TextBlock Grid.Column="1" Foreground="Black" FontSize="12" HorizontalAlignment="Right">Remove <LineBreak/> association?</TextBlock>
-                                        <CheckBox  Grid.Column="2" IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <CheckBox  Grid.Column="2" IsChecked="{Binding AssociationSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                     </Grid>
                                     <TextBlock Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedPathwayText}" />
                                     <TextBlock Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding NumProteinsText}"/>

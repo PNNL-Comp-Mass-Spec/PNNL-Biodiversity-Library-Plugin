@@ -51,6 +51,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private bool _isQuerying;
         private string _queryString;
+        private bool _isAssociationSelected;
 
         #endregion
 
@@ -160,8 +161,7 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged("ProteinsToExport");
             }
         }
-
-
+        
         public bool IsQuerying
         {
             get { return _isQuerying; }
@@ -248,6 +248,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        //todo: LOOK AT THIS PROP
         public string SelectedListOrg
         {
             get { return "Selected"; }
@@ -336,6 +337,21 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        public bool IsAssociationSelected
+        {
+            get { return _isAssociationSelected; }
+            set
+            {
+                _isAssociationSelected = false;
+                foreach (var association in PathwayProteinAssociation)
+                {
+                    if (association.AssociationSelected)
+                        _isAssociationSelected = true;
+                }
+                RaisePropertyChanged("IsAssociationSelected");
+            }
+        }
         #endregion
 
         #region Commands
@@ -401,6 +417,8 @@ namespace BiodiversityPlugin.ViewModels
             _dbPath = dbPath;
 
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
+            Messenger.Default.Register<PropertyChangedMessage<bool>>(this,
+                x => RemoveSelectedAssociationsCommand.RaiseCanExecuteChanged());
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
 
@@ -409,6 +427,7 @@ namespace BiodiversityPlugin.ViewModels
             organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
             Organisms = new ObservableCollection<OrgPhylum>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
+            PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
@@ -419,7 +438,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
             ClearSelectionsCommand = new RelayCommand(ClearSelections);
-            RemoveSelectedAssociationsCommand = new RelayCommand(RemoveSelectedAssociations);
+            RemoveSelectedAssociationsCommand = new RelayCommand(RemoveSelectedAssociations, () => PathwayProteinAssociation.Any(x => x.AssociationSelected));
 
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
@@ -441,7 +460,7 @@ namespace BiodiversityPlugin.ViewModels
             var unselectedAssociations = new ObservableCollection<OrganismPathwayProteinAssociation>();
             foreach (var association in PathwayProteinAssociation)
             {
-                if (!association.Selected)
+                if (!association.AssociationSelected)
                 {
                     unselectedAssociations.Add(association);
                 }
@@ -458,11 +477,27 @@ namespace BiodiversityPlugin.ViewModels
                     if (responce == MessageBoxResult.No)
                     {
                         unselectedAssociations.Add(association);
-                        association.Selected = false;
                     }
+                }
+                association.AssociationSelected = false;
+            }
+            if (unselectedAssociations.Count == 0)
+            {
+                var messageText =
+                    string.Format("No organism:pathway associations remaining. \nReturn to Overview page?");
+                var responce = MessageBox.Show(messageText, "Return to Overview Page?", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Question);
+                if (responce == MessageBoxResult.OK)
+                {
+                    ClearSelections();
+                }
+                else
+                {
+                    unselectedAssociations = PathwayProteinAssociation;
                 }
             }
             PathwayProteinAssociation = unselectedAssociations;
+            RemoveSelectedAssociationsCommand.RaiseCanExecuteChanged();
         }
 
         private void ClearSelections()
