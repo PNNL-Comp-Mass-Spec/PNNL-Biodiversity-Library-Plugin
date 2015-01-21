@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using BiodiversityPlugin.DataManagement;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
@@ -573,14 +575,19 @@ namespace BiodiversityPlugin.ViewModels
             SelectedTabIndex++;
         }
 
-
         private void DisplayPathwayImages()
         {
 
             IsQuerying = true;
             QueryingVisibility = Visibility.Visible;
+            string[] queryingStrings =
+			    {
+				    "Generating pathway images\nPlease Wait",
+				    "Generating pathway images.\nPlease Wait",
+				    "Generating pathway images..\nPlease Wait",
+				    "Generating pathway images...\nPlease Wait"
+			    };
 
-            QueryString = "Building Images\nPlease Wait";
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var currentOrg = SelectedOrganism.Name;
@@ -594,10 +601,24 @@ namespace BiodiversityPlugin.ViewModels
             {
                 //if (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || SelectedPathways.Any(pathway => !curPathways.Contains(pathway)))
                 //{
-                    same = false;
+                same = false;
                 //}
             }
 
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
+            //Application.Current.Dispatcher.Invoke(() =>
+            {
+
+                Task.Factory.StartNew(() =>
+                {
+                    int index = 0;
+                    while (IsQuerying)
+                    {
+                        Thread.Sleep(750);
+                        QueryString = queryingStrings[index % 4];
+                        index++;
+                    }
+                });
                 if (currentOrg != _priorOrg || !same)
                 {
                     var selectedPaths = new List<Pathway>();
@@ -618,7 +639,7 @@ namespace BiodiversityPlugin.ViewModels
                                     // Create placeholder information for creating legend, KO is needed for adding
                                     // the rectangles
                                     var legend = new KeggKoInformation("legend", "legend", "legend");
-                                    var legendList = new List<KeggKoInformation> {legend};
+                                    var legendList = new List<KeggKoInformation> { legend };
 
                                     // Draw the information for the Legend on each image.
                                     pathway.AddRectangle(legendList, 10,
@@ -700,57 +721,80 @@ namespace BiodiversityPlugin.ViewModels
                     SelectedPathway = selectedPaths.First();
                     _priorOrg = SelectedOrganism.Name;
                 }
-
-
+                SelectedTabIndex = 3;
                 IsQuerying = false;
                 QueryingVisibility = Visibility.Hidden;
+            }));
 
-                SelectedTabIndex = 3;
-                PathwayTabIndex = 0;
+
+            PathwayTabIndex = 0;
         }
 
         private void AcquireProteins()
         {
             IsQuerying = true;
+            QueryingVisibility = Visibility.Visible;
+            string[] queryingStrings =
+			    {
+				    "Acquiring Genes based on selections\nPlease Wait",
+				    "Acquiring Genes based on selections.\nPlease Wait",
+				    "Acquiring Genes based on selections..\nPlease Wait",
+				    "Acquiring Genes based on selections...\nPlease Wait"
+			    };
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
-
-            SelectedTabIndex = 4;
-            var selectedPaths = SelectedPathways.ToList();
-            var accessions = new List<ProteinInformation>();
-            if (SelectedPathway != null && SelectedOrganism != null)
+            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
+            //Application.Current.Dispatcher.Invoke(() =>
             {
-                // Load accessions for the pathway based on the selected proteins
-                foreach (var pathway in selectedPaths)
+
+                Task.Factory.StartNew(() =>
                 {
-                    var temp = new List<Pathway> { pathway }; // Current flow is that exporting
-                    // accessions requires a list of pathways
-                    // todo: CHANGE THIS TO USE SINGLE PATHWAY
-                    var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
-                    accessions.AddRange(pathwayAcc);
-
-                    var association = new OrganismPathwayProteinAssociation
+                    int index = 0;
+                    while (IsQuerying)
                     {
-                        Pathway = pathway.Name,
-                        Organism = SelectedOrganism.Name,
-                        GeneList = new ObservableCollection<ProteinInformation>()
-                    };
-
-                    foreach (var acc in pathwayAcc)
-                    {
-                        association.GeneList.Add(acc);
+                        Thread.Sleep(750);
+                        QueryString = queryingStrings[index % 4];
+                        index++;
                     }
+                });
+                var selectedPaths = SelectedPathways.ToList();
+                var accessions = new List<ProteinInformation>();
+                if (SelectedPathway != null && SelectedOrganism != null)
+                {
+                    // Load accessions for the pathway based on the selected proteins
+                    foreach (var pathway in selectedPaths)
+                    {
+                        var temp = new List<Pathway> { pathway }; // Current flow is that exporting
+                        // accessions requires a list of pathways
+                        // todo: CHANGE THIS TO USE SINGLE PATHWAY
+                        var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
+                        accessions.AddRange(pathwayAcc);
 
-                    // Create an association for the pathway/organism pair
-                    AddAssociation(association);
-                    IsPathwaySelected = true;
+                        var association = new OrganismPathwayProteinAssociation
+                        {
+                            Pathway = pathway.Name,
+                            Organism = SelectedOrganism.Name,
+                            GeneList = new ObservableCollection<ProteinInformation>()
+                        };
+
+                        foreach (var acc in pathwayAcc)
+                        {
+                            association.GeneList.Add(acc);
+                        }
+
+                        // Create an association for the pathway/organism pair
+                        AddAssociation(association);
+                        IsPathwaySelected = true;
+                    }
                 }
-            }
-            else
-            {
-                MessageBox.Show("Please select an organism and pathway.");
-            }
-            IsQuerying = false;
+                else
+                {
+                    MessageBox.Show("Please select an organism and pathway.");
+                }
+                SelectedTabIndex = 4;
+                IsQuerying = false;
+                QueryingVisibility = Visibility.Hidden;
+            }));
         }
 
         /// <summary>
