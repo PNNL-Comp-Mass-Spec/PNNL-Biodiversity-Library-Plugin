@@ -32,7 +32,6 @@ namespace BiodiversityPlugin.ViewModels
         private int _pathwayTabIndex;
         private int _pathwaysSelected;
         private List<ProteinInformation> _proteinsToExport;
-        private List<string> _protNames = new List<string>();
         private List<string> _organismList;
         private Visibility _filterVisibility;
 
@@ -51,7 +50,6 @@ namespace BiodiversityPlugin.ViewModels
 
         private bool _isQuerying;
         private string _queryString;
-        private bool _isAssociationSelected;
         private string _priorOrg;
         private OrganismPathwayProteinAssociation _selectedAssociation;
 
@@ -86,8 +84,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-
-
         public ObservableCollection<Pathway> SelectedPathways
         {
             get { return _selectedPathways; }
@@ -121,7 +117,6 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-
 
         public bool IsOrganismSelected
         {
@@ -252,7 +247,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-
         public Visibility FilterBoxVisible
         {
             get { return _filterVisibility; }
@@ -273,7 +267,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        //todo: LOOK AT THIS PROP
         public string SelectedListOrg
         {
             get { return "Selected"; }
@@ -288,6 +281,8 @@ namespace BiodiversityPlugin.ViewModels
                             if (organism.Name == value)
                             {
                                 SelectedOrganismTreeItem = organism;
+                                // To refresh the Pathway tab's ability to be
+                                // clicked by the user to advance the app.
                                 SelectedTabIndex = SelectedTabIndex;
                                 return;
                             }
@@ -303,6 +298,8 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _listPathways = value;
+                // To refresh the Selection tab's ability to be
+                // clicked by the user to advance the app.
                 SelectedTabIndex = SelectedTabIndex;
                 RaisePropertyChanged();
             }
@@ -314,11 +311,14 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _listPathwaySelectedItem = value;
-                ListPathwaySelected = false;
-                if (ListPathways.Contains(value))
-                {
-                    ListPathwaySelected = true;
-                }
+                
+                //ListPathwaySelected = false;
+                //if (ListPathways.Contains(value))
+                //{
+                //    ListPathwaySelected = true;
+                //}
+
+                ListPathwaySelected = ListPathways.Contains(value);
                 RaisePropertyChanged();
             }
         }
@@ -363,20 +363,6 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public bool IsAssociationSelected
-        {
-            get { return _isAssociationSelected; }
-            set
-            {
-                _isAssociationSelected = false;
-                foreach (var association in PathwayProteinAssociation)
-                {
-                    if (association.AssociationSelected)
-                        _isAssociationSelected = true;
-                }
-                RaisePropertyChanged("IsAssociationSelected");
-            }
-        }
         #endregion
 
         #region Commands
@@ -476,63 +462,6 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
         }
 
-        private void SelectAssociation()
-        {
-            if (SelectedAssociation != null)
-            {
-                SelectedAssociation.AssociationSelected = SelectedAssociation.AssociationSelected == false;
-            }
-        }
-
-        private void SelectPathway()
-        {
-            var temp = SelectedPathwayTreeItem;
-            SelectedPathwayTreeItem = temp;
-        }
-        
-        private void DeleteSelectedPathway()
-        {
-            var treePathway = SelectedPathwayTreeItem as Pathway;
-            if (ListPathwaySelectedItem != null)
-            {
-                foreach (var pathwayCatagory in Pathways)
-                {
-                    foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
-                    {
-                        foreach (var pathway in pathwayGroup.Pathways)
-                        {
-                            if (ListPathwaySelectedItem == pathway.Name)
-                            {
-                                pathway.Selected = false;
-                                var temp = ListPathways;
-                                temp.Remove(ListPathwaySelectedItem);
-                                ListPathways = temp;
-                            }
-                        }
-                    }
-                }
-            }
-            if (treePathway != null)
-            {
-                foreach (var pathwayCatagory in Pathways)
-                {
-                    foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
-                    {
-                        foreach (var pathway in pathwayGroup.Pathways)
-                        {
-                            if (treePathway.Name == pathway.Name)
-                            {
-                                pathway.Selected = false;
-                                var temp = ListPathways;
-                                temp.Remove(treePathway.Name);
-                                ListPathways = temp;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
         {
             if (message.PropertyName == "Selected" && message.Sender is Pathway)
@@ -563,6 +492,51 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        private void SelectPathway()
+        {
+            var temp = SelectedPathwayTreeItem;
+            SelectedPathwayTreeItem = temp;
+        }
+        
+        private void DeleteSelectedPathway()
+        {
+            var treePathway = SelectedPathwayTreeItem as Pathway;
+            if (ListPathwaySelectedItem != null)
+            {
+                foreach (var pathway in 
+                            from pathwayCatagory in Pathways 
+                                from pathwayGroup in pathwayCatagory.PathwayGroups 
+                                    from pathway in pathwayGroup.Pathways 
+                                    where ListPathwaySelectedItem == pathway.Name 
+                            select pathway)
+                {
+                    pathway.Selected = false;
+                    var temp = ListPathways;
+                    temp.Remove(ListPathwaySelectedItem);
+                    ListPathways = temp;
+                }
+            }
+            if (treePathway != null)
+            {
+                foreach (var pathwayCatagory in Pathways)
+                {
+                    foreach (var pathwayGroup in pathwayCatagory.PathwayGroups)
+                    {
+                        foreach (var pathway in pathwayGroup.Pathways)
+                        {
+                            if (treePathway.Name == pathway.Name)
+                            {
+                                pathway.Selected = false;
+                                var temp = ListPathways;
+                                temp.Remove(treePathway.Name);
+                                ListPathways = temp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void PreviousTab()
         {
             if (SelectedTabIndex > 0)
@@ -573,9 +547,9 @@ namespace BiodiversityPlugin.ViewModels
 
         private void NextTab()
         {
-            // Do nothing if no selected organism
+            // Do nothing if no selected organism and on the organism selection tab
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
-            // Do nothing if no selected pathway
+            // Do nothing if no selected pathway and on the pathway selection tab
             if (SelectedTabIndex == 2 && !IsPathwaySelected) return;
             SelectedTabIndex++;
         }
@@ -698,7 +672,6 @@ namespace BiodiversityPlugin.ViewModels
                 _priorOrg = SelectedOrganism.Name;
             }
             PathwayTabIndex = 0;
-
         }
 
         private void AcquireProteins()
@@ -715,7 +688,9 @@ namespace BiodiversityPlugin.ViewModels
                 // Load accessions for the pathway based on the selected proteins
                 foreach (var pathway in selectedPaths)
                 {
-                    var temp = new List<Pathway> { pathway };
+                    var temp = new List<Pathway> { pathway }; // Current flow is that exporting
+                                                              // accessions requires a list of pathways
+                                                              // todo: CHANGE THIS TO USE SINGLE PATHWAY
                     var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
                     accessions.AddRange(pathwayAcc);
 
@@ -725,6 +700,7 @@ namespace BiodiversityPlugin.ViewModels
                         Organism = SelectedOrganism.Name,
                         GeneList = new ObservableCollection<ProteinInformation>()
                     };
+
                     foreach (var acc in pathwayAcc)
                     {
                         association.GeneList.Add(acc);
@@ -766,7 +742,6 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             pathway.PathwayNonDataCanvas.Children.Clear();
                             pathway.PathwayDataCanvas.Children.Clear();
-                            pathway.PathwayImage = null;
                         }
                     }
                 }
@@ -775,8 +750,10 @@ namespace BiodiversityPlugin.ViewModels
 
         private void ExportToSkyline()
         {
+            // Go through the associations that have been built up so far...
             foreach (var association in PathwayProteinAssociation)
             {
+                // Create a list of all the genes from all the associations selected for export
                 if (association.AssociationSelected)
                 {
                     if (FilteredProteins == null)
@@ -791,6 +768,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
 
+            // Filter these genes from last step to eliminate duplicate
             foreach (var protein in FilteredProteins)
             {
                 if (!ProteinsToExport.Contains(protein))
@@ -801,6 +779,7 @@ namespace BiodiversityPlugin.ViewModels
 
             var accessionList = new List<string>();
 
+            // Create a list of just the accessions from the proteins to export
             foreach (var protein in ProteinsToExport)
             {
                 accessionList.Add(protein.Accession);
@@ -827,6 +806,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Use of the NCBI web API to get the FASTAs for the string of Accessions selected.
+        /// </summary>
+        /// <param name="accessionString">A list of NCBI accessions, separated by "+OR+" for use with NCBI</param>
+        /// <returns>The FASTA for all accessions</returns>
         private string GetFastasFromNCBI(string accessionString)
         {
             var fastas = "";
@@ -864,6 +848,10 @@ namespace BiodiversityPlugin.ViewModels
             return fastas;
         }
         
+        /// <summary>
+        /// Method for adding an Association to the existing list
+        /// </summary>
+        /// <param name="newAssociation"></param>
         private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
         {
             var curList = PathwayProteinAssociation;
