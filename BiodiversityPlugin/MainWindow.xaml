@@ -354,7 +354,7 @@
                 </Button>
                 <Button Grid.Row="4" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
 
-                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
                     <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Margin="200" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold"
                        Text="{Binding QueryString, UpdateSourceTrigger=PropertyChanged}"> Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait
                     </TextBlock>
