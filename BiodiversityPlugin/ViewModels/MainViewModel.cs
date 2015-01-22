@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Threading;
 using BiodiversityPlugin.DataManagement;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
@@ -56,6 +55,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _priorOrg;
         private OrganismPathwayProteinAssociation _selectedAssociation;
         private Visibility _queryingVisibility;
+        private bool _overviewTabEnabled;
 
         #endregion
 
@@ -203,7 +203,6 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 _queryString = value;
-                Console.WriteLine("QueryString set to " + value);
                 RaisePropertyChanged();
             }
         }
@@ -383,6 +382,20 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Only used when all tabs are disabled (during loading)
+        /// True means Organism AND Overview tabs are enabled
+        /// </summary>
+        public bool OverviewEnabled
+        {
+            get { return _overviewTabEnabled; }
+            set
+            {
+                _overviewTabEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Commands
@@ -466,6 +479,7 @@ namespace BiodiversityPlugin.ViewModels
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
             SelectPathwayCommand = new RelayCommand(SelectPathway);
 
+            _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
@@ -481,6 +495,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectedValue = "";
             _priorOrg = "";
             QueryingVisibility = Visibility.Hidden;
+            _overviewTabEnabled = true;
         }
 
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
@@ -580,6 +595,8 @@ namespace BiodiversityPlugin.ViewModels
 
             IsQuerying = true;
             QueryingVisibility = Visibility.Visible;
+            SelectedTabIndex = 3;
+
             string[] queryingStrings =
 			    {
 				    "Generating Pathway Images   \nPlease Wait",
@@ -600,21 +617,39 @@ namespace BiodiversityPlugin.ViewModels
                         (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || 
                             SelectedPathways.Any(pathway => !curPathways.Contains(pathway))));
 
+            // Need this for when anything in the canvas changes.
+            // The application level dispatcher needs to be utilized and through
+            // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
+
             Task.Factory.StartNew((() =>
             {
+
                 int index = 0;
+
+                var pathTab = PathwaysTabEnabled;
+                var selectTab = SelectionTabEnabled;
+                var reviewTab = ReviewTabEnabled;
+                var overviewTab = OverviewEnabled;
+                PathwaysTabEnabled = false;
+                SelectionTabEnabled = false;
+                ReviewTabEnabled = false;
+                OverviewEnabled = false;
+
                 while (IsQuerying)
                 {
                     Thread.Sleep(750);
                     QueryString = queryingStrings[index % 4];
                     index++;
                 }
+
+                PathwaysTabEnabled = pathTab;
+                SelectionTabEnabled = selectTab;
+                ReviewTabEnabled = reviewTab;
+                OverviewEnabled = overviewTab;
             }));
 
             Task.Factory.StartNew((() =>
-            //dis.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
-            //Application.Current.Dispatcher.Invoke(() =>
             {
                 if (currentOrg != _priorOrg || !same)
                 {
@@ -726,19 +761,17 @@ namespace BiodiversityPlugin.ViewModels
                     SelectedPathway = selectedPaths.First();
                     _priorOrg = SelectedOrganism.Name;
                 }
-                SelectedTabIndex = 3;
                 IsQuerying = false;
                 QueryingVisibility = Visibility.Hidden;
+                PathwayTabIndex = 0;
             }));
-
-
-            PathwayTabIndex = 0;
         }
 
         private void AcquireProteins()
         {
             IsQuerying = true;
             QueryingVisibility = Visibility.Visible;
+            SelectedTabIndex = 4;
             string[] queryingStrings =
 			    {
 				    "Acquiring Genes   \nPlease Wait",
@@ -747,23 +780,42 @@ namespace BiodiversityPlugin.ViewModels
 				    "Acquiring Genes...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
+
+            // Need this for when the observable collections change.
+            // The application level dispatcher needs to be utilized and through
+            // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
+
             Task.Factory.StartNew(() =>
             {
+
                 int index = 0;
+
+                var pathTab = PathwaysTabEnabled;
+                var selectTab = SelectionTabEnabled;
+                var reviewTab = ReviewTabEnabled;
+                var overviewTab = OverviewEnabled;
+                PathwaysTabEnabled = false;
+                SelectionTabEnabled = false;
+                ReviewTabEnabled = false;
+                OverviewEnabled = false;
+
                 while (IsQuerying)
                 {
                     Thread.Sleep(750);
                     QueryString = queryingStrings[index % 4];
                     index++;
                 }
+
+                PathwaysTabEnabled = pathTab;
+                SelectionTabEnabled = selectTab;
+                ReviewTabEnabled = reviewTab;
+                OverviewEnabled = overviewTab;
             });
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
             
             Task.Factory.StartNew(() =>
-            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
-            //Application.Current.Dispatcher.Invoke(() =>
             {
                 var selectedPaths = SelectedPathways.ToList();
                 var accessions = new List<ProteinInformation>();
@@ -800,7 +852,6 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     MessageBox.Show("Please select an organism and pathway.");
                 }
-                SelectedTabIndex = 4;
                 IsQuerying = false;
                 QueryingVisibility = Visibility.Hidden;
             });
