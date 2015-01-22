@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -153,7 +152,7 @@ namespace BiodiversityPlugin.ViewModels
                 if (orgValue != null)
                 {
                     _selectedOrganismTreeItem = value;
-                    SelectedOrganism = _selectedOrganismTreeItem as Organism;
+                    SelectedOrganism = (Organism) _selectedOrganismTreeItem;
                     IsOrganismSelected = false;
                     if (SelectedOrganism != null)
                         SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
@@ -204,6 +203,7 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 _queryString = value;
+                Console.WriteLine("QueryString set to " + value);
                 RaisePropertyChanged();
             }
         }
@@ -587,8 +587,8 @@ namespace BiodiversityPlugin.ViewModels
 				    "Generating pathway images..\nPlease Wait",
 				    "Generating pathway images...\nPlease Wait"
 			    };
-
-
+            QueryString = queryingStrings[0];
+            
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways
@@ -596,29 +596,26 @@ namespace BiodiversityPlugin.ViewModels
                                                                  from p in @group.Pathways
                                                                  where p.Selected
                                                                  select p).ToList());
-            var same = true;
-            if (curPathways.Count != SelectedPathways.Count || (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || SelectedPathways.Any(pathway => !curPathways.Contains(pathway))))
-            {
-                //if (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || SelectedPathways.Any(pathway => !curPathways.Contains(pathway)))
-                //{
-                same = false;
-                //}
-            }
+            var same = !(curPathways.Count != SelectedPathways.Count || 
+                        (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || 
+                            SelectedPathways.Any(pathway => !curPathways.Contains(pathway))));
 
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
+            var dis = Application.Current.Dispatcher;
+            Task.Factory.StartNew((() =>
+            {
+                int index = 0;
+                while (IsQuerying)
+                {
+                    Thread.Sleep(750);
+                    QueryString = queryingStrings[index % 4];
+                    index++;
+                }
+            }));
+
+            Task.Factory.StartNew((() =>
+            //dis.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
             //Application.Current.Dispatcher.Invoke(() =>
             {
-
-                Task.Factory.StartNew(() =>
-                {
-                    int index = 0;
-                    while (IsQuerying)
-                    {
-                        Thread.Sleep(750);
-                        QueryString = queryingStrings[index % 4];
-                        index++;
-                    }
-                });
                 if (currentOrg != _priorOrg || !same)
                 {
                     var selectedPaths = new List<Pathway>();
@@ -634,7 +631,8 @@ namespace BiodiversityPlugin.ViewModels
                                     pathway.LoadImage();
 
                                     // Remove any rectangles from the canvas to provide accurate visualization
-                                    pathway.ClearRectangles();
+                                    dis.Invoke(() =>
+                                        pathway.ClearRectangles());
 
                                     // Create placeholder information for creating legend, KO is needed for adding
                                     // the rectangles
@@ -642,21 +640,27 @@ namespace BiodiversityPlugin.ViewModels
                                     var legendList = new List<KeggKoInformation> { legend };
 
                                     // Draw the information for the Legend on each image.
-                                    pathway.AddRectangle(legendList, 10,
-                                        5, false, Colors.Red);
-                                    pathway.WriteFoundText(10, 5, SelectedOrganism.Name);
-                                    pathway.AddRectangle(
+                                    dis.Invoke(() =>
+                                        pathway.AddRectangle(legendList, 10,
+                                        5, false, Colors.Red));
+                                    dis.Invoke(() =>
+                                        pathway.WriteFoundText(10, 5, SelectedOrganism.Name));
+                                    dis.Invoke(() =>
+                                        pathway.AddRectangle(
                                         legendList, 10,
-                                        22, false, Colors.Blue);
-                                    pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name);
+                                        22, false, Colors.Blue));
+                                    dis.Invoke(() =>
+                                        pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name));
 
                                     // Now that we have the base image and the legend, load the coordinates
                                     // for every rectangle on the image, keyed on KO name.
-                                    var koToCoordDict = pathway.LoadCoordinates();
+                                    var koToCoordDict = //dis.Invoke(() =>
+                                        pathway.LoadCoordinates();//);
 
                                     // Use the database to determine which orthologs have data in MSMS and load
                                     // the coordinates
-                                    var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
+                                    var koWithData = //dis.Invoke(() =>
+                                        dataAccess.ExportKosWithData(pathway, SelectedOrganism);//);
                                     var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                                     foreach (var ko in koWithData)
                                     {
@@ -677,13 +681,14 @@ namespace BiodiversityPlugin.ViewModels
                                     {
                                         // Draw data rectangles for each of these coordinates
                                         // These rectangles are able to be interacted with by the user
-                                        pathway.AddRectangle(
+                                        dis.Invoke(() =>pathway.AddRectangle(
                                             coord.Value, coord.Key.Item1,
-                                            coord.Key.Item2, true);
+                                            coord.Key.Item2, true));
                                     }
 
                                     // Do the same for orthologs without data in MSMS, loading the coordinates needed
-                                    var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
+                                    var koWithoutData = //dis.Invoke(() =>
+                                        dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);//);
                                     var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                                     foreach (var ko in koWithoutData)
                                     {
@@ -707,9 +712,9 @@ namespace BiodiversityPlugin.ViewModels
                                     {
                                         // Draw non-data rectangles for each of these coordinates
                                         // These rectangles have no interaction from the user
-                                        pathway.AddRectangle(
+                                        dis.Invoke(() =>pathway.AddRectangle(
                                             coord.Value, coord.Key.Item1,
-                                            coord.Key.Item2, false);
+                                            coord.Key.Item2, false));
                                     }
 
                                     selectedPaths.Add(pathway);
@@ -741,22 +746,25 @@ namespace BiodiversityPlugin.ViewModels
 				    "Acquiring Genes based on selections..\nPlease Wait",
 				    "Acquiring Genes based on selections...\nPlease Wait"
 			    };
+            QueryString = queryingStrings[0];
+            var dis = Application.Current.Dispatcher;
+            Task.Factory.StartNew(() =>
+            {
+                int index = 0;
+                while (IsQuerying)
+                {
+                    Thread.Sleep(750);
+                    QueryString = queryingStrings[index % 4];
+                    index++;
+                }
+            });
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
+            
+            Task.Factory.StartNew(() =>
+            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Input, new ThreadStart(() =>
             //Application.Current.Dispatcher.Invoke(() =>
             {
-
-                Task.Factory.StartNew(() =>
-                {
-                    int index = 0;
-                    while (IsQuerying)
-                    {
-                        Thread.Sleep(750);
-                        QueryString = queryingStrings[index % 4];
-                        index++;
-                    }
-                });
                 var selectedPaths = SelectedPathways.ToList();
                 var accessions = new List<ProteinInformation>();
                 if (SelectedPathway != null && SelectedOrganism != null)
@@ -783,7 +791,8 @@ namespace BiodiversityPlugin.ViewModels
                         }
 
                         // Create an association for the pathway/organism pair
-                        AddAssociation(association);
+                        dis.Invoke(() =>
+                            AddAssociation(association));
                         IsPathwaySelected = true;
                     }
                 }
@@ -794,7 +803,7 @@ namespace BiodiversityPlugin.ViewModels
                 SelectedTabIndex = 4;
                 IsQuerying = false;
                 QueryingVisibility = Visibility.Hidden;
-            }));
+            });
         }
 
         /// <summary>
@@ -856,13 +865,9 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
 
-            var accessionList = new List<string>();
-
             // Create a list of just the accessions from the proteins to export
-            foreach (var protein in ProteinsToExport)
-            {
-                accessionList.Add(protein.Accession);
-            }
+            var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
+
             var accessionString = String.Join("+OR+", accessionList);
 
             // Need to see if there are any NCBI accessions to pull use to 
