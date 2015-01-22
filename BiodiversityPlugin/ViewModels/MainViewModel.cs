@@ -582,10 +582,10 @@ namespace BiodiversityPlugin.ViewModels
             QueryingVisibility = Visibility.Visible;
             string[] queryingStrings =
 			    {
-				    "Generating pathway images\nPlease Wait",
-				    "Generating pathway images.\nPlease Wait",
-				    "Generating pathway images..\nPlease Wait",
-				    "Generating pathway images...\nPlease Wait"
+				    "Generating Pathway Images   \nPlease Wait",
+				    "Generating Pathway Images.  \nPlease Wait",
+				    "Generating Pathway Images.. \nPlease Wait",
+				    "Generating Pathway Images...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
             
@@ -741,10 +741,10 @@ namespace BiodiversityPlugin.ViewModels
             QueryingVisibility = Visibility.Visible;
             string[] queryingStrings =
 			    {
-				    "Acquiring Genes based on selections\nPlease Wait",
-				    "Acquiring Genes based on selections.\nPlease Wait",
-				    "Acquiring Genes based on selections..\nPlease Wait",
-				    "Acquiring Genes based on selections...\nPlease Wait"
+				    "Acquiring Genes   \nPlease Wait",
+				    "Acquiring Genes.  \nPlease Wait",
+				    "Acquiring Genes.. \nPlease Wait",
+				    "Acquiring Genes...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
             var dis = Application.Current.Dispatcher;
