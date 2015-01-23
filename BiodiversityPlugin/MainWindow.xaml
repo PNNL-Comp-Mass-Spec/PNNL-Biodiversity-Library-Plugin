@@ -173,10 +173,11 @@
 							<KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
 						</TextBox.InputBindings>
 					</TextBox>
+                    <Button Grid.Row="0" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="16" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
 					<TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
                         No Organism Matches found
 					</TextBlock>
-					<ListBox Grid.Row="1" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+					<ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
                              FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
 				</Grid>
 				<Button Grid.Row="5" Grid.Column="0" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>

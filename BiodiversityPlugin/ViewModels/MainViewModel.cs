@@ -395,6 +395,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectAdditionalOrganismCommand { get; private set; }
         public RelayCommand DeleteSelectedPathwayCommand { get; private set; }
         public RelayCommand SelectPathwayCommand { get; private set; }
+        public RelayCommand ClearFilterCommand { get; private set; }
 
         #endregion
 
@@ -465,6 +466,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectAdditionalOrganismCommand = new RelayCommand(SelectAdditionalOrganism);
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
             SelectPathwayCommand = new RelayCommand(SelectPathway);
+            ClearFilterCommand = new RelayCommand(ClearFilter);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -482,6 +484,11 @@ namespace BiodiversityPlugin.ViewModels
             SelectedValue = "";
             _priorOrg = "";
             _overviewTabEnabled = true;
+        }
+
+        private void ClearFilter()
+        {
+            SelectedValue = "";
         }
 
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
@@ -801,6 +808,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             SelectedTabIndex = 1;
             SelectedOrganism = null;
+            SelectedValue = "";
             FilteredProteins.Clear();
 
             foreach (var pathwayCatagory in Pathways)
@@ -863,7 +871,9 @@ namespace BiodiversityPlugin.ViewModels
         }
 
         /// <summary>
-        /// Creates a 
+        /// Gathers all the protein accessions from the associations that have been selected
+        /// by the user and uses the NCBI web API to create a FASTA file based on these.
+        /// If there are no accessions, a message comes back saying so.
         /// </summary>
         private void ExportToSkyline()
         {
@@ -923,11 +933,29 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     // Write the Fasta(s) from NCBI to file. This could eventually
                     // follow a different workflow depending on what Skyline needs.
-                    var allFastas = GetFastasFromNCBI(accessionString);
+                    try
+                    {
+                        var allFastas = GetFastasFromNCBI(accessionString);
 
-                    var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
+                        var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
 
-                    MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+                        MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+                    }
+                    catch (Exception)
+                    {
+
+                        var outputpath = "C:\\Temp\\accessionList.txt";
+                        using (var fastaWriter = new StreamWriter(outputpath))
+                        {
+                            foreach (var acc in accessionList)
+                            {
+                                fastaWriter.WriteLine(acc);
+                            }
+                        }
+                        var errorMessage =
+                            "Error accessing NCBI database\nPlease check that the accessions in C:\\Temp\\accessionList.txt are valid";
+                        MessageBox.Show(errorMessage, "Error During creation", MessageBoxButton.OK);
+                    }
                 }
                 else
                 {
