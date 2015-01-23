@@ -261,14 +261,21 @@
 		<TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                   IsEnabled="{Binding SelectionTabEnabled}">
+            <!--
 			<TabItem.InputBindings>
 				<MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
 			</TabItem.InputBindings>
+            -->
 			<TabItem.Header>
-				<TextBlock HorizontalAlignment="Center">
+                <StackPanel>
+                    <TextBlock HorizontalAlignment="Center">
                         Select Proteins
                         <LineBreak/>by Pathway
-				</TextBlock>
+                    </TextBlock>
+                    <StackPanel.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
+                    </StackPanel.InputBindings>
+                </StackPanel>
 			</TabItem.Header>
 			<Grid>
 				<Grid.RowDefinitions>

@@ -39,8 +39,10 @@ namespace BiodiversityPlugin.ViewModels
 
         private bool _listPathwaySelected;
         private bool _isOrganismSelected;
-        private bool _pathwaysTabEnabled;
         private bool _isPathwaySelected;
+
+        private bool _overviewTabEnabled;
+        private bool _pathwaysTabEnabled;
         private bool _selectionTabEnabled;
         private bool _reviewTabEnabled;
 
@@ -54,8 +56,6 @@ namespace BiodiversityPlugin.ViewModels
         private string _queryString;
         private string _priorOrg;
         private OrganismPathwayProteinAssociation _selectedAssociation;
-        private Visibility _queryingVisibility;
-        private bool _overviewTabEnabled;
 
         #endregion
 
@@ -203,19 +203,6 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 _queryString = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public Visibility QueryingVisibility
-        {
-            get
-            {
-                return _queryingVisibility;
-            }
-            set
-            {
-                _queryingVisibility = value;
                 RaisePropertyChanged();
             }
         }
@@ -494,7 +481,6 @@ namespace BiodiversityPlugin.ViewModels
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             SelectedValue = "";
             _priorOrg = "";
-            QueryingVisibility = Visibility.Hidden;
             _overviewTabEnabled = true;
         }
 
@@ -739,7 +725,6 @@ namespace BiodiversityPlugin.ViewModels
                     _priorOrg = SelectedOrganism.Name;
                 }
                 IsQuerying = false;
-                QueryingVisibility = Visibility.Hidden;
                 PathwayTabIndex = 0;
             }));
         }
@@ -803,7 +788,6 @@ namespace BiodiversityPlugin.ViewModels
                     MessageBox.Show("Please select an organism and pathway.");
                 }
                 IsQuerying = false;
-                QueryingVisibility = Visibility.Hidden;
             });
         }
 
@@ -847,15 +831,16 @@ namespace BiodiversityPlugin.ViewModels
         private void StartOverlay(string[] overlayMessages)
         {
             IsQuerying = true;
-            QueryingVisibility = Visibility.Visible;
 
             int index = 0;
             int maxIndex = overlayMessages.Count();
 
+            // Place holders for the boolean "enabled" on all tabs
             var pathTab = PathwaysTabEnabled;
             var selectTab = SelectionTabEnabled;
             var reviewTab = ReviewTabEnabled;
             var overviewTab = OverviewEnabled;
+            // Disable all tabs to prevent misuse of app during processing
             PathwaysTabEnabled = false;
             SelectionTabEnabled = false;
             ReviewTabEnabled = false;
@@ -863,11 +848,13 @@ namespace BiodiversityPlugin.ViewModels
 
             while (IsQuerying)
             {
+                // Cycle through the messages passed in
                 Thread.Sleep(750);
                 QueryString = overlayMessages[index % maxIndex];
                 index++;
             }
 
+            // Revery enabled status for all tabs.
             PathwaysTabEnabled = pathTab;
             SelectionTabEnabled = selectTab;
             ReviewTabEnabled = reviewTab;
@@ -875,6 +862,9 @@ namespace BiodiversityPlugin.ViewModels
 
         }
 
+        /// <summary>
+        /// Creates a 
+        /// </summary>
         private void ExportToSkyline()
         {
             //Clear the prior Proteins to export!!
@@ -935,7 +925,7 @@ namespace BiodiversityPlugin.ViewModels
                     // follow a different workflow depending on what Skyline needs.
                     var allFastas = GetFastasFromNCBI(accessionString);
 
-                    var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
+                    var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
 
                     MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
                 }
@@ -948,12 +938,12 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 IsQuerying = false;
-                QueryingVisibility = Visibility.Hidden;
             });
         }
 
         /// <summary>
         /// Use of the NCBI web API to get the FASTAs for the string of Accessions selected.
+        /// Creates a FASTA formatted file, currently to C:\Temp\currentSelection.fasta
         /// </summary>
         /// <param name="accessionString">A list of NCBI accessions, separated by "+OR+" for use with NCBI</param>
         /// <returns>The FASTA for all accessions</returns>
@@ -979,7 +969,7 @@ namespace BiodiversityPlugin.ViewModels
             }
             fastas = fastas.Replace("\n\n", "\n");
 
-            var outputpath = "C:\\Temp\\fasta.txt";
+            var outputpath = "C:\\Temp\\currentSelection.fasta";
 
             if (File.Exists(outputpath))
             {
