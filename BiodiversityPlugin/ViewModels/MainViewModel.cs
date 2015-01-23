@@ -243,7 +243,7 @@ namespace BiodiversityPlugin.ViewModels
                 var filtered = (from phylum in Organisms
                                 from orgClass in phylum.OrgClasses
                                 from organism in orgClass.Organisms
-                                where organism.Name.ToUpper().StartsWith(value.ToUpper())
+                                where organism.Name.ToUpper().Contains(value.ToUpper())
                                 select organism.Name).ToList();
                 filtered.Sort();
                 FilteredOrganisms = new ObservableCollection<string>(filtered);
