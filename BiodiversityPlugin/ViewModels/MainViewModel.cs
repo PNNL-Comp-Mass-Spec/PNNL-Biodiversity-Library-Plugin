@@ -152,7 +152,7 @@ namespace BiodiversityPlugin.ViewModels
                 if (orgValue != null)
                 {
                     _selectedOrganismTreeItem = value;
-                    SelectedOrganism = (Organism) _selectedOrganismTreeItem;
+                    SelectedOrganism = (Organism)_selectedOrganismTreeItem;
                     IsOrganismSelected = false;
                     if (SelectedOrganism != null)
                         SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
@@ -592,9 +592,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void DisplayPathwayImages()
         {
-
-            IsQuerying = true;
-            QueryingVisibility = Visibility.Visible;
+            // Advance to the next tab
             SelectedTabIndex = 3;
 
             string[] queryingStrings =
@@ -605,7 +603,7 @@ namespace BiodiversityPlugin.ViewModels
 				    "Generating Pathway Images...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
-            
+
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways
@@ -613,41 +611,20 @@ namespace BiodiversityPlugin.ViewModels
                                                                  from p in @group.Pathways
                                                                  where p.Selected
                                                                  select p).ToList());
-            var same = !(curPathways.Count != SelectedPathways.Count || 
-                        (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) || 
+            
+            // Check if the current pathways selected are the same as the prior selected pathways
+            // If they are and the org is the same, nothing needs to be done to display images.
+            var same = !(curPathways.Count != SelectedPathways.Count ||
+                        (curPathways.Any(pathway => !SelectedPathways.Contains(pathway)) ||
                             SelectedPathways.Any(pathway => !curPathways.Contains(pathway))));
 
             // Need this for when anything in the canvas changes.
             // The application level dispatcher needs to be utilized and through
             // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
-
-            Task.Factory.StartNew((() =>
-            {
-
-                int index = 0;
-
-                var pathTab = PathwaysTabEnabled;
-                var selectTab = SelectionTabEnabled;
-                var reviewTab = ReviewTabEnabled;
-                var overviewTab = OverviewEnabled;
-                PathwaysTabEnabled = false;
-                SelectionTabEnabled = false;
-                ReviewTabEnabled = false;
-                OverviewEnabled = false;
-
-                while (IsQuerying)
-                {
-                    Thread.Sleep(750);
-                    QueryString = queryingStrings[index % 4];
-                    index++;
-                }
-
-                PathwaysTabEnabled = pathTab;
-                SelectionTabEnabled = selectTab;
-                ReviewTabEnabled = reviewTab;
-                OverviewEnabled = overviewTab;
-            }));
+            
+            // Start the animated overlay with the message set above
+            Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew((() =>
             {
@@ -716,7 +693,7 @@ namespace BiodiversityPlugin.ViewModels
                                     {
                                         // Draw data rectangles for each of these coordinates
                                         // These rectangles are able to be interacted with by the user
-                                        dis.Invoke(() =>pathway.AddRectangle(
+                                        dis.Invoke(() => pathway.AddRectangle(
                                             coord.Value, coord.Key.Item1,
                                             coord.Key.Item2, true));
                                     }
@@ -747,7 +724,7 @@ namespace BiodiversityPlugin.ViewModels
                                     {
                                         // Draw non-data rectangles for each of these coordinates
                                         // These rectangles have no interaction from the user
-                                        dis.Invoke(() =>pathway.AddRectangle(
+                                        dis.Invoke(() => pathway.AddRectangle(
                                             coord.Value, coord.Key.Item1,
                                             coord.Key.Item2, false));
                                     }
@@ -769,8 +746,6 @@ namespace BiodiversityPlugin.ViewModels
 
         private void AcquireProteins()
         {
-            IsQuerying = true;
-            QueryingVisibility = Visibility.Visible;
             SelectedTabIndex = 4;
             string[] queryingStrings =
 			    {
@@ -785,36 +760,11 @@ namespace BiodiversityPlugin.ViewModels
             // The application level dispatcher needs to be utilized and through
             // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
-
-            Task.Factory.StartNew(() =>
-            {
-
-                int index = 0;
-
-                var pathTab = PathwaysTabEnabled;
-                var selectTab = SelectionTabEnabled;
-                var reviewTab = ReviewTabEnabled;
-                var overviewTab = OverviewEnabled;
-                PathwaysTabEnabled = false;
-                SelectionTabEnabled = false;
-                ReviewTabEnabled = false;
-                OverviewEnabled = false;
-
-                while (IsQuerying)
-                {
-                    Thread.Sleep(750);
-                    QueryString = queryingStrings[index % 4];
-                    index++;
-                }
-
-                PathwaysTabEnabled = pathTab;
-                SelectionTabEnabled = selectTab;
-                ReviewTabEnabled = reviewTab;
-                OverviewEnabled = overviewTab;
-            });
+            
+            Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            
+
             Task.Factory.StartNew(() =>
             {
                 var selectedPaths = SelectedPathways.ToList();
@@ -887,14 +837,50 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Async Method used to begin the animated overlay for when application is processing.
+        /// During this method, tabs are unresponsive to prevent user from improper use of app.
+        /// Due to the Async nature of the method, it should only be used in its own thread as
+        /// the method will continue running until the IsQuerying property changes back to false
+        /// </summary>
+        /// <param name="overlayMessages">String array of messages to display inside the overlay</param>
+        private void StartOverlay(string[] overlayMessages)
+        {
+            IsQuerying = true;
+            QueryingVisibility = Visibility.Visible;
+
+            int index = 0;
+            int maxIndex = overlayMessages.Count();
+
+            var pathTab = PathwaysTabEnabled;
+            var selectTab = SelectionTabEnabled;
+            var reviewTab = ReviewTabEnabled;
+            var overviewTab = OverviewEnabled;
+            PathwaysTabEnabled = false;
+            SelectionTabEnabled = false;
+            ReviewTabEnabled = false;
+            OverviewEnabled = false;
+
+            while (IsQuerying)
+            {
+                Thread.Sleep(750);
+                QueryString = overlayMessages[index % maxIndex];
+                index++;
+            }
+
+            PathwaysTabEnabled = pathTab;
+            SelectionTabEnabled = selectTab;
+            ReviewTabEnabled = reviewTab;
+            OverviewEnabled = overviewTab;
+
+        }
+
         private void ExportToSkyline()
         {
             //Clear the prior Proteins to export!!
             FilteredProteins.Clear();
             ProteinsToExport.Clear();
 
-            IsQuerying = true;
-            QueryingVisibility = Visibility.Visible;
             SelectedTabIndex = 4;
             string[] queryingStrings =
 			    {
@@ -905,32 +891,7 @@ namespace BiodiversityPlugin.ViewModels
 			    };
             QueryString = queryingStrings[0];
 
-            Task.Factory.StartNew(() =>
-            {
-
-                int index = 0;
-
-                var pathTab = PathwaysTabEnabled;
-                var selectTab = SelectionTabEnabled;
-                var reviewTab = ReviewTabEnabled;
-                var overviewTab = OverviewEnabled;
-                PathwaysTabEnabled = false;
-                SelectionTabEnabled = false;
-                ReviewTabEnabled = false;
-                OverviewEnabled = false;
-
-                while (IsQuerying)
-                {
-                    Thread.Sleep(750);
-                    QueryString = queryingStrings[index % 4];
-                    index++;
-                }
-
-                PathwaysTabEnabled = pathTab;
-                SelectionTabEnabled = selectTab;
-                ReviewTabEnabled = reviewTab;
-                OverviewEnabled = overviewTab;
-            });
+            Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew(() =>
             {
