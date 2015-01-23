@@ -889,56 +889,106 @@ namespace BiodiversityPlugin.ViewModels
 
         private void ExportToSkyline()
         {
-            // Go through the associations that have been built up so far...
-            foreach (var association in PathwayProteinAssociation)
+            //Clear the prior Proteins to export!!
+            FilteredProteins.Clear();
+            ProteinsToExport.Clear();
+
+            IsQuerying = true;
+            QueryingVisibility = Visibility.Visible;
+            SelectedTabIndex = 4;
+            string[] queryingStrings =
+			    {
+				    "Generating Fasta   \nPlease Wait",
+				    "Generating Fasta.  \nPlease Wait",
+				    "Generating Fasta.. \nPlease Wait",
+				    "Generating Fasta...\nPlease Wait"
+			    };
+            QueryString = queryingStrings[0];
+
+            Task.Factory.StartNew(() =>
             {
-                // Create a list of all the genes from all the associations selected for export
-                if (association.AssociationSelected)
+
+                int index = 0;
+
+                var pathTab = PathwaysTabEnabled;
+                var selectTab = SelectionTabEnabled;
+                var reviewTab = ReviewTabEnabled;
+                var overviewTab = OverviewEnabled;
+                PathwaysTabEnabled = false;
+                SelectionTabEnabled = false;
+                ReviewTabEnabled = false;
+                OverviewEnabled = false;
+
+                while (IsQuerying)
                 {
-                    if (FilteredProteins == null)
-                        FilteredProteins = new ObservableCollection<ProteinInformation>(association.GeneList);
-                    else
+                    Thread.Sleep(750);
+                    QueryString = queryingStrings[index % 4];
+                    index++;
+                }
+
+                PathwaysTabEnabled = pathTab;
+                SelectionTabEnabled = selectTab;
+                ReviewTabEnabled = reviewTab;
+                OverviewEnabled = overviewTab;
+            });
+
+            Task.Factory.StartNew(() =>
+            {
+                // Go through the associations that have been built up so far...
+                foreach (var association in PathwayProteinAssociation)
+                {
+                    // Create a list of all the genes from all the associations selected for export
+                    if (association.AssociationSelected)
                     {
-                        foreach (var acc in association.GeneList)
+                        if (FilteredProteins == null)
+                            FilteredProteins = new ObservableCollection<ProteinInformation>(association.GeneList);
+                        else
                         {
-                            FilteredProteins.Add(acc);
+                            foreach (var acc in association.GeneList)
+                            {
+                                FilteredProteins.Add(acc);
+                            }
                         }
                     }
                 }
-            }
 
-            // Filter these genes from last step to eliminate duplicate
-            foreach (var protein in FilteredProteins)
-            {
-                if (!ProteinsToExport.Contains(protein))
+                // Filter these genes from last step to eliminate duplicate
+                foreach (var protein in FilteredProteins)
                 {
-                    ProteinsToExport.Add(protein);
+                    if (!ProteinsToExport.Contains(protein))
+                    {
+                        ProteinsToExport.Add(protein);
+                    }
                 }
-            }
 
-            // Create a list of just the accessions from the proteins to export
-            var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
+                // Create a list of just the accessions from the proteins to export
+                var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
 
-            var accessionString = String.Join("+OR+", accessionList);
+                var accessionString = String.Join("+OR+", accessionList);
 
-            // Need to see if there are any NCBI accessions to pull use to 
-            // create the FASTA file.
-            if (!string.IsNullOrWhiteSpace(accessionString))
-            {
-                // Write the Fasta(s) from NCBI to file. This could eventually
-                // follow a different workflow depending on what Skyline needs.
-                var allFastas = GetFastasFromNCBI(accessionString);
+                // Need to see if there are any NCBI accessions to pull use to 
+                // create the FASTA file.
+                if (!string.IsNullOrWhiteSpace(accessionString))
+                {
+                    // Write the Fasta(s) from NCBI to file. This could eventually
+                    // follow a different workflow depending on what Skyline needs.
+                    var allFastas = GetFastasFromNCBI(accessionString);
 
-                var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
+                    var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\fasta.txt";
 
-                MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
-            }
-            else
-            {
-                var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
+                    MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+                }
+                else
+                {
+                    var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
 
-                MessageBox.Show(confirmationMessage, "FASTA unable to be created", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            }
+                    MessageBox.Show(confirmationMessage, "FASTA unable to be created", MessageBoxButton.OK,
+                        MessageBoxImage.Exclamation);
+                }
+
+                IsQuerying = false;
+                QueryingVisibility = Visibility.Hidden;
+            });
         }
 
         /// <summary>
