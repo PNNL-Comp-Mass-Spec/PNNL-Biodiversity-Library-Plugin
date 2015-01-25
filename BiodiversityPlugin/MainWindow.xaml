@@ -173,7 +173,7 @@
 							<KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
 						</TextBox.InputBindings>
 					</TextBox>
-                    <Button Grid.Row="0" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="16" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
+                    <Button Grid.Row="0" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
 					<TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
                         No Organism Matches found
 					</TextBlock>
