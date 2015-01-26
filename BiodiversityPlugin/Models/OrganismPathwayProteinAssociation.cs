@@ -15,10 +15,8 @@ namespace BiodiversityPlugin.Models
             get { return _selected; }
             set
             {
-                var oldSelected = _selected;
                 _selected = value;
                 RaisePropertyChanged();
-                //RaisePropertyChanged("AssociationSelected", oldSelected, _selected, true);
             } 
         }
 

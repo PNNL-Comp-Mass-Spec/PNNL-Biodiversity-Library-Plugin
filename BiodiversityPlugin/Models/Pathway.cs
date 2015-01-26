@@ -386,7 +386,7 @@ namespace BiodiversityPlugin.Models
 
         public RelayCommand DeselectAllCommand { get; set; }
 
-        internal void WriteFoundText(int p1, int p2, string orgName)
+        public void WriteFoundText(int p1, int p2, string orgName)
         {
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and observed in MS/MS data";
