@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -396,6 +397,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand DeleteSelectedPathwayCommand { get; private set; }
         public RelayCommand SelectPathwayCommand { get; private set; }
         public RelayCommand ClearFilterCommand { get; private set; }
+        public RelayCommand LoadPathwayCoverageCommand { get; private set; }
 
         #endregion
 
@@ -467,6 +469,7 @@ namespace BiodiversityPlugin.ViewModels
             DeleteSelectedPathwayCommand = new RelayCommand(DeleteSelectedPathway);
             SelectPathwayCommand = new RelayCommand(SelectPathway);
             ClearFilterCommand = new RelayCommand(ClearFilter);
+            LoadPathwayCoverageCommand = new RelayCommand(LoadPathwayCoverage);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -484,6 +487,22 @@ namespace BiodiversityPlugin.ViewModels
             SelectedValue = "";
             _priorOrg = "";
             _overviewTabEnabled = true;
+        }
+
+        private void LoadPathwayCoverage()
+        {
+            if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
+            SelectedTabIndex++;
+            var dataAccess = new DatabaseDataLoader(_dbPath);
+            var pathList = (from catagory in Pathways from @group in catagory.PathwayGroups from pathway in @group.Pathways select pathway).ToList();
+            dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
+            foreach (var path in pathList)
+            {
+                foreach (var pathway in from catagory in Pathways from @group in catagory.PathwayGroups from pathway in @group.Pathways where pathway.KeggId == path.KeggId select pathway)
+                {
+                    pathway.PercentCover = path.PercentCover;
+                }
+            }
         }
 
         private void ClearFilter()

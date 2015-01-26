@@ -133,6 +133,45 @@ namespace BiodiversityPlugin.DataManagement
             return catList;
         }
 
+        public void LoadPathwayCoverage(Organism org, ref List<Pathway> pathways)
+        {
+            if (org.OrgCode == "")
+            {
+                return;
+            }
+            foreach (var pathway in pathways)
+            {
+                pathway.ContainsGenes = false;
+            }
+            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    string viewSelectionText = string.Format(" SELECT " +
+                                                             " kegg_pathway_id, percent_observed_genes " +
+                                                             " FROM vw_observed_kegg_organism_pathway " +
+                                                             " WHERE kegg_org_code = \"{0}\" ", org.OrgCode);
+
+                    cmd.CommandText = viewSelectionText;
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var pathId = reader.GetString(0);
+                            foreach (var pathway in pathways.Where(pathway => pathway.KeggId == pathId))
+                            {
+                                pathway.ContainsGenes = true;
+                                pathway.PercentCover = Convert.ToInt32(reader.GetDouble(1)*10000)/100.0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
         {
             if (pathway == null || SelectedOrganism == null)

@@ -181,13 +181,24 @@
                              FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
 				</Grid>
 				<Button Grid.Row="5" Grid.Column="0" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-				<Button Grid.Row="5" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding NextTabCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
+				<Button Grid.Row="5" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
 			</Grid>
 		</TabItem>
 
 		<!-- Pathway selection tab    -->
-		<TabItem Header="Pathways"  Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
-			<Grid>
+		<TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
+            <TabItem.Header>
+                <StackPanel>
+                    <TextBlock HorizontalAlignment="Center">
+                        Pathways
+                    </TextBlock>
+                    <StackPanel.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" Command="{Binding LoadPathwayCoverageCommand}"></MouseBinding>
+                    </StackPanel.InputBindings>
+                </StackPanel>
+            </TabItem.Header>
+            
+            <Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="45" />
 					<RowDefinition Height="65" />
@@ -197,7 +208,7 @@
 					<RowDefinition Height="40" />
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="2*" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 
@@ -225,20 +236,17 @@
 				<utilities:MvvmTreeView Grid.Row="3" Grid.Column="0" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
 					<utilities:MvvmTreeView.Resources>
 						<HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
-							<TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="16" />
+							<TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="18" />
 						</HierarchicalDataTemplate>
 						<HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
-							<TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="14"/>
+							<TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="16"/>
 						</HierarchicalDataTemplate>
 						<HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="20*" />
-									<ColumnDefinition Width="80*" />
-								</Grid.ColumnDefinitions>
-								<CheckBox Grid.Column="0" IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-								<TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="Regular" />
-							</Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="Bold" Padding="15,0,5,0"/>
+                                <TextBlock Text="{Binding PercentCoverString, UpdateSourceTrigger=PropertyChanged}" FontSize="12" FontWeight="Regular" Padding="5,0,0,0" />
+                            </StackPanel>
 						</HierarchicalDataTemplate>
 					</utilities:MvvmTreeView.Resources>
 					<utilities:MvvmTreeView.InputBindings>

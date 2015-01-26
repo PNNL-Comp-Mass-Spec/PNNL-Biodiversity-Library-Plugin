@@ -31,6 +31,7 @@ namespace BiodiversityPlugin.Models
         private string _keggReqId;
         private Color _selectedColor = Colors.Red;
         private Color _noDataColor = Colors.Blue;
+        private double _percentCover = 0.0;
 
         #endregion
 
@@ -119,7 +120,31 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public string KeggId { get; set; }
 
-#endregion
+        public double PercentCover
+        {
+            get { return _percentCover; }
+            set
+            {
+                _percentCover = value;
+                RaisePropertyChanged("PercentCoverString");
+            }
+        }
+        
+        public bool ContainsGenes { get; set; }
+
+        public string PercentCoverString
+        {
+            get
+            {
+                if (ContainsGenes)
+                {
+                    return string.Format("{0}% covered in MSMS", PercentCover);
+                }
+                return string.Format("No Genes for this Pathway");
+            }
+        }
+
+        #endregion
 
         private void UpdateMessage()
         {
@@ -377,6 +402,7 @@ namespace BiodiversityPlugin.Models
             SelectedKo = new List<string>();
             SelectAllCommand = new RelayCommand(SelectAll);
             DeselectAllCommand = new RelayCommand(DeselectAll);
+            ContainsGenes = false;
             UpdateMessage();
             _numDataBoxes = 0;
             _dataBoxesSelected = 0;
