@@ -639,20 +639,14 @@ namespace BiodiversityPlugin.ViewModels
                                     dis.Invoke(() =>
                                         pathway.ClearRectangles());
 
-                                    // Create placeholder information for creating legend, KO is needed for adding
-                                    // the rectangles
-                                    var legend = new KeggKoInformation("legend", "legend", "legend");
-                                    var legendList = new List<KeggKoInformation> { legend };
-
                                     // Draw the information for the Legend on each image.
                                     dis.Invoke(() =>
-                                        pathway.AddRectangle(legendList, 10,
+                                        pathway.AddRectangle(10,
                                         5, false, Colors.Red));
                                     dis.Invoke(() =>
                                         pathway.WriteFoundText(10, 5, SelectedOrganism.Name));
                                     dis.Invoke(() =>
-                                        pathway.AddRectangle(
-                                        legendList, 10,
+                                        pathway.AddRectangle(10,
                                         22, false, Colors.Blue));
                                     dis.Invoke(() =>
                                         pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name));
@@ -684,11 +678,26 @@ namespace BiodiversityPlugin.ViewModels
                                     }
                                     foreach (var coord in coordToName)
                                     {
+                                        var koInformation = coord.Value;
+                                        var koIds = koInformation.First().KeggKoId;
+                                        var keggGeneNames = koInformation.First().KeggGeneName;
+                                        var keggEcs = koInformation.First().KeggEc;
+
+                                        foreach (var ko in koInformation)
+                                            if (ko != koInformation.First())
+                                            {
+                                                koIds += ", " + ko.KeggKoId;
+                                                keggGeneNames += ", " + ko.KeggGeneName;
+                                                keggEcs += ", " + ko.KeggEc;
+                                            }
+
+                                        var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
+                                            keggGeneNames, keggEcs);
+
                                         // Draw data rectangles for each of these coordinates
                                         // These rectangles are able to be interacted with by the user
-                                        dis.Invoke(() => pathway.AddRectangle(
-                                            coord.Value, coord.Key.Item1,
-                                            coord.Key.Item2, true));
+                                        dis.Invoke(() => pathway.AddRectangle(coord.Key.Item1,
+                                            coord.Key.Item2, true, tooltip, koIds));
                                     }
 
                                     // Do the same for orthologs without data in MSMS, loading the coordinates needed
@@ -715,11 +724,26 @@ namespace BiodiversityPlugin.ViewModels
                                     }
                                     foreach (var coord in coordsToName)
                                     {
+                                        var koInformation = coord.Value;
+                                        var koIds = koInformation.First().KeggKoId;
+                                        var keggGeneNames = koInformation.First().KeggGeneName;
+                                        var keggEcs = koInformation.First().KeggEc;
+
+                                        foreach (var ko in koInformation)
+                                            if (ko != koInformation.First())
+                                            {
+                                                koIds += ", " + ko.KeggKoId;
+                                                keggGeneNames += ", " + ko.KeggGeneName;
+                                                keggEcs += ", " + ko.KeggEc;
+                                            }
+
+                                        var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
+                                            keggGeneNames, keggEcs);
+
                                         // Draw non-data rectangles for each of these coordinates
                                         // These rectangles have no interaction from the user
-                                        dis.Invoke(() => pathway.AddRectangle(
-                                            coord.Value, coord.Key.Item1,
-                                            coord.Key.Item2, false));
+                                        dis.Invoke(() => pathway.AddRectangle(coord.Key.Item1,
+                                            coord.Key.Item2, false, tooltip, koIds));
                                     }
 
                                     selectedPaths.Add(pathway);

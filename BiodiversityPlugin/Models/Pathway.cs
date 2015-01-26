@@ -180,17 +180,16 @@ namespace BiodiversityPlugin.Models
         private void Deselect(object child)
         {
             // Shape must be a rectangle.
-            var rect = child as System.Windows.Shapes.Rectangle;
+            var rect = child as Rectangle;
             if (rect == null) return;
             // Tag must be a string
-            var koName = rect.Tag as string;
-            if (koName == null) return;
-
-            rect.Fill = new SolidColorBrush(Colors.Gray);
+            var tag = rect.Tag as string;
+            if (tag == null) return;
+            rect.Fill = new SolidColorBrush(Colors.DimGray);
             _dataBoxesSelected--;
             UpdateMessage();
 
-            var kos = koName.Split(',');
+            var kos = tag.Split(',');
             foreach (var ko in kos)
             {
                 var trimmedko = ko.Trim();
@@ -213,14 +212,14 @@ namespace BiodiversityPlugin.Models
             var rect = child as Rectangle;
             if (rect == null) return;
             // Tag must be a string
-            var koName = rect.Tag as string;
-            if (koName == null) return;
+            var tag = rect.Tag as string;
+            if (tag == null) return;
             rect.Fill = new SolidColorBrush(_selectedColor);
 
             _dataBoxesSelected++;
             UpdateMessage();
             
-            var kos = koName.Split(',');
+            var kos = tag.Split(',');
             foreach (var ko in kos)
             {
                 var trimmedko = ko.Trim();
@@ -236,15 +235,15 @@ namespace BiodiversityPlugin.Models
         /// <param name="xCoord">Left-most x-coordinate</param>
         /// <param name="yCoord">Top-most y-coordinate</param>
         /// <param name="isData">Whether the rectangle contains MSMS data</param>
-        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData)
+        public void AddRectangle(int xCoord, int yCoord, bool isData, string toolTip = "", string tag = "")
         {
             if (isData)
             {
-                AddDataRectangle(koInformation, xCoord, yCoord);
+                AddDataRectangle(xCoord, yCoord, toolTip, tag);
             }
             else
             {
-                AddNonDataRectangle(koInformation, xCoord, yCoord);
+                AddNonDataRectangle(xCoord, yCoord, toolTip, tag);
             }
         }
 
@@ -256,42 +255,28 @@ namespace BiodiversityPlugin.Models
         /// <param name="yCoord"></param>
         /// <param name="isData"></param>
         /// <param name="color"></param>
-        public void AddRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord, bool isData, Color color)
+        public void AddRectangle(int xCoord, int yCoord, bool isData, Color color, string toolTip = "", string tag = "")
         {
             Rectangle child;
             if (isData)
             {
-                child = AddDataRectangle(koInformation, xCoord, yCoord);
+                child = AddDataRectangle(xCoord, yCoord, toolTip, tag);
                 _selectedColor = color;
             }
             else
             {
-                child = AddNonDataRectangle(koInformation, xCoord, yCoord);
+                child = AddNonDataRectangle(xCoord, yCoord, toolTip, tag);
                 _noDataColor = color;
             }
             child.Fill = new SolidColorBrush(color);
         }
 
-        private Rectangle AddDataRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord)
+        private Rectangle AddDataRectangle(int xCoord, int yCoord, string toolTip, string tag)
         {
-            var koIds = koInformation.First().KeggKoId;
-            var keggGeneNames = koInformation.First().KeggGeneName;
-            var keggEcs = koInformation.First().KeggEc;
-            
-            foreach(var ko in koInformation)
-                if (ko != koInformation.First())
-                {
-                    koIds += ", " + ko.KeggKoId;
-                    keggGeneNames += ", " + ko.KeggGeneName;
-                    keggEcs += ", " + ko.KeggEc;
-                }
-
-            var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
-                keggGeneNames, keggEcs);
             var rect = new Rectangle
             {
-                Tag = koIds,
-                ToolTip = tooltip,
+                Tag = tag,
+                ToolTip = toolTip,
                 Width = 47,
                 Height = 17,
                 Opacity = .50
@@ -307,26 +292,12 @@ namespace BiodiversityPlugin.Models
             return rect;
         }
 
-        private Rectangle AddNonDataRectangle(List<KeggKoInformation> koInformation, int xCoord, int yCoord)
+        private Rectangle AddNonDataRectangle(int xCoord, int yCoord, string toolTip, string tag)
         {
-            var koIds = koInformation.First().KeggKoId;
-            var keggGeneNames = koInformation.First().KeggGeneName;
-            var keggEcs = koInformation.First().KeggEc;
-
-            foreach (var ko in koInformation)
-                if (ko != koInformation.First())
-                {
-                    koIds += ", " + ko.KeggKoId;
-                    keggGeneNames += ", " + ko.KeggGeneName;
-                    keggEcs += ", " + ko.KeggEc;
-                }
-
-            var tooltip = string.Format("{0}\nGene Name: {1}\nKegg Ec: {2}", koIds,
-                keggGeneNames, keggEcs);
             var rect = new Rectangle
             {
-                Tag = koIds,
-                ToolTip = tooltip,
+                Tag = tag,
+                ToolTip = toolTip,
                 Width = 47,
                 Height = 17,
                 Fill = new SolidColorBrush(_noDataColor),
@@ -341,12 +312,12 @@ namespace BiodiversityPlugin.Models
         void rect_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             var parent = sender as Rectangle; 
-            var koName = parent.Tag as string;
+            var tag = parent.Tag as string;
             var color = parent.Fill;
             if (((SolidColorBrush) color).Color == _selectedColor)
             {
                 Deselect(parent);
-                var kos = koName.Split(',');
+                var kos = tag.Split(',');
                 foreach (var ko in kos)
                 {
                     var trimmedko = ko.Trim();
@@ -365,7 +336,7 @@ namespace BiodiversityPlugin.Models
             else
             {
                 Select(parent);
-                var kos = koName.Split(',');
+                var kos = tag.Split(',');
 
                 foreach (var ko in kos)
                 {
@@ -375,7 +346,7 @@ namespace BiodiversityPlugin.Models
                         var rect = child as Rectangle;
                         var rectTag = rect.Tag as string;
                         var rectColor = rect.Fill;
-                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.Gray)
+                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.DimGray)
                         {
                             Select(rect);
                         }
