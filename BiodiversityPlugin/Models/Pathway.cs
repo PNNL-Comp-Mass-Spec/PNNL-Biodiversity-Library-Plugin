@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml;
@@ -16,6 +17,8 @@ namespace BiodiversityPlugin.Models
     /// </summary>
     public class Pathway : ViewModelBase
     {
+        #region Private attributes
+
         private bool _selected;
         private Uri _imageString;
 	    private Canvas _pathwayDataCanvas;
@@ -28,7 +31,11 @@ namespace BiodiversityPlugin.Models
         private string _keggReqId;
         private Color _selectedColor = Colors.Red;
         private Color _noDataColor = Colors.Blue;
-        
+
+        #endregion
+
+        #region Public Properties
+
         public string InformationMessage
         {
             get { return _informationMessage; }
@@ -72,8 +79,6 @@ namespace BiodiversityPlugin.Models
             {
                 _imageString = value;
                 RaisePropertyChanged();
-                var temp = LegendSource;
-                LegendSource = temp;
             }
         }
 
@@ -113,6 +118,8 @@ namespace BiodiversityPlugin.Models
         /// KEGG Id for the pathway
         /// </summary>
         public string KeggId { get; set; }
+
+#endregion
 
         private void UpdateMessage()
         {
@@ -373,21 +380,11 @@ namespace BiodiversityPlugin.Models
             UpdateMessage();
             _numDataBoxes = 0;
             _dataBoxesSelected = 0;
-            LegendSource = "Datafiles/pathwayLegend.png";
         }
 
         public RelayCommand SelectAllCommand { get; set; }
 
         public RelayCommand DeselectAllCommand { get; set; }
-
-        public string LegendSource { 
-            get { return _legendSource; } 
-            set 
-            { 
-                _legendSource = value; 
-                RaisePropertyChanged(); 
-            } 
-        }
 
         internal void WriteFoundText(int p1, int p2, string orgName)
         {
@@ -399,7 +396,7 @@ namespace BiodiversityPlugin.Models
             Canvas.SetTop(textBlock, p2);
         }
 
-        internal void WriteNotfoundText(int p1, int p2, string orgName)
+        public void WriteNotfoundText(int p1, int p2, string orgName)
         {
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and not observed in MS/MS data";
@@ -409,50 +406,86 @@ namespace BiodiversityPlugin.Models
             Canvas.SetTop(textBlock, p2);
         }
 
-        internal void LoadImage()
+        /// <summary>
+        /// Method to load the image for the pathway.
+        /// If the .png file does not exist, KEGG's rest api will be queried to load
+        /// the image for the pathway name given. If the name does not exist for a
+        /// pathway in KEGG, the image URI will be null.
+        /// </summary>
+        public void LoadImage()
         {
             try
             {
                 //var pathwayline = "";
-                var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
+                //var esearchURL = string.Format("http://rest.kegg.jp/find/pathway/{0}", Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
                 //var esearchGetUrl = WebRequest.Create(esearchURL);
                 //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
                 //var reader = new StreamReader(getStream);
                 //pathwayline = reader.ReadLine();
                 //_keggReqId = pathwayline.Substring(8, 5);
-                _keggReqId = KeggId;
-                PathwayImage = new Uri(string.Format("DataFiles\\images\\map{0}.png", _keggReqId), UriKind.RelativeOrAbsolute);
+                if (!File.Exists(string.Format("DataFiles\\images\\map{0}.png", KeggId)))
+                {
+                    throw new FileNotFoundException(
+                        string.Format("File \"DataFiles\\images\\map{0}.png\" does not exist", KeggId));
+                }
+                PathwayImage = new Uri(string.Format("DataFiles\\images\\map{0}.png", KeggId),
+                    UriKind.RelativeOrAbsolute);
                 //reader.Close();
                 //esearchGetUrl.Abort();
             }
-            catch (Exception)
+            catch (FileNotFoundException)
             {
-                //_keggReqId = KeggId;
-                //PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+                // Check if the Kegg ID we were given is correct by searching Kegg for the pathway by name
+                var esearchUrl = string.Format("http://rest.kegg.jp/find/pathway/{0}",
+                    Name.Split('/').First().TrimEnd().Replace(" ", "%20"));
+                var esearchGetUrl = WebRequest.Create(esearchUrl);
+                var getStream = esearchGetUrl.GetResponse().GetResponseStream();
+                var reader = new StreamReader(getStream);
+                var pathwayline = reader.ReadLine();
+                
+                // Try to get the ID number
+                // If this doesn't exist, the ID and the name have both been invalid.
+                try
+                {
+
+                    KeggId = pathwayline.Substring(8, 5);
+                    // Check again for if we have the image downloaded, just under the now correct ID
+                    if (File.Exists(string.Format("DataFiles\\images\\map{0}.png", KeggId)))
+                    {
+                        PathwayImage = new Uri(string.Format("DataFiles\\images\\map{0}.png", KeggId),
+                            UriKind.RelativeOrAbsolute);
+                    }
+                    else
+                    {
+                        PathwayImage = new Uri(string.Format("http://rest.kegg.jp/get/map{0}/image", KeggId));
+                    }
+                }
+                catch (Exception)
+                {
+                    // An image doesn't exist from Kegg for the pathway name given
+                    PathwayImage = null;
+                }
             }
         }
 
-        internal Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
+        /// <summary>
+        /// Method to load the coordinates for the Kegg Orthologs in the image
+        /// by reading the .xml file based on the pathID
+        /// </summary>
+        /// <returns>
+        /// Dictionary of lists of coordinates for the Kegg Orthologs in the 
+        /// image keyed on the Kegg Ortholog name. If the ID number is not valid, returns
+        /// and empty dictionary
+        /// </returns>
+        public Dictionary<string, List<Tuple<int, int>>> LoadCoordinates()
         {
             var coordDict = new Dictionary<string, List<Tuple<int, int>>>();
 
             try
             {
-                var xmlSettings = new XmlReaderSettings();
-                xmlSettings.DtdProcessing = DtdProcessing.Ignore;
+                var path = string.Format("DataFiles\\coords\\path{0}.xml", KeggId);
 
-                //var esearchURL = string.Format("http://rest.kegg.jp/get/ko{0}/kgml", _keggReqId);
-
-                //var esearchGetUrl = WebRequest.Create(esearchURL);
-
-                //esearchGetUrl.Proxy = WebProxy.GetDefaultProxy();
-
-                //var getStream = esearchGetUrl.GetResponse().GetResponseStream();
-                //var reader = new StreamReader(getStream);
-
-                var path = string.Format("DataFiles\\coords\\path{0}.xml", _keggReqId);
-
-                //var xmlRead = XmlReader.Create(esearchURL, settings);
+                var xmlSettings = new XmlReaderSettings {DtdProcessing = DtdProcessing.Ignore};
                 var xmlRead = XmlReader.Create(path, xmlSettings);
 
                 xmlRead.ReadToFollowing("pathway");
@@ -460,11 +493,7 @@ namespace BiodiversityPlugin.Models
                 {
                     var wholeName = xmlRead.GetAttribute("name");
                     var backup = wholeName.Split(' ');
-                    var pieces = new List<string>();
-                    foreach (var piece in backup)
-                    {
-                        pieces.Add(piece.Split(':').Last());
-                    }
+                    var pieces = backup.Select(piece => piece.Split(':').Last()).ToList();
                     xmlRead.ReadToFollowing("graphics");
                     var type = xmlRead.GetAttribute("type");
                     var x = Convert.ToInt32(xmlRead.GetAttribute("x")) - (Convert.ToInt32(xmlRead.GetAttribute("width")) / 2);
@@ -484,11 +513,8 @@ namespace BiodiversityPlugin.Models
                         }
                     }
                 }
-                //reader.Close();
-                //esearchGetUrl.Abort();
-
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
                 Console.WriteLine(string.Format("No coordinates for pathway {0}: {1}", Name, KeggId));
             }

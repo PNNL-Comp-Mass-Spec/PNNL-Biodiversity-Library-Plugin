@@ -133,7 +133,7 @@ namespace BiodiversityPlugin.DataManagement
             return catList;
         }
 
-        internal List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
+        public List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
         {
             if (pathway == null || SelectedOrganism == null)
             {
@@ -182,7 +182,7 @@ namespace BiodiversityPlugin.DataManagement
             return koInformation;
         }
 
-        internal List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism SelectedOrganism)
+        public List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism SelectedOrganism)
         {
             if (pathway == null || SelectedOrganism == null)
             {
