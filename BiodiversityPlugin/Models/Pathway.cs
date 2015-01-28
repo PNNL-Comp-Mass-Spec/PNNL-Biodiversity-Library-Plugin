@@ -23,15 +23,12 @@ namespace BiodiversityPlugin.Models
         private Uri _imageString;
 	    private Canvas _pathwayDataCanvas;
         private Canvas _pathwayCanvas;
-        private List<String> _selectedKo;
         private string _informationMessage;
         private int _numDataBoxes;
         private int _dataBoxesSelected;
-        private string _legendSource;
-        private string _keggReqId;
         private Color _selectedColor = Colors.Red;
         private Color _noDataColor = Colors.Blue;
-        private double _percentCover = 0.0;
+        private double _percentCover;
 
         #endregion
 
@@ -46,7 +43,7 @@ namespace BiodiversityPlugin.Models
             set
             {
                 _informationMessage = value;
-                RaisePropertyChanged("InformationMessage");
+                RaisePropertyChanged();
             }
         }
 
@@ -67,11 +64,7 @@ namespace BiodiversityPlugin.Models
         /// <summary>
         /// List of Kegg Orthologs selected within the pathway
         /// </summary>
-        public List<String> SelectedKo
-        {
-            get { return _selectedKo; }
-            set { _selectedKo = value; }
-        }
+        public List<String> SelectedKo { get; set; }
 
         /// <summary>
         /// Image for the pathway
@@ -379,7 +372,7 @@ namespace BiodiversityPlugin.Models
                         var rect = child as Rectangle;
                         var rectTag = rect.Tag as string;
                         var rectColor = rect.Fill;
-                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == _selectedColor)
+                        if (!rect.Equals(sender) && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == _selectedColor)
                         {
                             Deselect(rect);
                         }
@@ -399,7 +392,7 @@ namespace BiodiversityPlugin.Models
                         var rect = child as Rectangle;
                         var rectTag = rect.Tag as string;
                         var rectColor = rect.Fill;
-                        if (rect != sender && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.DimGray)
+                        if (!rect.Equals(sender) && rectTag.Contains(trimmedko) && ((SolidColorBrush)rectColor).Color == Colors.DimGray)
                         {
                             Select(rect);
                         }
@@ -437,9 +430,11 @@ namespace BiodiversityPlugin.Models
         /// <param name="orgName">Name of the organism</param>
         public void WriteFoundText(int xCoord, int yCoord, string orgName)
         {
-            var textBlock = new TextBlock();
-            textBlock.Text = "Protein annotated in " + orgName + " and observed in MS/MS data";
-            textBlock.FontSize = 12;
+            var textBlock = new TextBlock
+            {
+                Text = "Protein annotated in " + orgName + " and observed in MS/MS data",
+                FontSize = 12
+            };
             PathwayNonDataCanvas.Children.Add(textBlock);
             Canvas.SetLeft(textBlock, xCoord + 50);
             Canvas.SetTop(textBlock, yCoord);
@@ -453,9 +448,11 @@ namespace BiodiversityPlugin.Models
         /// <param name="orgName">Name of the organism</param>
         public void WriteNotfoundText(int xCoord, int yCoord, string orgName)
         {
-            var textBlock = new TextBlock();
-            textBlock.Text = "Protein annotated in " + orgName + " and not observed in MS/MS data";
-            textBlock.FontSize = 12;
+            var textBlock = new TextBlock
+            {
+                Text = "Protein annotated in " + orgName + " and not observed in MS/MS data",
+                FontSize = 12
+            };
             PathwayNonDataCanvas.Children.Add(textBlock);
             Canvas.SetLeft(textBlock, xCoord + 50);
             Canvas.SetTop(textBlock, yCoord);

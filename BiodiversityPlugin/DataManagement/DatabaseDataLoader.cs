@@ -9,11 +9,11 @@ namespace BiodiversityPlugin.DataManagement
 {
     public class DatabaseDataLoader: IDataAccess
     {
-        private readonly string m_databasePath;
+        private readonly string _databasePath;
 
         public DatabaseDataLoader(string organismDb)
         {
-            m_databasePath = organismDb;
+            _databasePath = organismDb;
         }
         
         /// <summary>
@@ -26,7 +26,7 @@ namespace BiodiversityPlugin.DataManagement
             var phylums = new Dictionary<string, OrgPhylum>();
             var classes = new Dictionary<Tuple<string, string>, OrgClass>();
 
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
@@ -98,7 +98,7 @@ namespace BiodiversityPlugin.DataManagement
             var catagories = new Dictionary<string, PathwayCatagory>();
             var groups = new Dictionary<string, PathwayGroup>();
 
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
 
@@ -165,7 +165,7 @@ namespace BiodiversityPlugin.DataManagement
                 pathway.ContainsGenes = false;
             }
 
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
 
@@ -203,23 +203,23 @@ namespace BiodiversityPlugin.DataManagement
         /// it will be preserved and copied to the object.
         /// </summary>
         /// <param name="pathway">Pathway of interest</param>
-        /// <param name="SelectedOrganism">Organism of interest</param>
+        /// <param name="selectedOrganism">Organism of interest</param>
         /// <returns>List of type KeggKoInformation, all of which were seen in MSMS space 
         /// for the pathway and organism of interest</returns>
-        public List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
+        public List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism selectedOrganism)
         {
             // If either brought in are null, return null because that'll
             // cause unintended workflow when the database query occurs
-            if (pathway == null || SelectedOrganism == null)
+            if (pathway == null || selectedOrganism == null)
             {
                 return null;
             }
 
-            var orgCode = SelectedOrganism.OrgCode;
+            var orgCode = selectedOrganism.OrgCode;
             var koIds = new List<string>();
             var koInformation = new List<KeggKoInformation>();
 
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 var stopwatch = new Stopwatch();
@@ -269,22 +269,22 @@ namespace BiodiversityPlugin.DataManagement
         /// it will be preserved and copied to the object.
         /// </summary>
         /// <param name="pathway">Pathway of interest</param>
-        /// <param name="SelectedOrganism">Organism of interest</param>
+        /// <param name="selectedOrganism">Organism of interest</param>
         /// <returns>List of type KeggKoInformation, all of which were not seen in MSMS space 
         /// for the pathway and organism of interest</returns>
-        public List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism SelectedOrganism)
+        public List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism selectedOrganism)
         {
             // If either brought in are null, return null because that'll
             // cause unintended workflow when the database query occurs
-            if (pathway == null || SelectedOrganism == null)
+            if (pathway == null || selectedOrganism == null)
             {
                 return null;
             }
-            var orgCode = SelectedOrganism.OrgCode;
+            var orgCode = selectedOrganism.OrgCode;
             var koIds = new List<string>();
             var koInformation = new List<KeggKoInformation>();
 
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 var stopwatch = new Stopwatch();
@@ -345,7 +345,7 @@ namespace BiodiversityPlugin.DataManagement
             var orgCode = org.OrgCode;
             var uniprotAccessions = new Dictionary<string, ProteinInformation>();
             
-            using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 var stopwatch = new Stopwatch();
@@ -356,7 +356,7 @@ namespace BiodiversityPlugin.DataManagement
                     {
                         if (pathway.SelectedKo.Count > 0)
                         {
-                            var Kos = pathway.SelectedKo.Aggregate((working, next) => working + "\", " + '"' + next);
+                            var kos = pathway.SelectedKo.Aggregate((working, next) => working + "\", " + '"' + next);
                             var
                                 selectionText =
                                     string.Format(
@@ -367,7 +367,7 @@ namespace BiodiversityPlugin.DataManagement
                                         " WHERE kegg_gene_ko_map.kegg_ko_id in (\"{0}\")) AND " +
                                         " kegg_gene_uniprot_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
                                         " kegg_gene_ko_map.kegg_gene_id = observed_kegg_gene.kegg_gene_id AND " +
-                                        " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc  ", Kos);
+                                        " refseq_uniprot_map.uniprot_acc = kegg_gene_uniprot_map.uniprot_acc  ", kos);
 
 
                             cmd.CommandText = selectionText;
