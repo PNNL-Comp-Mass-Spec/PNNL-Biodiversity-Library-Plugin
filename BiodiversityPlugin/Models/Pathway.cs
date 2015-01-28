@@ -37,6 +37,9 @@ namespace BiodiversityPlugin.Models
 
         #region Public Properties
 
+        /// <summary>
+        /// Message for if all proteins are selected or not
+        /// </summary>
         public string InformationMessage
         {
             get { return _informationMessage; }
@@ -120,6 +123,9 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         public string KeggId { get; set; }
 
+        /// <summary>
+        /// Percentage covered in MSMS by the organism for the pathway
+        /// </summary>
         public double PercentCover
         {
             get { return _percentCover; }
@@ -130,8 +136,14 @@ namespace BiodiversityPlugin.Models
             }
         }
         
+        /// <summary>
+        /// Flag for if the pathway contains Genes for the organism of interest
+        /// </summary>
         public bool ContainsGenes { get; set; }
 
+        /// <summary>
+        /// Method for gene coverage in the tree view
+        /// </summary>
         public string PercentCoverString
         {
             get
