@@ -188,9 +188,10 @@
 		<!-- Pathway selection tab    -->
 		<TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
             <TabItem.Header>
-                <StackPanel>
-                    <TextBlock HorizontalAlignment="Center">
-                        Pathways
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak /> Pathways
                     </TextBlock>
                     <StackPanel.InputBindings>
                         <MouseBinding MouseAction="LeftClick" Command="{Binding LoadPathwayCoverageCommand}"></MouseBinding>
@@ -272,8 +273,10 @@
                   IsEnabled="{Binding SelectionTabEnabled}">
             
 			<TabItem.Header>
-                <StackPanel>
-                    <TextBlock HorizontalAlignment="Center">
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak />
                         Select Proteins
                         <LineBreak/>by Pathway
                     </TextBlock>
@@ -372,8 +375,10 @@
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  IsEnabled="{Binding ReviewTabEnabled}">
 			<TabItem.Header>
-				<StackPanel>
-					<TextBlock TextAlignment="Center">
+                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak />
                         Review and <LineBreak /> 
                         export to Skyline
 					</TextBlock>

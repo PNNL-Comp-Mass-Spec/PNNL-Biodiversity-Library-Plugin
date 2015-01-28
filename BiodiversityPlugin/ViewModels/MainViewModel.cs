@@ -908,7 +908,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectionTabEnabled = selectTab;
             ReviewTabEnabled = reviewTab;
             OverviewEnabled = overviewTab;
-
+            PathwayTabIndex = 0;
         }
 
         /// <summary>
