@@ -16,6 +16,11 @@ namespace BiodiversityPlugin.DataManagement
             m_databasePath = organismDb;
         }
         
+        /// <summary>
+        /// Method to populate organisms from the database
+        /// </summary>
+        /// <param name="organismList">List of organisms for use with filter box</param>
+        /// <returns>List of Organisms, broken up into Phylum, class and the individual for the tree view</returns>
         public List<OrgPhylum> LoadOrganisms(ref List<string> organismList )
         {
             var phylums = new Dictionary<string, OrgPhylum>();
@@ -83,6 +88,11 @@ namespace BiodiversityPlugin.DataManagement
             return phylums.Values.ToList();
         }
 
+        /// <summary>
+        /// Method to create the list of pathways from the database, excluding the
+        /// Global and overview maps as there is no information in these pathways
+        /// </summary>
+        /// <returns>List of Pathways, broken up into Catagory, group and then individual for the tree view</returns>
         public List<PathwayCatagory> LoadPathways()
         {
             var catagories = new Dictionary<string, PathwayCatagory>();
@@ -133,22 +143,36 @@ namespace BiodiversityPlugin.DataManagement
             return catList;
         }
 
+        /// <summary>
+        /// Method to determine the % coverage of a pathway by an organism in MSMS space.
+        /// If there are no genes for the organism/pathway combination, then pathway's
+        /// ContainsGenes flag is set to true and a percentage is set. Otherwise, what
+        /// will display is "No Genes for this Pathway"
+        /// </summary>
+        /// <param name="org">Organism selected from Organisms tab</param>
+        /// <param name="pathways">List of all possible pathways for an organism</param>
         public void LoadPathwayCoverage(Organism org, ref List<Pathway> pathways)
         {
+            // If we don't have an org code for the organism, we cannot say with
+            // confidence what the coverage is.
             if (org.OrgCode == "")
             {
                 return;
             }
+            // Reset all pathways to Not containing genes
             foreach (var pathway in pathways)
             {
                 pathway.ContainsGenes = false;
             }
+
             using (var dbConnection = new SQLiteConnection("Datasource=" + m_databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
 
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
+                    // Current database does not include organism/pathway combinations that contain 0 genes,
+                    // if this changes, will need to add to the query.
                     string viewSelectionText = string.Format(" SELECT " +
                                                              " kegg_pathway_id, percent_observed_genes " +
                                                              " FROM vw_observed_kegg_organism_pathway " +
@@ -172,12 +196,25 @@ namespace BiodiversityPlugin.DataManagement
             }
         }
 
+        /// <summary>
+        /// Method to retrieve the Kegg Orthologs for the pathway which have been seen in MSMS space.
+        /// Each KeggKoInformation in the returned list is assured of having a KeggId. KeggGeneName and
+        /// KeggEc might be empty strings, but if there is information in the database for these fields, 
+        /// it will be preserved and copied to the object.
+        /// </summary>
+        /// <param name="pathway">Pathway of interest</param>
+        /// <param name="SelectedOrganism">Organism of interest</param>
+        /// <returns>List of type KeggKoInformation, all of which were seen in MSMS space 
+        /// for the pathway and organism of interest</returns>
         public List<KeggKoInformation> ExportKosWithData(Pathway pathway, Organism SelectedOrganism)
         {
+            // If either brought in are null, return null because that'll
+            // cause unintended workflow when the database query occurs
             if (pathway == null || SelectedOrganism == null)
             {
                 return null;
             }
+
             var orgCode = SelectedOrganism.OrgCode;
             var koIds = new List<string>();
             var koInformation = new List<KeggKoInformation>();
@@ -189,6 +226,8 @@ namespace BiodiversityPlugin.DataManagement
                 stopwatch.Start();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
+                    // Query is set up in this way to facilitate faster query, returning the sum total of Kegg Ortholog infomations
+                    // Paring down the information returned takes place below. 
                     var selectionText =
                             string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id, " +
                                       " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
@@ -202,6 +241,8 @@ namespace BiodiversityPlugin.DataManagement
                     {
                         while (reader.Read())
                         {
+                            // Only care about if the gene was observed, is in the pathway of interest,
+                            // contains the org code for the organism in question and has not already been seen
                             if (reader.GetInt32(0) == 1 && pathway.KeggId.Contains(reader.GetString(1)) &&
                                 reader.GetString(2).Contains(orgCode) && !koIds.Contains(reader.GetString(3)))
                             {
@@ -221,8 +262,20 @@ namespace BiodiversityPlugin.DataManagement
             return koInformation;
         }
 
+        /// <summary>
+        /// Method to retrieve the Kegg Orthologs for the pathway which have not been seen in MSMS space.
+        /// Each KeggKoInformation in the returned list is assured of having a KeggId. KeggGeneName and
+        /// KeggEc might be empty strings, but if there is information in the database for these fields, 
+        /// it will be preserved and copied to the object.
+        /// </summary>
+        /// <param name="pathway">Pathway of interest</param>
+        /// <param name="SelectedOrganism">Organism of interest</param>
+        /// <returns>List of type KeggKoInformation, all of which were not seen in MSMS space 
+        /// for the pathway and organism of interest</returns>
         public List<KeggKoInformation> ExportKosWithoutData(Pathway pathway, Organism SelectedOrganism)
         {
+            // If either brought in are null, return null because that'll
+            // cause unintended workflow when the database query occurs
             if (pathway == null || SelectedOrganism == null)
             {
                 return null;
@@ -238,6 +291,8 @@ namespace BiodiversityPlugin.DataManagement
                 stopwatch.Start();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
+                    // Query is set up in this way to facilitate faster query, returning the sum total of Kegg Ortholog infomations
+                    // Paring down the information returned takes place below. 
                     var selectionText =
                             string.Format(" SELECT observed_kegg_gene.is_observed, observed_kegg_gene.kegg_pathway_id, observed_kegg_gene.kegg_org_code, kegg_gene_ko_map.kegg_ko_id, " +
                                       " kegg_ko.kegg_gene_name, kegg_ko.kegg_ec " +
@@ -251,6 +306,8 @@ namespace BiodiversityPlugin.DataManagement
                     {
                         while (reader.Read())
                         {
+                            // Only care about if the gene was not observed, is in the pathway of interest,
+                            // contains the org code for the organism in question and has not already been seen
                             if (reader.GetInt32(0) == 0 && pathway.KeggId.Contains(reader.GetString(1)) &&
                                 reader.GetString(2).Contains(orgCode) && !koIds.Contains(reader.GetString(3)))
                             {
@@ -270,6 +327,14 @@ namespace BiodiversityPlugin.DataManagement
             return koInformation;
         }
 
+        /// <summary>
+        /// Method to retrieve the ProteinInformations for the Selected Kegg Orthologs for the pathways
+        /// and organism in question. Each ProteinInformation in the returned list is assured of having 
+        /// a refseq Id, and if it exists for the refseq ID, the description and versioned refseq as well
+        /// </summary>
+        /// <param name="pathways">List of Pathways of interest</param>
+        /// <param name="org">Organism of interest</param>
+        /// <returns>List of type ProteinInformation for the pathway and organism of interest</returns>
         public List<ProteinInformation> ExportAccessions(List<Pathway> pathways, Organism org)
         {
             if (pathways == null || org == null)

@@ -672,13 +672,11 @@ namespace BiodiversityPlugin.ViewModels
 
                                     // Now that we have the base image and the legend, load the coordinates
                                     // for every rectangle on the image, keyed on KO name.
-                                    var koToCoordDict = //dis.Invoke(() =>
-                                        pathway.LoadCoordinates();//);
+                                    var koToCoordDict = pathway.LoadCoordinates();
 
                                     // Use the database to determine which orthologs have data in MSMS and load
                                     // the coordinates
-                                    var koWithData = //dis.Invoke(() =>
-                                        dataAccess.ExportKosWithData(pathway, SelectedOrganism);//);
+                                    var koWithData = dataAccess.ExportKosWithData(pathway, SelectedOrganism);
                                     var coordToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                                     foreach (var ko in koWithData)
                                     {
@@ -720,8 +718,8 @@ namespace BiodiversityPlugin.ViewModels
                                     }
 
                                     // Do the same for orthologs without data in MSMS, loading the coordinates needed
-                                    var koWithoutData = //dis.Invoke(() =>
-                                        dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);//);
+                                    var koWithoutData = dataAccess.ExportKosWithoutData(pathway, SelectedOrganism);
+
                                     var coordsToName = new Dictionary<Tuple<int, int>, List<KeggKoInformation>>();
                                     foreach (var ko in koWithoutData)
                                     {
