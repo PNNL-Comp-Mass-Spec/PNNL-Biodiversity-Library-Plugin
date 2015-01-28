@@ -158,6 +158,14 @@ namespace BiodiversityPlugin.Models
 
         #endregion
 
+        #region Public Commands
+
+        public RelayCommand SelectAllCommand { get; set; }
+
+        public RelayCommand DeselectAllCommand { get; set; }
+
+        #endregion
+
         private void UpdateMessage()
         {
             if (_dataBoxesSelected == _numDataBoxes)
@@ -187,7 +195,6 @@ namespace BiodiversityPlugin.Models
             _dataBoxesSelected = _numDataBoxes;
             UpdateMessage();
         }
-
 
         /// <summary>
         /// Method to deselect all the members in the Data Canvas which clears
@@ -242,7 +249,6 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-
         /// <summary>
         /// Change the child to selected. This alters the color of the child to
         /// Red, grabs the string Tag for the child, splits it into individual instances
@@ -275,10 +281,11 @@ namespace BiodiversityPlugin.Models
         /// <summary>
         /// Factory method to draw a rectangle on the appropriate canvas
         /// </summary>
-        /// <param name="koInformation"></param>
         /// <param name="xCoord">Left-most x-coordinate</param>
         /// <param name="yCoord">Top-most y-coordinate</param>
         /// <param name="isData">Whether the rectangle contains MSMS data</param>
+        /// <param name="toolTip">Tooltip for the rectangle</param>
+        /// <param name="tag">String tag for the rectangle</param>
         public void AddRectangle(int xCoord, int yCoord, bool isData, string toolTip = "", string tag = "")
         {
             if (isData)
@@ -294,11 +301,13 @@ namespace BiodiversityPlugin.Models
         /// <summary>
         /// Factory method to draw a rectangle on the approrpiate canvas using a custom color
         /// </summary>
-        /// <param name="koInformation"></param>
-        /// <param name="xCoord"></param>
-        /// <param name="yCoord"></param>
-        /// <param name="isData"></param>
-        /// <param name="color"></param>
+        /// <param name="xCoord">Left-most x-coordinate</param>
+        /// <param name="yCoord">Top-most y-coordinate</param>
+        /// <param name="isData">Whether the rectangle contains MSMS data</param>
+        /// <param name="color">Color of the rectangle drawn and overwrites the either the selected 
+        /// color or the no data color depending on if the rectangle has data or not</param>
+        /// <param name="toolTip">Tooltip for the rectangle</param>
+        /// <param name="tag">String tag for the rectangle</param>
         public void AddRectangle(int xCoord, int yCoord, bool isData, Color color, string toolTip = "", string tag = "")
         {
             Rectangle child;
@@ -419,29 +428,37 @@ namespace BiodiversityPlugin.Models
             _numDataBoxes = 0;
             _dataBoxesSelected = 0;
         }
-
-        public RelayCommand SelectAllCommand { get; set; }
-
-        public RelayCommand DeselectAllCommand { get; set; }
-
-        public void WriteFoundText(int p1, int p2, string orgName)
+        
+        /// <summary>
+        /// Add a textblock to the Positive result for the legend
+        /// </summary>
+        /// <param name="xCoord">X-coord for the left of the legend block</param>
+        /// <param name="yCoord">Y-coord for the top of the legend block</param>
+        /// <param name="orgName">Name of the organism</param>
+        public void WriteFoundText(int xCoord, int yCoord, string orgName)
         {
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and observed in MS/MS data";
             textBlock.FontSize = 12;
             PathwayNonDataCanvas.Children.Add(textBlock);
-            Canvas.SetLeft(textBlock, p1 + 50);
-            Canvas.SetTop(textBlock, p2);
+            Canvas.SetLeft(textBlock, xCoord + 50);
+            Canvas.SetTop(textBlock, yCoord);
         }
 
-        public void WriteNotfoundText(int p1, int p2, string orgName)
+        /// <summary>
+        /// Add a textblock to the Negative result for the legend
+        /// </summary>
+        /// <param name="xCoord">X-coord for the left of the legend block</param>
+        /// <param name="yCoord">Y-coord for the top of the legend block</param>
+        /// <param name="orgName">Name of the organism</param>
+        public void WriteNotfoundText(int xCoord, int yCoord, string orgName)
         {
             var textBlock = new TextBlock();
             textBlock.Text = "Protein annotated in " + orgName + " and not observed in MS/MS data";
             textBlock.FontSize = 12;
             PathwayNonDataCanvas.Children.Add(textBlock);
-            Canvas.SetLeft(textBlock, p1 + 50);
-            Canvas.SetTop(textBlock, p2);
+            Canvas.SetLeft(textBlock, xCoord + 50);
+            Canvas.SetTop(textBlock, yCoord);
         }
 
         /// <summary>

@@ -492,7 +492,7 @@ namespace BiodiversityPlugin.ViewModels
         private void LoadPathwayCoverage()
         {
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
-            SelectedTabIndex++;
+            SelectedTabIndex = 2;
             var dataAccess = new DatabaseDataLoader(_dbPath);
             var pathList = (from catagory in Pathways from @group in catagory.PathwayGroups from pathway in @group.Pathways select pathway).ToList();
             dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);

@@ -270,11 +270,7 @@
 		<TabItem Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                   IsEnabled="{Binding SelectionTabEnabled}">
-            <!--
-			<TabItem.InputBindings>
-				<MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
-			</TabItem.InputBindings>
-            -->
+            
 			<TabItem.Header>
                 <StackPanel>
                     <TextBlock HorizontalAlignment="Center">
