@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,11 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using BiodiversityPlugin.DataManagement;
-using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using KeggDataLibrary.DataManagement;
+using KeggDataLibrary.Models;
 
 namespace BiodiversityPlugin.ViewModels
 {
@@ -184,7 +183,7 @@ namespace BiodiversityPlugin.ViewModels
             private set
             {
                 _proteinsToExport = value;
-                RaisePropertyChanged("ProteinsToExport");
+                RaisePropertyChanged();
             }
         }
 
@@ -250,7 +249,7 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _pathwayProteinAssociation = value;
-                RaisePropertyChanged("PathwayProteinAssociation");
+                RaisePropertyChanged();
             }
         }
 
@@ -652,23 +651,23 @@ namespace BiodiversityPlugin.ViewModels
                                 if (pathway.Selected)
                                 {
                                     // Load the image (From the static location)
-                                    pathway.LoadImage();
+                                    dis.Invoke(() =>
+                                        pathway.LoadImage());
 
                                     // Remove any rectangles from the canvas to provide accurate visualization
                                     dis.Invoke(() =>
                                         pathway.ClearRectangles());
 
                                     // Draw the information for the Legend on each image.
+                                    var legendText = "Protein annotated in " + SelectedOrganism.Name +
+                                                     " and observed in MS/MS data";
                                     dis.Invoke(() =>
-                                        pathway.AddRectangle(10,
-                                        5, false, Colors.Red));
+                                        pathway.DrawPositiveLegend(10, 5, legendText, Colors.Red));
+
+                                    legendText = "Protein annotated in " + SelectedOrganism.Name +
+                                                 " and not observed in MS/MS data";
                                     dis.Invoke(() =>
-                                        pathway.WriteFoundText(10, 5, SelectedOrganism.Name));
-                                    dis.Invoke(() =>
-                                        pathway.AddRectangle(10,
-                                        22, false, Colors.Blue));
-                                    dis.Invoke(() =>
-                                        pathway.WriteNotfoundText(10, 22, SelectedOrganism.Name));
+                                        pathway.DrawNegativeLegend(10, 22, legendText, Colors.Blue));
 
                                     // Now that we have the base image and the legend, load the coordinates
                                     // for every rectangle on the image, keyed on KO name.
@@ -714,7 +713,7 @@ namespace BiodiversityPlugin.ViewModels
                                         // Draw data rectangles for each of these coordinates
                                         // These rectangles are able to be interacted with by the user
                                         dis.Invoke(() => pathway.AddRectangle(coord.Key.Item1,
-                                            coord.Key.Item2, true, tooltip, koIds));
+                                            coord.Key.Item2, true, 0.5, tooltip, koIds));
                                     }
 
                                     // Do the same for orthologs without data in MSMS, loading the coordinates needed
@@ -760,7 +759,7 @@ namespace BiodiversityPlugin.ViewModels
                                         // Draw non-data rectangles for each of these coordinates
                                         // These rectangles have no interaction from the user
                                         dis.Invoke(() => pathway.AddRectangle(coord.Key.Item1,
-                                            coord.Key.Item2, false, tooltip, koIds));
+                                            coord.Key.Item2, false, 0.5, tooltip, koIds));
                                     }
 
                                     selectedPaths.Add(pathway);
@@ -862,7 +861,6 @@ namespace BiodiversityPlugin.ViewModels
                         pathway.SelectedKo.Clear();
                         if (pathway.PathwayImage != null)
                         {
-                            pathway.PathwayNonDataCanvas.Children.Clear();
                             pathway.PathwayDataCanvas.Children.Clear();
                         }
                     }
@@ -1021,7 +1019,7 @@ namespace BiodiversityPlugin.ViewModels
             var fastas = "";
 
             var esearchURL =
-                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
+                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
 
