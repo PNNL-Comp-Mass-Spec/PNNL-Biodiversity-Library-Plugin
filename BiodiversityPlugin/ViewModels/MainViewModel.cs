@@ -14,6 +14,7 @@ using GalaSoft.MvvmLight.Messaging;
 using KeggDataLibrary.DataManagement;
 using KeggDataLibrary.Models;
 
+
 namespace BiodiversityPlugin.ViewModels
 {
 
@@ -544,7 +545,7 @@ namespace BiodiversityPlugin.ViewModels
             var temp = SelectedPathwayTreeItem;
             SelectedPathwayTreeItem = temp;
         }
-
+        
         private void DeleteSelectedPathway()
         {
             var treePathway = SelectedPathwayTreeItem as Pathway;
@@ -1080,6 +1081,21 @@ namespace BiodiversityPlugin.ViewModels
             }
             curList.Add(newAssociation);
             PathwayProteinAssociation = curList;
+        }
+        private void SavePathwayImage()
+        {
+            // Get user to select a file save location.
+            var saveFile = new Microsoft.Win32.SaveFileDialog();
+
+            saveFile.Filter = "Image Files (*.png)|*.png;";
+
+            bool? result = saveFile.ShowDialog();
+
+            if (result == true)
+            {
+                var outputFileName = saveFile.FileName;
+                SelectedPathways[PathwayTabIndex].SaveCanvas(outputFileName);
+            }
         }
     }
 }
