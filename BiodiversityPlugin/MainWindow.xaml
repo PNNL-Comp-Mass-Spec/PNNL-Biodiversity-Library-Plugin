@@ -330,8 +330,9 @@
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
 								</Grid.ColumnDefinitions>
-								<ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
+								<ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
 									<Grid>
 										<Grid.RowDefinitions>
 											<RowDefinition Height="Auto"/>
@@ -348,6 +349,7 @@
 								<Button Grid.Row="2" Grid.Column="0" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
 								<TextBlock Grid.Row="2" Grid.Column="1" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}"></TextBlock>
 								<Button Grid.Row="2" Grid.Column="2" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
+								<Button Grid.Row="2" Grid.Column="3" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}">Save Pathway Image</Button>
 							</Grid>
 						</DataTemplate>
 					</TabControl.ContentTemplate>

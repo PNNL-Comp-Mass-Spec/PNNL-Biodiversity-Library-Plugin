@@ -1082,20 +1082,6 @@ namespace BiodiversityPlugin.ViewModels
             curList.Add(newAssociation);
             PathwayProteinAssociation = curList;
         }
-        private void SavePathwayImage()
-        {
-            // Get user to select a file save location.
-            var saveFile = new Microsoft.Win32.SaveFileDialog();
 
-            saveFile.Filter = "Image Files (*.png)|*.png;";
-
-            bool? result = saveFile.ShowDialog();
-
-            if (result == true)
-            {
-                var outputFileName = saveFile.FileName;
-                SelectedPathways[PathwayTabIndex].SaveCanvas(outputFileName);
-            }
-        }
     }
 }
