@@ -1027,7 +1027,7 @@ namespace BiodiversityPlugin.ViewModels
             var fastas = "";
 
             var esearchURL =
-                "http://eubeoksnboetils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
+                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
 
