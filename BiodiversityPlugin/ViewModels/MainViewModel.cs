@@ -935,6 +935,7 @@ namespace BiodiversityPlugin.ViewModels
 
             Task.Factory.StartNew(() =>
             {
+                
                 // Go through the associations that have been built up so far...
                 foreach (var association in PathwayProteinAssociation)
                 {
@@ -977,13 +978,19 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         var allFastas = GetFastasFromNCBI(accessionString);
 
-                        var confirmationMessage = "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
+                        var confirmationMessage =
+                            "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
 
                         MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
                     }
+                    catch (WebException)
+                    {
+                        var errorMessage =
+                            "Error accessing NCBI database\nPlease check your internet connection and try again.";
+                        MessageBox.Show(errorMessage, "Error connecting to NCBI", MessageBoxButton.OK);
+                    }
                     catch (Exception)
                     {
-
                         var outputpath = "C:\\Temp\\accessionList.txt";
                         using (var fastaWriter = new StreamWriter(outputpath))
                         {
@@ -1020,7 +1027,7 @@ namespace BiodiversityPlugin.ViewModels
             var fastas = "";
 
             var esearchURL =
-                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
+                "http://eubeoksnboetils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
 
             var esearchGetUrl = WebRequest.Create(esearchURL);
 
