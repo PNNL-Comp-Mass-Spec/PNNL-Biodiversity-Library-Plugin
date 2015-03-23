@@ -445,8 +445,9 @@
                                     <TextBlock Grid.Row="1" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
                                     <TextBlock Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedPathwayText}" />
                                     <TextBlock Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding NumProteinsText}"/>
-                                    <DataGrid Margin="5,10,5,0" Grid.Row="4" FontSize="14" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
+                                    <DataGrid Margin="5,10,5,0" Grid.Row="4" FontSize="14" AutoGenerateColumns="False" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
                                         <DataGrid.Columns>
+                                            <DataGridCheckBoxColumn Header="Export?" Binding="{Binding Selected}" IsReadOnly="False"></DataGridCheckBoxColumn>
                                             <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                                             <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
                                         </DataGrid.Columns>

@@ -955,11 +955,16 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 // Filter these genes from last step to eliminate duplicate
-                foreach (var protein in FilteredProteins)
+                using (var writer = new StreamWriter("C:\\Temp\\selectedProteins.tsv"))
                 {
-                    if (!ProteinsToExport.Contains(protein))
+                    writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
+                    foreach (var protein in FilteredProteins)
                     {
-                        ProteinsToExport.Add(protein);
+                        if (!ProteinsToExport.Contains(protein) && protein.Selected)
+                        {
+                            ProteinsToExport.Add(protein);
+                            writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
+                        }
                     }
                 }
 
