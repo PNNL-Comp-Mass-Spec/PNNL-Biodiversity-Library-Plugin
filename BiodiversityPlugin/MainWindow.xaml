@@ -264,7 +264,7 @@
 				</ListBox>
 				<Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                 <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding SelectionTabEnabled}">Next &gt;</Button>
-			</Grid>
+            </Grid>
 		</TabItem>
 
 		<!-- Protein selection tab from many pathway -->
