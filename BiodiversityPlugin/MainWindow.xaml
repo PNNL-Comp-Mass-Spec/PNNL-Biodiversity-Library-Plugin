@@ -71,6 +71,7 @@
 				<Grid.RowDefinitions>
 					<RowDefinition Height="*" />
 					<RowDefinition Height="18*" />
+                    <RowDefinition Height="30" />
 					<RowDefinition Height="70" />
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
@@ -97,26 +98,35 @@
 					</TextBlock>
 				</StackPanel>
 
-				<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
-					<StackPanel  Orientation="Horizontal">
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                    <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                            Source: 
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/project-data/biodiversity-library"> 
+                                <TextBlock Text="{Binding Path=DatabaseVersion}"></TextBlock>
+                            </Hyperlink>
+                    </TextBlock>
+                    <TextBlock Width="8"></TextBlock>
+                    <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom" Text="{Binding Path=DatabaseDate}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                    <StackPanel  Orientation="Horizontal">
 						<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                             Funding: US DOE, 
                             <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research </Hyperlink>
 						</TextBlock>
-
-
 					</StackPanel>
 					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                         Contact: 
                         <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov"> Samuel Payne </Hyperlink>
 					</TextBlock>
 				</StackPanel>
-				<Button Grid.Column="2" Grid.Row="2" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
+				<Button Grid.Column="2" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
 					<StackPanel Orientation="Horizontal">
 						<TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
 					</StackPanel>
 				</Button>
-				<Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Source="DataFiles/doe-logo.png" Width="180" Margin="120,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+				<Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo.png" Width="180" Margin="120,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
 			</Grid>
 		</TabItem>
 

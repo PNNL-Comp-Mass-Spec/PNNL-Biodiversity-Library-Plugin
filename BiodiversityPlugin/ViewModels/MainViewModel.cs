@@ -57,10 +57,25 @@ namespace BiodiversityPlugin.ViewModels
         private string _queryString;
         private string _priorOrg;
         private OrganismPathwayProteinAssociation _selectedAssociation;
+        private string m_databaseVersion;
 
         #endregion
 
         #region Public Properties
+
+        public string DatabaseDate { get; set; }
+
+        public string DatabaseVersion
+        {
+            get
+            {
+                return "Biodiversity Library v" + m_databaseVersion; 
+            }
+            set
+            {
+                m_databaseVersion = value;
+            }
+        }
 
         public ObservableCollection<OrgDomain> Organisms { get; private set; }
         public ObservableCollection<PathwayCatagory> Pathways { get; private set; }
@@ -453,6 +468,12 @@ namespace BiodiversityPlugin.ViewModels
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath)
         {
             _dbPath = dbPath;
+
+            //TODO: Get the db version from the metadata table
+            DatabaseVersion = "TempTestVersion";
+
+            //TODO: Get the date for the database version from the metadata table
+            DatabaseDate = "Today!";
 
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
@@ -1099,6 +1120,7 @@ namespace BiodiversityPlugin.ViewModels
             curList.Add(newAssociation);
             PathwayProteinAssociation = curList;
         }
+
 
     }
 
