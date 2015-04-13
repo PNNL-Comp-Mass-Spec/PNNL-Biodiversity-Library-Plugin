@@ -62,7 +62,7 @@ namespace BiodiversityPlugin.ViewModels
 
         #region Public Properties
 
-        public ObservableCollection<OrgPhylum> Organisms { get; private set; }
+        public ObservableCollection<OrgDomain> Organisms { get; private set; }
         public ObservableCollection<PathwayCatagory> Pathways { get; private set; }
 
         public Organism SelectedOrganism { get; private set; }
@@ -228,7 +228,8 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedValue = value;
                 RaisePropertyChanged();
-                var filtered = (from phylum in Organisms
+                var filtered = (from domain in Organisms
+                                from phylum in domain.OrgPhyla
                                 from orgClass in phylum.OrgClasses
                                 from organism in orgClass.Organisms
                                 where organism.Name.ToUpper().Contains(value.ToUpper())
@@ -279,19 +280,23 @@ namespace BiodiversityPlugin.ViewModels
             get { return "Selected"; }
             set
             {
-                foreach (var phylum in Organisms)
+                foreach (var domain in Organisms)
                 {
-                    foreach (var orgClass in phylum.OrgClasses)
+
+                    foreach (var phylum in domain.OrgPhyla)
                     {
-                        foreach (var organism in orgClass.Organisms)
+                        foreach (var orgClass in phylum.OrgClasses)
                         {
-                            if (organism.Name == value)
+                            foreach (var organism in orgClass.Organisms)
                             {
-                                SelectedOrganismTreeItem = organism;
-                                // To refresh the Pathway tab's ability to be
-                                // clicked by the user to advance the app.
-                                SelectedTabIndex = SelectedTabIndex;
-                                return;
+                                if (organism.Name == value)
+                                {
+                                    SelectedOrganismTreeItem = organism;
+                                    // To refresh the Pathway tab's ability to be
+                                    // clicked by the user to advance the app.
+                                    SelectedTabIndex = SelectedTabIndex;
+                                    return;
+                                }
                             }
                         }
                     }
@@ -455,8 +460,8 @@ namespace BiodiversityPlugin.ViewModels
 
             organismList.Sort();
             OrganismList = organismList;
-            organisms.Sort((x, y) => x.PhylumName.CompareTo(y.PhylumName));
-            Organisms = new ObservableCollection<OrgPhylum>(organisms);
+            organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
+            Organisms = new ObservableCollection<OrgDomain>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
 
             FilteredProteins = new ObservableCollection<ProteinInformation>();
@@ -545,7 +550,7 @@ namespace BiodiversityPlugin.ViewModels
             var temp = SelectedPathwayTreeItem;
             SelectedPathwayTreeItem = temp;
         }
-        
+
         private void DeleteSelectedPathway()
         {
             var treePathway = SelectedPathwayTreeItem as Pathway;
@@ -623,7 +628,7 @@ namespace BiodiversityPlugin.ViewModels
                                                                  from p in @group.Pathways
                                                                  where p.Selected
                                                                  select p).ToList());
-            
+
             // Check if the current pathways selected are the same as the prior selected pathways
             // If they are and the org is the same, nothing needs to be done to display images.
             var same = !(curPathways.Count != SelectedPathways.Count ||
@@ -634,7 +639,7 @@ namespace BiodiversityPlugin.ViewModels
             // The application level dispatcher needs to be utilized and through
             // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
-            
+
             // Start the animated overlay with the message set above
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
@@ -793,7 +798,7 @@ namespace BiodiversityPlugin.ViewModels
             // The application level dispatcher needs to be utilized and through
             // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
-            
+
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
@@ -935,7 +940,7 @@ namespace BiodiversityPlugin.ViewModels
 
             Task.Factory.StartNew(() =>
             {
-                
+
                 // Go through the associations that have been built up so far...
                 foreach (var association in PathwayProteinAssociation)
                 {
@@ -1096,5 +1101,5 @@ namespace BiodiversityPlugin.ViewModels
         }
 
     }
-   
+
 }

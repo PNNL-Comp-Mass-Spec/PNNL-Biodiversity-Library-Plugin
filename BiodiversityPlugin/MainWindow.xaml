@@ -150,13 +150,16 @@
 				<TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
 				<utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
 					<utilities:MvvmTreeView.Resources>
+						<HierarchicalDataTemplate DataType="{x:Type models:OrgDomain}" ItemsSource="{Binding OrgPhyla}">
+							<TextBlock Text="{Binding DomainName}" FontWeight="Bold" FontSize="16" />
+						</HierarchicalDataTemplate>
 						<HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
-							<TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="16" />
+							<TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="14"/>
 						</HierarchicalDataTemplate>
-						<HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
-							<TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
-						</HierarchicalDataTemplate>
-						<HierarchicalDataTemplate DataType="{x:Type models:Organism}">
+                        <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
+                            <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
 							<TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
 						</HierarchicalDataTemplate>
 					</utilities:MvvmTreeView.Resources>
