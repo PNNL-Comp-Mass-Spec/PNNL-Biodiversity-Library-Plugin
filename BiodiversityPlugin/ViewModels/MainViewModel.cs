@@ -475,6 +475,12 @@ namespace BiodiversityPlugin.ViewModels
             //TODO: Get the date for the database version from the metadata table
             DatabaseDate = "Today!";
 
+            var dataAccess = new DatabaseDataLoader(_dbPath);
+            string version, date;
+            dataAccess.LoadDbMetaData(out version, out date);
+            DatabaseVersion = version;
+            DatabaseDate = date;
+
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
