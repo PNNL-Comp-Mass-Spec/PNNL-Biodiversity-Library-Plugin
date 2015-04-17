@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using BiodiversityPlugin.Calculations;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -1049,7 +1050,77 @@ namespace BiodiversityPlugin.ViewModels
                         MessageBoxImage.Exclamation);
                 }
 
+                var something = new DatabaseDataLoader(_dbPath);
+                something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.csv");
+
+                //Create list of organisms to use with the downloader below.
+                List<string> organismList = new List<string>();
+
+                //Have loops to pull just the organism name to put into the organism list.
+                foreach (var association in PathwayProteinAssociation)
+                {
+                    if (association.AssociationSelected && !organismList.Contains(association.Organism))
+                    {
+                        organismList.Add(association.Organism);
+                    }
+                }
+                //This is a loop to use the Levenshtein class to find the closest file match to an organism name.
+                foreach (var org in organismList)
+                {
+                    string bestFile = "";
+                    //var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://MSV000079053:a@massive.ucsd.edu/library/"));
+                    
+                    var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
+                    reqFtp.UseBinary = true;
+                    reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
+                    reqFtp.Method = "LIST";
+                    reqFtp.Proxy = null;
+                    reqFtp.KeepAlive = true;
+                    reqFtp.UsePassive = true;
+
+                    var files = new List<string>();
+
+                    using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
+                    {
+                        var response = webResponse.GetResponseStream();
+                        if (response == null)
+                        {
+                            Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
+                            break;
+                        }
+
+                        using (var responseReader = new StreamReader(response))
+                        {
+                            while (responseReader.Peek() > -1)
+                            {
+                                var line = responseReader.ReadLine();
+                                if (string.IsNullOrWhiteSpace(line))
+                                    continue;
+
+                                files.Add(line.Split(' ').Last());
+                                //result.Append("\n");
+                            }
+                        }
+                    }
+
+                    int minDistance = 99;
+                    //Loop to call the Levenshtein distance to find the best match
+                    foreach (var file in files)
+                    {
+                        int distance = LevenshteinDistance.Compute(org, file);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            bestFile = file;
+                        }
+                    }
+                    //Finally, download the best file that we found for the organism.
+                    FileManager.DownloadFile(("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"), 
+                        ("C:\\Temp\\"));
+                }
+
                 IsQuerying = false;
+ 
             });
         }
 
