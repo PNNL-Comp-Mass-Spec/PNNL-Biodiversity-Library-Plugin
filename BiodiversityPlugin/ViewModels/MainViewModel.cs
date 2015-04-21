@@ -1050,9 +1050,23 @@ namespace BiodiversityPlugin.ViewModels
                         MessageBoxImage.Exclamation);
                 }
 
+                IsQuerying = false;
+                string[] queryingStringsForDownload =
+			    {
+				    "Downloading Files   \nPlease Wait",
+				    "Downloading Files.  \nPlease Wait",
+				    "Downloading Files.. \nPlease Wait",
+				    "Downloading Files...\nPlease Wait"
+			    };
+                QueryString = queryingStringsForDownload[0];
+
+                Task.Factory.StartNew(() => StartOverlay(queryingStringsForDownload));
+
+
                 var something = new DatabaseDataLoader(_dbPath);
                 something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.csv");
 
+                
                 //Create list of organisms to use with the downloader below.
                 List<string> organismList = new List<string>();
 
