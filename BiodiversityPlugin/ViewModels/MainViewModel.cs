@@ -1211,8 +1211,5 @@ namespace BiodiversityPlugin.ViewModels
             curList.Add(newAssociation);
             PathwayProteinAssociation = curList;
         }
-
-
     }
-
 }

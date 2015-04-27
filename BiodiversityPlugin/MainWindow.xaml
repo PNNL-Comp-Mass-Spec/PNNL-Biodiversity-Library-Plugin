@@ -338,7 +338,7 @@
 								</Grid.RowDefinitions>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="155" />
+									<ColumnDefinition Width="160" />
 								</Grid.ColumnDefinitions>
                                 <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
                                     <Grid>
@@ -356,10 +356,10 @@
                                     </Grid>
                                 </ScrollViewer>
                                 <StackPanel Grid.Row="0" Grid.Column="1">
-                                    <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}"></TextBlock>
-                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
-                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
-                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}">Save Pathway Image</Button>
+                                    <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}" Margin="0,5"></TextBlock>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}" Margin="0,5">Select All</Button>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}" Margin="0,5">Deselect All</Button>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}" Margin="0,5">Save Pathway Image</Button>
                                 </StackPanel>
                             </Grid>
 						</DataTemplate>
