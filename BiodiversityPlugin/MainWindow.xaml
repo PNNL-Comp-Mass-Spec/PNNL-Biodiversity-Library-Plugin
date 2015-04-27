@@ -335,35 +335,33 @@
 							<Grid>
 								<Grid.RowDefinitions>
 									<RowDefinition Height="*" />
-									<RowDefinition Height="15" />
-									<RowDefinition Height="30" />
-									<RowDefinition Height="15" />
 								</Grid.RowDefinitions>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="155" />
 								</Grid.ColumnDefinitions>
-								<ScrollViewer Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
-									<Grid>
-										<Grid.RowDefinitions>
-											<RowDefinition Height="Auto"/>
-										</Grid.RowDefinitions>
-										<Grid.ColumnDefinitions>
-											<ColumnDefinition Width="Auto"/>
-										</Grid.ColumnDefinitions>
+                                <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5*"/>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
                                         <Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
                                             <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}" Height="{Binding CanvasHeight}" Width="{Binding CanvasWidth}"/>
                                         </Canvas>
                                     </Grid>
-								</ScrollViewer>
-								<Button Grid.Row="2" Grid.Column="0" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
-								<TextBlock Grid.Row="2" Grid.Column="1" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}"></TextBlock>
-								<Button Grid.Row="2" Grid.Column="2" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
-								<Button Grid.Row="2" Grid.Column="3" FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}">Save Pathway Image</Button>
-							</Grid>
+                                </ScrollViewer>
+                                <StackPanel Grid.Row="0" Grid.Column="1">
+                                    <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}"></TextBlock>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}">Select All</Button>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}">Deselect All</Button>
+                                    <Button FontSize="15" Width="150" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}">Save Pathway Image</Button>
+                                </StackPanel>
+                            </Grid>
 						</DataTemplate>
 					</TabControl.ContentTemplate>
 				</TabControl>
