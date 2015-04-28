@@ -1076,17 +1076,13 @@ namespace BiodiversityPlugin.ViewModels
                         MessageBoxImage.Exclamation);
                 }
 
-                IsQuerying = false;
-                string[] queryingStringsForDownload =
-			    {
+                //IsQuerying = false;
+                queryingStrings = new string[]{
 				    "Downloading Files   \nPlease Wait",
 				    "Downloading Files.  \nPlease Wait",
 				    "Downloading Files.. \nPlease Wait",
 				    "Downloading Files...\nPlease Wait"
 			    };
-                QueryString = queryingStringsForDownload[0];
-
-                Task.Factory.StartNew(() => StartOverlay(queryingStringsForDownload));
 
 
                 var something = new DatabaseDataLoader(_dbPath);
@@ -1155,8 +1151,12 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                     //Finally, download the best file that we found for the organism.
-                    FileManager.DownloadFile(("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"), 
+                    var result = FileManager.DownloadFile(("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"), 
                         ("C:\\Temp\\"));
+                    if (result)
+                    {
+                        MessageBox.Show(".blib file saved to C:\\Temp\\" + bestFile + ".blib");
+                    }
                 }
 
                 IsQuerying = false;
