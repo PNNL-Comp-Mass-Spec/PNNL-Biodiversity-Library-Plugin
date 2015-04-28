@@ -1151,11 +1151,25 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                     //Finally, download the best file that we found for the organism.
-                    var result = FileManager.DownloadFile(("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"), 
-                        ("C:\\Temp\\"));
+                    if (!Directory.Exists(@"C:\Temp\BioDiversityBlibs"))
+                    {
+                        Directory.CreateDirectory(@"C:\Temp\BioDiversityBlibs");
+                    }
+                    var result = true;
+                    if (!File.Exists(@"C:\Temp\BioDiversityBlibs\" + org.Replace(" ", "_") + ".blib"))
+                    {
+                        result =
+                            FileManager.DownloadFile(
+                                ("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"),
+                                ("C:\\Temp\\BioDiversityBlibs\\"));
+                    }
+                    else
+                    {
+                        bestFile = org.Replace(" ", "_");
+                    }
                     if (result)
                     {
-                        MessageBox.Show(".blib file saved to C:\\Temp\\" + bestFile + ".blib");
+                        MessageBox.Show(".blib file saved to C:\\Temp\\BioDiversityBlibs\\" + bestFile + ".blib");
                     }
                 }
 
