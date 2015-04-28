@@ -526,16 +526,42 @@ namespace BiodiversityPlugin.ViewModels
         {
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
             SelectedTabIndex = 2;
-            var dataAccess = new DatabaseDataLoader(_dbPath);
-            var pathList = (from catagory in Pathways from @group in catagory.PathwayGroups from pathway in @group.Pathways select pathway).ToList();
-            dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
-            foreach (var path in pathList)
+
+
+            string[] queryingStrings =
+			    {
+				    "Determining Pathway Coverage   \nPlease Wait",
+				    "Determining Pathway Coverage.  \nPlease Wait",
+				    "Determining Pathway Coverage.. \nPlease Wait",
+				    "Determining Pathway Coverage...\nPlease Wait"
+			    };
+            QueryString = queryingStrings[0];
+
+            Task.Factory.StartNew(() => StartOverlay(queryingStrings));
+
+            Task.Factory.StartNew(() =>
             {
-                foreach (var pathway in from catagory in Pathways from @group in catagory.PathwayGroups from pathway in @group.Pathways where pathway.KeggId == path.KeggId select pathway)
+                var dataAccess = new DatabaseDataLoader(_dbPath);
+                var pathList =
+                    (from catagory in Pathways
+                        from @group in catagory.PathwayGroups
+                        from pathway in @group.Pathways
+                        select pathway).ToList();
+                dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
+                foreach (var path in pathList)
                 {
-                    pathway.PercentCover = path.PercentCover;
+                    foreach (var pathway in from catagory in Pathways
+                        from @group in catagory.PathwayGroups
+                        from pathway in @group.Pathways
+                        where pathway.KeggId == path.KeggId
+                        select pathway)
+                    {
+                        pathway.PercentCover = path.PercentCover;
+                    }
                 }
-            }
+
+                IsQuerying = false;
+            });
         }
 
         private void ClearFilter()

@@ -277,7 +277,15 @@
 				</ListBox>
 				<Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                 <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding SelectionTabEnabled}">Next &gt;</Button>
+
+                <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                    <TextBlock VerticalAlignment="Center" Margin="100" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                       Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
+                    </TextBlock>
+                </Border>
+
             </Grid>
+            
 		</TabItem>
 
 		<!-- Protein selection tab from many pathway -->
