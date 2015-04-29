@@ -1016,13 +1016,13 @@ namespace BiodiversityPlugin.ViewModels
                 // Filter these genes from last step to eliminate duplicate
                 using (var writer = new StreamWriter("C:\\Temp\\selectedProteins.tsv"))
                 {
-                    writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
+                    //writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
                     foreach (var protein in FilteredProteins)
                     {
                         if (!ProteinsToExport.Contains(protein) && protein.Selected)
                         {
                             ProteinsToExport.Add(protein);
-                            writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
+                            //writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
                         }
                     }
                 }
@@ -1086,7 +1086,7 @@ namespace BiodiversityPlugin.ViewModels
 
 
                 var something = new DatabaseDataLoader(_dbPath);
-                something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.csv");
+                something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.tsv");
 
                 
                 //Create list of organisms to use with the downloader below.
