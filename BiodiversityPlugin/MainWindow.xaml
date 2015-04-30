@@ -134,23 +134,22 @@
         <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5"  IsEnabled="{Binding OverviewEnabled}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="45" />
+                    <RowDefinition Height="1" />
                     <RowDefinition Height="90"/>
                     <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="15" />
                     <RowDefinition Height="40" />
                 </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Organisms</TextBlock>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
                     <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         1) Select an Organism.
 					</TextBlock>
-					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
+					<TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
                         Data in the Biodiversity Library is organized bt the organism. To retrieve data, please select an organism of interest, either 
                         through the Phylum/Class explorer or through the Organism search box. If you want to analyze data from multiple 
                         organisms, please export the data one organism at a time.
@@ -214,7 +213,7 @@
             
             <Grid>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="45" />
+					<RowDefinition Height="1" />
 					<RowDefinition Height="65" />
 					<RowDefinition Height="40" />
 					<RowDefinition Height="*" />
@@ -226,13 +225,11 @@
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 
-				<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Pathways</TextBlock>
-
 				<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
 					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         2) Select pathways of interest.
 					</TextBlock>
-					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+					<TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
                         Pathway definitions and membership are defined by 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.genome.jp/kegg/pathway.html"> KEGG. </Hyperlink> 
                         Navigate to pathways and click the checkbox. 
@@ -308,7 +305,7 @@
 			</TabItem.Header>
 			<Grid>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="45" />
+					<RowDefinition Height="1" />
 					<RowDefinition Height="110" />
 					<RowDefinition Height="*" />
 					<RowDefinition Height="5" />
@@ -318,12 +315,9 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28" Text="{Binding Path=SelectedOrganismText}"/>
 				<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
-                        3) Curate protein list.
-					</TextBlock>
-					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0" Text="{Binding Path=SelectedOrganismText}"/>
+					<TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
                         Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the 
                         Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are 
                         shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the 
@@ -407,8 +401,8 @@
 			</TabItem.Header>
 			<Grid>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="45" />
-					<RowDefinition Height="15" />
+					<RowDefinition Height="1" />
+					<RowDefinition Height="1" />
 					<RowDefinition Height="90" />
 					<RowDefinition Height="1" />
 					<RowDefinition Height="*"  />
@@ -422,12 +416,11 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Column="0" Grid.ColumnSpan="3" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="28">Selected Genes</TextBlock>
 				<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
 					<TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
                         4) Review and export data to Skyline.
 					</TextBlock>
-					<TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+					<TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
                         From this final tab, a table of genes for each organism and pathway are shown for review. By hitting the export button, all
                         relevant data will be transferred to Skyline. This includes a FASTA file for all selected proteins, as well as the identified 
                         peptides in a bibliospec library.

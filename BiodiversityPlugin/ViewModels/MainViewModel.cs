@@ -131,7 +131,7 @@ namespace BiodiversityPlugin.ViewModels
 
         public string SelectedOrganismText
         {
-            get { return _selectedOrganismText; }
+            get { return "3) Curate protein list for " + _selectedOrganismText; }
             private set
             {
                 _selectedOrganismText = value;
