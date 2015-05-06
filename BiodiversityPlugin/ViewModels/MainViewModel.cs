@@ -956,7 +956,7 @@ namespace BiodiversityPlugin.ViewModels
             while (IsQuerying)
             {
                 // Cycle through the messages passed in
-                Thread.Sleep(750);
+                Thread.Sleep(500);
                 QueryString = overlayMessages[index % maxIndex];
                 index++;
             }
@@ -1014,18 +1014,18 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 // Filter these genes from last step to eliminate duplicate
-                using (var writer = new StreamWriter("C:\\Temp\\selectedProteins.tsv"))
-                {
-                    //writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
-                    foreach (var protein in FilteredProteins)
-                    {
-                        if (!ProteinsToExport.Contains(protein) && protein.Selected)
-                        {
-                            ProteinsToExport.Add(protein);
-                            //writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
-                        }
-                    }
-                }
+				//using (var writer = new StreamWriter("C:\\Temp\\selectedProteins.tsv"))
+				//{
+				//	//writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
+				//	foreach (var protein in FilteredProteins)
+				//	{
+				//		if (!ProteinsToExport.Contains(protein) && protein.Selected)
+				//		{
+				//			ProteinsToExport.Add(protein);
+				//			//writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
+				//		}
+				//	}
+				//}
 
                 // Create a list of just the accessions from the proteins to export
                 var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
@@ -1040,12 +1040,7 @@ namespace BiodiversityPlugin.ViewModels
                     // follow a different workflow depending on what Skyline needs.
                     try
                     {
-                        var allFastas = GetFastasFromNCBI(accessionString);
-
-                        var confirmationMessage =
-                            "FASTA file for selected genes written to C:\\Temp\\currentSelection.fasta";
-
-                        MessageBox.Show(confirmationMessage, "FASTA Created", MessageBoxButton.OK);
+                        GetFastasFromNCBI(accessionString);
                     }
                     catch (WebException)
                     {
@@ -1064,7 +1059,7 @@ namespace BiodiversityPlugin.ViewModels
                             }
                         }
                         var errorMessage =
-                            "Error accessing NCBI database\nPlease check that the accessions in C:\\Temp\\accessionList.txt are valid";
+                            "Error accessing NCBI database\nPlease check that the accessions are valid";
                         MessageBox.Show(errorMessage, "Error During creation", MessageBoxButton.OK);
                     }
                 }
@@ -1076,17 +1071,21 @@ namespace BiodiversityPlugin.ViewModels
                         MessageBoxImage.Exclamation);
                 }
 
-                //IsQuerying = false;
-                queryingStrings = new string[]{
-				    "Downloading Files   \nPlease Wait",
-				    "Downloading Files.  \nPlease Wait",
-				    "Downloading Files.. \nPlease Wait",
-				    "Downloading Files...\nPlease Wait"
+                IsQuerying = false;
+				Thread.Sleep(501);
+
+                string[] downloadingStrings = {
+				    "Downloading Spectral Library   \nPlease Wait",
+				    "Downloading Spectral Library.  \nPlease Wait",
+				    "Downloading Spectral Library.. \nPlease Wait",
+				    "Downloading Spectral Library...\nPlease Wait"
 			    };
+				QueryString = downloadingStrings[0];
+				Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
 
 
-                var something = new DatabaseDataLoader(_dbPath);
-                something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.tsv");
+				//var something = new DatabaseDataLoader(_dbPath);
+				//something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.tsv");
 
                 
                 //Create list of organisms to use with the downloader below.
