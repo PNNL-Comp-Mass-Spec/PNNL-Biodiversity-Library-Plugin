@@ -879,14 +879,14 @@ namespace BiodiversityPlugin.ViewModels
             // dis.Invoke(() => <COMMAND TO EXECUTE> );
             var dis = Application.Current.Dispatcher;
 
-            Task.Factory.StartNew(() => StartOverlay(queryingStrings));
-
             var dataAccess = new DatabaseDataLoader(_dbPath);
 
             Task.Factory.StartNew(() =>
             {
+                Task.Factory.StartNew(() => StartOverlay(queryingStrings));
+
                 var selectedPaths = SelectedPathways.ToList();
-                var accessions = new List<ProteinInformation>();
+                //var accessions = new List<ProteinInformation>();
                 if (SelectedPathway != null && SelectedOrganism != null)
                 {
                     // Load accessions for the pathway based on the selected proteins
@@ -896,7 +896,7 @@ namespace BiodiversityPlugin.ViewModels
                         // accessions requires a list of pathways
                         // todo: CHANGE THIS TO USE SINGLE PATHWAY
                         var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
-                        accessions.AddRange(pathwayAcc);
+                        //accessions.AddRange(pathwayAcc);
 
                         var association = new OrganismPathwayProteinAssociation
                         {
@@ -911,8 +911,7 @@ namespace BiodiversityPlugin.ViewModels
                         }
 
                         // Create an association for the pathway/organism pair
-                        dis.Invoke(() =>
-                            AddAssociation(association));
+                        AddAssociation(association);
                         IsPathwaySelected = true;
                     }
                 }
@@ -978,13 +977,13 @@ namespace BiodiversityPlugin.ViewModels
             SelectionTabEnabled = false;
             ReviewTabEnabled = false;
             OverviewEnabled = false;
-
+            Thread.Sleep(500);
             while (IsQuerying)
             {
                 // Cycle through the messages passed in
-                Thread.Sleep(500);
                 QueryString = overlayMessages[index % maxIndex];
                 index++;
+                Thread.Sleep(500);
             }
 
             // Revery enabled status for all tabs.
@@ -1248,7 +1247,7 @@ namespace BiodiversityPlugin.ViewModels
         /// <param name="newAssociation"></param>
         private void AddAssociation(OrganismPathwayProteinAssociation newAssociation)
         {
-            var curList = PathwayProteinAssociation;
+            var curList = PathwayProteinAssociation.ToList();
             var orgPathList = new Dictionary<string, List<string>>();
             foreach (var pair in curList)
             {
@@ -1263,14 +1262,14 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var strippedTemp =
                     curList.Where(x => !(x.Organism == newAssociation.Organism && x.Pathway == newAssociation.Pathway));
-                curList = new ObservableCollection<OrganismPathwayProteinAssociation>();
+                curList = new List<OrganismPathwayProteinAssociation>();
                 foreach (var pair in strippedTemp)
                 {
                     curList.Add(pair);
                 }
             }
             curList.Add(newAssociation);
-            PathwayProteinAssociation = curList;
+            PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>(curList);
         }
     }
 }

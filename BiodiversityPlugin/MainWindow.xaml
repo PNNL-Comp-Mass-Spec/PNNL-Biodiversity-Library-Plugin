@@ -484,8 +484,9 @@
                         <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
                     </StackPanel>
                 </Button>
-
-                <Border Grid.Row="4" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="3" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                
+                <Border Grid.Row="4" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="3" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
                     <TextBlock VerticalAlignment="Center" TextAlignment="Center" Margin="200" Foreground="AntiqueWhite" FontSize="32" FontWeight="Bold"
                        Text="{Binding QueryString, IsAsync=True, UpdateSourceTrigger=PropertyChanged}">
                     </TextBlock>
