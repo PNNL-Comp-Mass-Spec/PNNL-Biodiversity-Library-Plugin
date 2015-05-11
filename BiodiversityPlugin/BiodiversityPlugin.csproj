@@ -150,7 +150,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="DataFiles\blibFileLoc.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DataFiles\DBs\PBL.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
