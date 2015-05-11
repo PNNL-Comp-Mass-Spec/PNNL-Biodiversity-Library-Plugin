@@ -35,12 +35,12 @@ namespace BiodiversityPlugin.ViewModels
 		private string _listPathwaySelectedItem;
 		private string _selectedValue;
 
-		private int _selectedTabIndex;
-		private int _pathwayTabIndex;
-		private int _pathwaysSelected;
-		private List<ProteinInformation> _proteinsToExport;
-		private List<string> _organismList;
-		private Visibility _filterVisibility;
+        private int _selectedTabIndex;
+        private int _pathwayTabIndex;
+        private int _pathwaysSelected;
+        private List<string> _proteinsToExport;
+        private List<string> _organismList;
+        private Visibility _filterVisibility;
 
 		private bool _listPathwaySelected;
 		private bool _isOrganismSelected;
@@ -64,6 +64,7 @@ namespace BiodiversityPlugin.ViewModels
 		private string m_databaseVersion;
 
         private Dictionary<string, string> _ncbiFastaDictionary;
+        private List<string> _accessionsWithFastaErrors; 
         private bool _ncbiDownloading; 
 
         #endregion
@@ -200,15 +201,15 @@ namespace BiodiversityPlugin.ViewModels
 			}
 		}
 
-		public List<ProteinInformation> ProteinsToExport
-		{
-			get { return _proteinsToExport; }
-			private set
-			{
-				_proteinsToExport = value;
-				RaisePropertyChanged();
-			}
-		}
+        public List<string> ProteinsToExport
+        {
+            get { return _proteinsToExport; }
+            private set
+            {
+                _proteinsToExport = value;
+                RaisePropertyChanged();
+            }
+        }
 
 		public bool IsQuerying
 		{
@@ -516,18 +517,19 @@ namespace BiodiversityPlugin.ViewModels
 			_isPathwaySelected = false;
 
             _ncbiFastaDictionary = new Dictionary<string, string>();
+            _accessionsWithFastaErrors = new List<string>();
             _pathwaysSelected = 0;
             ListPathways = new ObservableCollection<string>();
 
 			_selectedPathways = new ObservableCollection<Pathway>();
 			SelectedPathways = _selectedPathways;
 
-			ProteinsToExport = new List<ProteinInformation>();
-			PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
-			SelectedValue = "";
-			_priorOrg = "";
-			_overviewTabEnabled = true;
-		}
+            ProteinsToExport = new List<string>();
+            PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
+            SelectedValue = "";
+            _priorOrg = "";
+            _overviewTabEnabled = true;
+        }
 
 		private void LoadPathwayCoverage()
 		{
@@ -851,15 +853,21 @@ namespace BiodiversityPlugin.ViewModels
             _ncbiDownloading = true;
 
             var dataLoader = new DatabaseDataLoader(_dbPath);
-            var proteins = dataLoader.ExportAccessions(curPathways, currentOrg);
+            var proteins = dataLoader.ExportAllOrgPathwayAccessions(currentOrg, curPathways);
 
             foreach (var protein in proteins)
             {
-                var acc = protein.Accession;
-                if (!_ncbiFastaDictionary.ContainsKey(acc))
+                if (!_ncbiFastaDictionary.ContainsKey(protein))
                 {
-                    var fasta = GetFastasFromNCBI(acc);
-                    _ncbiFastaDictionary.Add(acc, fasta);
+                    try
+                    {
+                        var fasta = GetFastasFromNCBI(protein);
+                        _ncbiFastaDictionary.Add(protein, fasta);
+                    }
+                    catch (Exception)
+                    {
+                        _accessionsWithFastaErrors.Add(protein);
+                    }
                 }
             }
             _ncbiDownloading = false;
@@ -1061,53 +1069,81 @@ namespace BiodiversityPlugin.ViewModels
                 // Filter these genes from last step to eliminate duplicate
                 foreach (var protein in FilteredProteins)
                 {
-                    if (!ProteinsToExport.Contains(protein) && protein.Selected)
+                    if (!ProteinsToExport.Contains(protein.Accession) && protein.Selected)
                     {
-                        ProteinsToExport.Add(protein);
+                        ProteinsToExport.Add(protein.Accession);
                     }
                 }
                 
 
+                // Create a list of just the accessions from the proteins to export
+                var accessionList = ProteinsToExport.ToList();
+                var accessionString = String.Join("+OR+", accessionList);
+                
+                while (_ncbiDownloading)
+                {
+                    continue;
+                }
 
-				// Create a list of just the accessions from the proteins to export
-				var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
+                var allFastas = "";
+                // Need to see if there are any NCBI accessions to pull use to 
+                // create the FASTA file.
+                if (!string.IsNullOrWhiteSpace(accessionString))
+                {
+                    // Write the Fasta(s) from NCBI to file. This could eventually
+                    // follow a different workflow depending on what Skyline needs.
+                    //try
+                    //{
+                    //    GetFastasFromNCBI(accessionString);
+                    //}
+                    //catch (WebException)
+                    //{
+                    //    var errorMessage =
+                    //        "Error accessing NCBI database\nPlease check your internet connection and try again.";
+                    //    MessageBox.Show(errorMessage, "Error connecting to NCBI", MessageBoxButton.OK);
+                    //}
+                    //catch (Exception)
+                    //{
+                    //    var outputpath = "C:\\Temp\\accessionList.txt";
+                    //    using (var fastaWriter = new StreamWriter(outputpath))
+                    //    {
+                    //        foreach (var acc in accessionList)
+                    //        {
+                    //            fastaWriter.WriteLine(acc);
+                    //        }
+                    //    }
+                    //    var errorMessage =
+                    //        "Error accessing NCBI database\nPlease check that the accessions are valid";
+                    //    MessageBox.Show(errorMessage, "Error During creation", MessageBoxButton.OK);
+                    //}
 
-				var accessionString = String.Join("+OR+", accessionList);
-
-				// Need to see if there are any NCBI accessions to pull use to 
-				// create the FASTA file.
-				if (!string.IsNullOrWhiteSpace(accessionString))
-				{
-					// Write the Fasta(s) from NCBI to file. This could eventually
-					// follow a different workflow depending on what Skyline needs.
-					try
-					{
-						GetFastasFromNCBI(accessionString);
-					}
-					catch (WebException)
-					{
-						var errorMessage =
-							"Error accessing NCBI database\nPlease check your internet connection and try again.";
-						MessageBox.Show(errorMessage, "Error connecting to NCBI", MessageBoxButton.OK);
-					}
-					catch (Exception)
-					{
-						var outputpath = "C:\\Temp\\accessionList.txt";
-						using (var fastaWriter = new StreamWriter(outputpath))
-						{
-							foreach (var acc in accessionList)
-							{
-								fastaWriter.WriteLine(acc);
-							}
-						}
-						var errorMessage =
-							"Error accessing NCBI database\nPlease check that the accessions are valid";
-						MessageBox.Show(errorMessage, "Error During creation", MessageBoxButton.OK);
-					}
-				}
-				else
-				{
-					var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
+                    foreach (var acc in accessionList)
+                    {
+                        if (!_accessionsWithFastaErrors.Contains(acc))
+                        {
+                            allFastas += _ncbiFastaDictionary[acc] + '\n';
+                        }
+                    }
+                    var errors = string.Join("\n", _accessionsWithFastaErrors);
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        using (var errorWriter = new StreamWriter(@"C:\Temp\BioDiversityPluginNCBIErrors.txt"))
+                        {
+                            errorWriter.WriteLine(errors);
+                        }
+                        if (_accessionsWithFastaErrors.Count > 20)
+                        {
+                            errors = string.Join("\n", _accessionsWithFastaErrors.GetRange(0,20)) + "\n...\n";
+                        }
+                        MessageBox.Show("NCBI server unreachable for the following accessions:\n" + errors + "\nFull list saved to: C:\\Temp\\BioDiversityPluginNCBIErrors.txt",
+                                "NCBI Server Unreachable",
+                                MessageBoxButton.OK);
+                        
+                    }
+                }
+                else
+                {
+                    var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
 
 					MessageBox.Show(confirmationMessage, "FASTA unable to be created", MessageBoxButton.OK,
 						MessageBoxImage.Exclamation);
@@ -1129,12 +1165,11 @@ namespace BiodiversityPlugin.ViewModels
 
 				//var something = new DatabaseDataLoader(_dbPath);
 				//something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.tsv");
-
-
+                
 				//Create list of organisms to use with the downloader below.
 				List<string> organismList = new List<string>();
 
-				//Have loops to pull just the organism name to put into the organism list.
+                //Have loops to pull just the organism name to put into the organism list.
 				foreach (var association in PathwayProteinAssociation)
 				{
 					if (association.AssociationSelected && !organismList.Contains(association.Organism))
@@ -1147,6 +1182,8 @@ namespace BiodiversityPlugin.ViewModels
 				{
 					string bestFile = "";
 					//var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://MSV000079053:a@massive.ucsd.edu/library/"));
+                    try
+                    {
 
 					var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
 					reqFtp.UseBinary = true;
@@ -1166,8 +1203,7 @@ namespace BiodiversityPlugin.ViewModels
 							Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
 							break;
 						}
-
-						using (var responseReader = new StreamReader(response))
+                        using (var responseReader = new StreamReader(response))
 						{
 							while (responseReader.Peek() > -1)
 							{
@@ -1209,6 +1245,12 @@ namespace BiodiversityPlugin.ViewModels
 					{
 						MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile + ".blib");
 					}
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("MassIVE Server unreachable; Unable to download .blib for " + org + "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
+                            MessageBoxButton.OK);
+                    }
 				}
 
 				IsQuerying = false;
