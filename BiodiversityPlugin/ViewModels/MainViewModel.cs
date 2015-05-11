@@ -823,7 +823,7 @@ namespace BiodiversityPlugin.ViewModels
                                     }
 
                                     selectedPaths.Add(pathway);
-                                }
+                                } 
                             }
                         }
                     }
