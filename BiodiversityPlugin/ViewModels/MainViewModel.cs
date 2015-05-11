@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -1178,82 +1179,94 @@ namespace BiodiversityPlugin.ViewModels
 					}
 				}
 				//This is a loop to use the Levenshtein class to find the closest file match to an organism name.
-				foreach (var org in organismList)
-				{
-					string bestFile = "";
-					//var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://MSV000079053:a@massive.ucsd.edu/library/"));
-                    try
-                    {
+			    foreach (var org in organismList)
+			    {
+			        var fileLoc = CheckFileLocation(org);
+			        if (!string.IsNullOrWhiteSpace(fileLoc))
+			        {
+			            MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
+			        }
+			        else
+			        {
 
-					var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
-					reqFtp.UseBinary = true;
-					reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
-					reqFtp.Method = "LIST";
-					reqFtp.Proxy = null;
-					reqFtp.KeepAlive = true;
-					reqFtp.UsePassive = true;
+			            string bestFile = "";
+			            //var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://MSV000079053:a@massive.ucsd.edu/library/"));
+			            try
+			            {
 
-					var files = new List<string>();
+			                var reqFtp = (FtpWebRequest) WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
+			                reqFtp.UseBinary = true;
+			                reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
+			                reqFtp.Method = "LIST";
+			                reqFtp.Proxy = null;
+			                reqFtp.KeepAlive = true;
+			                reqFtp.UsePassive = true;
 
-					using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
-					{
-						var response = webResponse.GetResponseStream();
-						if (response == null)
-						{
-							Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
-							break;
-						}
-                        using (var responseReader = new StreamReader(response))
-						{
-							while (responseReader.Peek() > -1)
-							{
-								var line = responseReader.ReadLine();
-								if (string.IsNullOrWhiteSpace(line))
-									continue;
+			                var files = new List<string>();
 
-								files.Add(line.Split(' ').Last());
-								//result.Append("\n");
-							}
-						}
-					}
+			                using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+			                {
+			                    var response = webResponse.GetResponseStream();
+			                    if (response == null)
+			                    {
+			                        Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
+			                        break;
+			                    }
+			                    using (var responseReader = new StreamReader(response))
+			                    {
+			                        while (responseReader.Peek() > -1)
+			                        {
+			                            var line = responseReader.ReadLine();
+			                            if (string.IsNullOrWhiteSpace(line))
+			                                continue;
 
-					int minDistance = 99;
-					//Loop to call the Levenshtein distance to find the best match
-					foreach (var file in files)
-					{
-						int distance = LevenshteinDistance.Compute(org, file);
-						if (distance < minDistance)
-						{
-							minDistance = distance;
-							bestFile = file;
-						}
-					}
-					//Finally, download the best file that we found for the organism.
-					var result = true;
-					if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
-					{
-						result =
-							FileManager.DownloadFile(
-								("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"),
-								(spectralLibPath));
-					}
-					else
-					{
-						bestFile = org.Replace(" ", "_");
-					}
-					if (result)
-					{
-						MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile + ".blib");
-					}
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show("MassIVE Server unreachable; Unable to download .blib for " + org + "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
-                            MessageBoxButton.OK);
-                    }
-				}
+			                            files.Add(line.Split(' ').Last());
+			                            //result.Append("\n");
+			                        }
+			                    }
+			                }
 
-				IsQuerying = false;
+			                int minDistance = 99;
+			                //Loop to call the Levenshtein distance to find the best match
+			                foreach (var file in files)
+			                {
+			                    int distance = LevenshteinDistance.Compute(org, file);
+			                    if (distance < minDistance)
+			                    {
+			                        minDistance = distance;
+			                        bestFile = file;
+			                    }
+			                }
+			                //Finally, download the best file that we found for the organism.
+			                var result = true;
+			                if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+			                {
+			                    result =
+			                        FileManager.DownloadFile(
+			                            ("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile + ".blib"),
+			                            (spectralLibPath));
+			                }
+			                else
+			                {
+			                    bestFile = org.Replace(" ", "_");
+			                }
+			                if (result)
+			                {
+			                    AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
+			                    MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile + ".blib");
+			                }
+			            }
+			            catch (Exception)
+			            {
+			                MessageBox.Show(
+			                    "MassIVE Server unreachable; Unable to download .blib for " + org +
+			                    "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
+			                    MessageBoxButton.OK);
+			            }
+			        }
+			    }
+
+			    IsQuerying = false;
 
 			});
 		}
@@ -1301,6 +1314,46 @@ namespace BiodiversityPlugin.ViewModels
 			return fastas;
 		}
 
+	    private string CheckFileLocation(string orgName)
+	    {
+            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+	        var fileLoc = "";
+            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var selectionText = " SELECT fileLocation FROM fileLocation WHERE orgName = \"" + orgName + "\"; ";
+                    cmd.CommandText = selectionText;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            fileLoc = reader.GetString(0);
+                        }
+                    }
+                }
+            }
+	        return fileLoc;
+	    }
+
+	    private void AddFileLocation(string orgName, string fileLoc)
+	    {
+	        var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+
+	        using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+	        {
+	            dbConnection.Open();
+	            using (var cmd = new SQLiteCommand(dbConnection))
+	            {
+	                var insertionText = " INSERT INTO fileLocation(orgName, fileLocation) VALUES ( ";
+	                insertionText += "\"" + orgName + "\", \"" + fileLoc + "\" );";
+	                cmd.CommandText = insertionText;
+	                cmd.ExecuteNonQuery();
+	            }
+	        }
+	    }
+        
 		/// <summary>
         /// Method for adding an Association to the existing list
         /// </summary>
