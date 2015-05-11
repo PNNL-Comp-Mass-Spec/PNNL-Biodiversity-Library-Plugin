@@ -60,6 +60,9 @@ namespace BiodiversityPlugin.ViewModels
         private OrganismPathwayProteinAssociation _selectedAssociation;
         private string m_databaseVersion;
 
+        private Dictionary<string, string> _ncbiFastaDictionary;
+        private bool _ncbiDownloading; 
+
         #endregion
 
         #region Public Properties
@@ -509,6 +512,7 @@ namespace BiodiversityPlugin.ViewModels
             _isOrganismSelected = false;
             _isPathwaySelected = false;
 
+            _ncbiFastaDictionary = new Dictionary<string, string>();
             _pathwaysSelected = 0;
             ListPathways = new ObservableCollection<string>();
 
@@ -697,6 +701,9 @@ namespace BiodiversityPlugin.ViewModels
             // Start the animated overlay with the message set above
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
+            //TODO: DEGAN, ADD THE NCBI FASTA LOADING CALL HERE!!!
+            Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism, curPathways.ToList()));
+
             Task.Factory.StartNew((() =>
             {
                 if (currentOrg != _priorOrg || !same)
@@ -834,6 +841,25 @@ namespace BiodiversityPlugin.ViewModels
                 IsQuerying = false;
                 PathwayTabIndex = 0;
             }));
+        }
+
+        private void StartFastaDownloads(Organism currentOrg, List<Pathway> curPathways)
+        {
+            _ncbiDownloading = true;
+
+            var dataLoader = new DatabaseDataLoader(_dbPath);
+            var proteins = dataLoader.ExportAccessions(curPathways, currentOrg);
+
+            foreach (var protein in proteins)
+            {
+                var acc = protein.Accession;
+                if (!_ncbiFastaDictionary.ContainsKey(acc))
+                {
+                    var fasta = GetFastasFromNCBI(acc);
+                    _ncbiFastaDictionary.Add(acc, fasta);
+                }
+            }
+            _ncbiDownloading = false;
         }
 
         private void AcquireProteins()
@@ -1014,18 +1040,14 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 // Filter these genes from last step to eliminate duplicate
-				//using (var writer = new StreamWriter("C:\\Temp\\selectedProteins.tsv"))
-				//{
-				//	//writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", "Accession", '\t', "Name", "Description", "GI_Num"));
-				//	foreach (var protein in FilteredProteins)
-				//	{
-				//		if (!ProteinsToExport.Contains(protein) && protein.Selected)
-				//		{
-				//			ProteinsToExport.Add(protein);
-				//			//writer.WriteLine(string.Format("{0}{1}{2}{1}{3}{1}{4}", protein.Accession, '\t', protein.Name, protein.Description, protein.NcbiGiNum));
-				//		}
-				//	}
-				//}
+                foreach (var protein in FilteredProteins)
+                {
+                    if (!ProteinsToExport.Contains(protein) && protein.Selected)
+                    {
+                        ProteinsToExport.Add(protein);
+                    }
+                }
+                
 
                 // Create a list of just the accessions from the proteins to export
                 var accessionList = ProteinsToExport.Select(protein => protein.Accession).ToList();
