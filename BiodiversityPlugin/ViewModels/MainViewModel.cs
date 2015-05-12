@@ -486,11 +486,6 @@ namespace BiodiversityPlugin.ViewModels
         {
             _dbPath = dbPath;
             ToolClient = toolClient;
-            //TODO: Get the db version from the metadata table
-            DatabaseVersion = "TempTestVersion";
-
-            //TODO: Get the date for the database version from the metadata table
-            DatabaseDate = "Today!";
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
             string version, date;
@@ -718,7 +713,6 @@ namespace BiodiversityPlugin.ViewModels
             // Start the animated overlay with the message set above
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
-            //TODO: DEGAN, ADD THE NCBI FASTA LOADING CALL HERE!!!
             Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism, curPathways.ToList()));
 
             Task.Factory.StartNew((() =>
