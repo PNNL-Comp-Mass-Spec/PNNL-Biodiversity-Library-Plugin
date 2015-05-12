@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using BiodiversityPlugin.IO;
 using BiodiversityPlugin.ViewModels;
 using KeggDataLibrary.DataManagement;
+using SkylineTool;
 
 namespace BiodiversityPlugin
 {
@@ -15,6 +17,11 @@ namespace BiodiversityPlugin
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
+            SkylineToolClient _toolClient = null;
+            if (e.Args.Length > 0)
+            {
+                _toolClient = new SkylineToolClient(e.Args[0], "BioDiversity Library");
+            }
 			//Built to run in skyline
 	        try
 	        {
@@ -26,7 +33,7 @@ namespace BiodiversityPlugin
                     throw ex;
                 }
                 TextExporter.createInstance(dbPath);
-                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath, _toolClient);
 		        var mainWindow = new MainWindow {DataContext = vm};
 		        mainWindow.Show();
 	        }
@@ -36,7 +43,7 @@ namespace BiodiversityPlugin
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
                 TextExporter.createInstance(dbPath);
                 
-                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath);
+                var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath, _toolClient);
 				var mainWindow = new MainWindow { DataContext = vm };
 				mainWindow.Show();
 	        }
