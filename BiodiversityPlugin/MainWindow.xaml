@@ -4,7 +4,7 @@
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
         Icon="DataFiles/colorLogo.png"
-        Title="Biodiversity Plugin" Height="900" Width="1100">
+        Title="Biodiversity Plugin" Height="768" Width="1024" MinHeight="600" MinWidth="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
@@ -111,12 +111,12 @@
 
                 <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                        <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                             Funding: US DOE, 
                             <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research </Hyperlink>
                         </TextBlock>
                     </StackPanel>
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                    <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                         Contact: 
                         <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov"> Samuel Payne </Hyperlink>
                     </TextBlock>
@@ -276,7 +276,7 @@
                 <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding SelectionTabEnabled}">Next &gt;</Button>
 
                 <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" Margin="100" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                    <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
                        Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
                     </TextBlock>
                 </Border>
@@ -356,7 +356,7 @@
                                         <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
                                             <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}" Height="{Binding CanvasHeight}" Width="{Binding CanvasWidth}"/>
                                         </Canvas>
-                                    </Grid>
+									</Grid>
                                 </ScrollViewer>
                                 <StackPanel Grid.Row="0" Grid.Column="1">
                                     <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}" Margin="0,5"></TextBlock>
@@ -368,15 +368,15 @@
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>
-                <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}" Margin="145,0">
+                <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="20" VerticalAlignment="Center">&lt; Previous</TextBlock>
                     </StackPanel>
                 </Button>
-                <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}" Margin="145,0">Next &gt;</Button>
+                <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
 
                 <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" Margin="100" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                    <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
                        Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
                     </TextBlock>
                 </Border>
@@ -487,7 +487,7 @@
                 
                 <Border Grid.Row="4" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="3" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                         Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" TextAlignment="Center" Margin="200" Foreground="AntiqueWhite" FontSize="32" FontWeight="Bold"
+                    <TextBlock VerticalAlignment="Center" TextAlignment="Center" Foreground="AntiqueWhite" FontSize="32" FontWeight="Bold"
                        Text="{Binding QueryString, IsAsync=True, UpdateSourceTrigger=PropertyChanged}">
                     </TextBlock>
                 </Border>
