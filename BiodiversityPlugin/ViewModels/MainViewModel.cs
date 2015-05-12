@@ -547,30 +547,32 @@ namespace BiodiversityPlugin.ViewModels
 			    };
 			QueryString = queryingStrings[0];
 
-			Task.Factory.StartNew(() => StartOverlay(queryingStrings));
+			//Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
 			Task.Factory.StartNew(() =>
 			{
 				var dataAccess = new DatabaseDataLoader(_dbPath);
-				var pathList =
-					(from catagory in Pathways
-					 from @group in catagory.PathwayGroups
-					 from pathway in @group.Pathways
-					 select pathway).ToList();
-				dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
-				foreach (var path in pathList)
-				{
-					foreach (var pathway in from catagory in Pathways
-											from @group in catagory.PathwayGroups
-											from pathway in @group.Pathways
-											where pathway.KeggId == path.KeggId
-											select pathway)
-					{
-						pathway.PercentCover = path.PercentCover;
-					}
-				}
+			    
+			        var pathList =
+			            (from catagory in Pathways
+			                from @group in catagory.PathwayGroups
+			                from pathway in @group.Pathways
+			                select pathway).ToList();
+			        dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
+			        foreach (var path in pathList)
+			        {
+			            foreach (var pathway in from catagory in Pathways
+			                from @group in catagory.PathwayGroups
+			                from pathway in @group.Pathways
+			                where pathway.KeggId == path.KeggId
+			                select pathway)
+			            {
+			                pathway.PercentCover = path.PercentCover;
+			            }
+			        }
+			    
 
-				IsQuerying = false;
+			    //IsQuerying = false;
 			});
 		}
 
