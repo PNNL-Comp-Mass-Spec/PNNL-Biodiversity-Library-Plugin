@@ -18,9 +18,24 @@ namespace BiodiversityPlugin
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             SkylineToolClient _toolClient = null;
+            var goodVersion = false;
             if (e.Args.Length > 0)
             {
                 _toolClient = new SkylineToolClient(e.Args[0], "BioDiversity Library");
+                var version = _toolClient.GetSkylineVersion();
+                if (version.Major >= 3)
+                {
+                    if (version.Minor >= 1)
+                    {
+                        if (version.Build >= 1)
+                        {
+                            if (version.Revision >= 7469)
+                            {
+                                goodVersion = true;
+                            }
+                        }
+                    }
+                }
                 _toolClient.DocumentChanged += OnDocumentChanged;
                 _toolClient.SelectionChanged += OnSelectionChanged;
 
@@ -38,7 +53,7 @@ namespace BiodiversityPlugin
                 }
                 TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-                    ref _toolClient);
+                    ref _toolClient, goodVersion);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();
             }
@@ -48,7 +63,7 @@ namespace BiodiversityPlugin
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
                 //TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-                    ref _toolClient);
+                    ref _toolClient, goodVersion);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();
             }

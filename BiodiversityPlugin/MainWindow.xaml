@@ -60,13 +60,445 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <TabControl TabStripPlacement="Left" Margin="0" Name="WizardTabs" SelectedIndex="{Binding SelectedTabIndex}">
+    <TabControl SelectedIndex="{Binding TopLevelWindow}">
+        <TabItem Height="0" MinHeight="0" MaxHeight="0">
+            <TabControl TabStripPlacement="Left" Margin="0" Name="WizardTabs" SelectedIndex="{Binding SelectedTabIndex}">
 
-        <TabItem Header="Overview" Width="200" Height="100" FontSize="20" 
+                <TabItem Header="Overview" Width="200" Height="100" FontSize="20" 
                  FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
                  Margin="-2,0,2,0"
                  IsEnabled="{Binding OverviewEnabled}">
 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="18*" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="70" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                            <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
+                            <TextBlock FontSize="15.8" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15">
+                        The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data 
+                        can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
+                        in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library 
+                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. 
+                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
+                        Sam Payne at 
+                        <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
+                        with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak /> <LineBreak /> 
+                        The wizard helps users browse data using the following steps:   <LineBreak /> 
+                        1) Select an Organism.<LineBreak /> 
+                        2) Select pathways on interest.<LineBreak /> 
+                        3) Curate protein identifications.<LineBreak /> 
+                        4) Review and export data to Skyline. <LineBreak />
+                            </TextBlock>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
+                            <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                            Source: 
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/project-data/biodiversity-library"> 
+                                <TextBlock Text="{Binding Path=DatabaseVersion}"></TextBlock>
+                            </Hyperlink>
+                    </TextBlock>
+                            <TextBlock Width="8"></TextBlock>
+                            <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom" Text="{Binding Path=DatabaseDate}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                            <StackPanel  Orientation="Horizontal">
+                                <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                            Funding: US DOE, 
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research </Hyperlink>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                        Contact: 
+                        <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov"> Samuel Payne </Hyperlink>
+                            </TextBlock>
+                        </StackPanel>
+                        <Button Grid.Column="2" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo.png" Width="180" Margin="120,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                    </Grid>
+                </TabItem>
+
+                <!-- Organism selection tab    -->
+                <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5"  IsEnabled="{Binding OverviewEnabled}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="90"/>
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
+                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
+                        1) Select an Organism.
+                            </TextBlock>
+                            <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
+                        Data in the Biodiversity Library is organized bt the organism. To retrieve data, please select an organism of interest, either 
+                        through the Phylum/Class explorer or through the Organism search box. If you want to analyze data from multiple 
+                        organisms, please export the data one organism at a time.
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylum/Class explorer</TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
+                        <utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
+                            <utilities:MvvmTreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type models:OrgDomain}" ItemsSource="{Binding OrgPhyla}">
+                                    <TextBlock Text="{Binding DomainName}" FontWeight="Bold" FontSize="16" />
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
+                                    <TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="14"/>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
+                                    <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
+                                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
+                                </HierarchicalDataTemplate>
+                            </utilities:MvvmTreeView.Resources>
+                        </utilities:MvvmTreeView>
+                        <Grid Grid.Row="3" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="40" />
+                            </Grid.RowDefinitions>
+                            <TextBox Grid.Row="0" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              FontSize="12" FontWeight="Normal" Margin="20,0,20,0">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Grid.Row="0" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
+                            <TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
+                        No Organism Matches found
+                            </TextBlock>
+                            <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+                             FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
+                        </Grid>
+                        <Button Grid.Row="5" Grid.Column="0" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                        <Button Grid.Row="5" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
+                    </Grid>
+                </TabItem>
+
+                <!-- Pathway selection tab    -->
+                <TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
+                    <TabItem.Header>
+                        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak /> Pathways
+                            </TextBlock>
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding LoadPathwayCoverageCommand}"></MouseBinding>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="65" />
+                            <RowDefinition Height="40" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
+                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
+                        2) Select pathways of interest.
+                            </TextBlock>
+                            <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+                        Pathway definitions and membership are defined by 
+                        <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.genome.jp/kegg/pathway.html"> KEGG. </Hyperlink> 
+                        Navigate to pathways and click the checkbox. 
+                        Multiple pathways can be selected.
+                            </TextBlock>
+                        </StackPanel>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">
+                    Kegg Pathways
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Grid.Column="1" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">
+                    Pathways Selected
+                        </TextBlock>
+
+                        <utilities:MvvmTreeView Grid.Row="3" Grid.Column="0" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
+                            <utilities:MvvmTreeView.Resources>
+                                <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
+                                    <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="18" />
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
+                                    <TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="16"/>
+                                </HierarchicalDataTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="Bold" Padding="15,0,5,0"/>
+                                        <TextBlock Text="{Binding PercentCoverString, UpdateSourceTrigger=PropertyChanged}" FontSize="12" FontWeight="Regular" Padding="5,0,0,0" />
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </utilities:MvvmTreeView.Resources>
+                            <utilities:MvvmTreeView.InputBindings>
+                                <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
+                                <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
+                                <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
+                            </utilities:MvvmTreeView.InputBindings>
+                        </utilities:MvvmTreeView>
+                        <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20, 0">
+                            <ListBox.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
+                                <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
+                            </ListBox.InputBindings>
+                        </ListBox>
+                        <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                        <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding SelectionTabEnabled}">Next &gt;</Button>
+
+                        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                            <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                       Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
+                            </TextBlock>
+                        </Border>
+
+                    </Grid>
+
+                </TabItem>
+
+                <!-- Protein selection tab from many pathway -->
+                <TabItem Width="200" Height="100" FontSize="20" 
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                  IsEnabled="{Binding SelectionTabEnabled}">
+
+                    <TabItem.Header>
+                        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak />
+                        Select Proteins
+                        <LineBreak/>by Pathway
+                            </TextBlock>
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="110" />
+                            <RowDefinition Height="219*" />
+                            <RowDefinition Height="485*"/>
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
+                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0" Text="{Binding Path=SelectedOrganismText}"/>
+                            <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+                        Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the 
+                        Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are 
+                        shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the 
+                        pathway image. (Deselected proteins appear as grey boxes.)
+                            </TextBlock>
+                        </StackPanel>
+                        <TabControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}" Grid.RowSpan="2">
+
+                            <TabControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:Pathway}">
+                                    <TextBlock Text="{Binding Name}" FontSize="14"></TextBlock>
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+
+                            <TabControl.ContentTemplate>
+                                <DataTemplate DataType="{x:Type models:Pathway}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="160" />
+                                        </Grid.ColumnDefinitions>
+                                        <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="5*"/>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                                <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
+                                                    <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}" Height="{Binding CanvasHeight}" Width="{Binding CanvasWidth}"/>
+                                                </Canvas>
+                                            </Grid>
+                                        </ScrollViewer>
+                                        <StackPanel Grid.Row="0" Grid.Column="1">
+                                            <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}" Margin="0,5"></TextBlock>
+                                            <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}" Margin="0,5">Select All</Button>
+                                            <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}" Margin="0,5">Deselect All</Button>
+                                            <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}" Margin="0,5">Save Pathway Image</Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
+                        </TabControl>
+                        <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="20" VerticalAlignment="Center">&lt; Previous</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
+
+                        <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                            <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                       Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
+                            </TextBlock>
+                        </Border>
+
+                    </Grid>
+                </TabItem>
+
+                <TabItem Width="200" Height="100" FontSize="20" 
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 IsEnabled="{Binding ReviewTabEnabled}">
+                    <TabItem.Header>
+                        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak />
+                        Review and <LineBreak /> 
+                        export to Skyline
+                            </TextBlock>
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding AcquireProteinsCommand}"></MouseBinding>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="90" />
+                            <RowDefinition Height="1" />
+                            <RowDefinition Height="*"  />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="3*"  />
+                            <RowDefinition Height="15" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
+                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
+                        4) Review and export data to Skyline.
+                            </TextBlock>
+                            <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
+                        From this final tab, a table of genes for each organism and pathway are shown for review. By hitting the export button, all
+                        relevant data will be transferred to Skyline. This includes a FASTA file for all selected proteins, as well as the identified 
+                        peptides in a bibliospec library.
+                            </TextBlock>
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" AutoGenerateColumns="False" RowHeaderWidth="0" FontSize="16" SelectedItem="{Binding SelectedAssociation}" ItemsSource="{Binding PathwayProteinAssociation}" CanUserAddRows="False" Margin="20,0,40,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn FontSize="14" Foreground="Black" Header="Organism" Width="*" IsReadOnly="True" Binding="{Binding Organism}" FontWeight="Regular"></DataGridTextColumn>
+                                <DataGridTextColumn FontSize="14" Foreground="Black" Header="Pathway" Width="*" IsReadOnly="True" Binding="{Binding Pathway}" FontWeight="Regular" ></DataGridTextColumn>
+                                <DataGridTextColumn FontSize="14" Foreground="Black" Header="# of Genes" Width="*" IsReadOnly="True" Binding="{Binding GeneList.Count}" FontWeight="Regular" ></DataGridTextColumn>
+                                <DataGridCheckBoxColumn Binding="{Binding AssociationSelected, Mode=TwoWay}" Header="Export?"></DataGridCheckBoxColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <ScrollViewer Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible">
+                            <ItemsControl Name="OrganismGeneGrid" ItemsSource="{Binding PathwayProteinAssociation, UpdateSourceTrigger=PropertyChanged}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical" Margin="20,15,20,15"></StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models:OrganismPathwayProteinAssociation}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="5" />
+                                                <RowDefinition Height="25" />
+                                                <RowDefinition Height="25" />
+                                                <RowDefinition Height="15" />
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="10" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="1" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
+                                            <TextBlock Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedPathwayText}" />
+                                            <TextBlock Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding NumProteinsText}"/>
+                                            <DataGrid Margin="5,10,5,0" Grid.Row="4" FontSize="14" AutoGenerateColumns="False" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
+                                                <DataGrid.Columns>
+                                                    <DataGridCheckBoxColumn Header="Export?" Binding="{Binding Selected}" IsReadOnly="False"></DataGridCheckBoxColumn>
+                                                    <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                                                    <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <Button Grid.Column="0" Grid.Row="8" Width="150" Command="{Binding SelectAdditionalOrganismCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
+                                <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                        <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
+                                <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
+                            </StackPanel>
+                        </Button>
+
+                        <Border Grid.Row="4" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="3" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                        Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
+                            <TextBlock VerticalAlignment="Center" TextAlignment="Center" Foreground="AntiqueWhite" FontSize="32" FontWeight="Bold"
+                       Text="{Binding QueryString, IsAsync=True, UpdateSourceTrigger=PropertyChanged}">
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </TabItem>
+
+        <TabItem Height="0" MinHeight="0" MaxHeight="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -81,417 +513,54 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
                     <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
-                    <TextBlock FontSize="15.8" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15">
-                        The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data 
-                        can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
-                        in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library 
-                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. 
-                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
-                        Sam Payne at 
-                        <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
-                        with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak /> <LineBreak /> 
-                        The wizard helps users browse data using the following steps:   <LineBreak /> 
-                        1) Select an Organism.<LineBreak /> 
-                        2) Select pathways on interest.<LineBreak /> 
-                        3) Curate protein identifications.<LineBreak /> 
-                        4) Review and export data to Skyline. <LineBreak />
+                    <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15">
+                        Congratulations, your data is now imported to Skyline
                     </TextBlock>
+                    
                 </StackPanel>
 
-                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
-                    <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
-                            Source: 
-                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/project-data/biodiversity-library"> 
-                                <TextBlock Text="{Binding Path=DatabaseVersion}"></TextBlock>
-                            </Hyperlink>
-                    </TextBlock>
-                    <TextBlock Width="8"></TextBlock>
-                    <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom" Text="{Binding Path=DatabaseDate}" />
-                </StackPanel>
-
-                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
-                            Funding: US DOE, 
-                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research </Hyperlink>
-                        </TextBlock>
-                    </StackPanel>
-                    <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
-                        Contact: 
-                        <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov"> Samuel Payne </Hyperlink>
-                    </TextBlock>
-                </StackPanel>
-                <Button Grid.Column="2" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding NextTabCommand}" >
+                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
+                        <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
                     </StackPanel>
                 </Button>
-                <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo.png" Width="180" Margin="120,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
             </Grid>
         </TabItem>
 
-        <!-- Organism selection tab    -->
-        <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5"  IsEnabled="{Binding OverviewEnabled}">
+        <TabItem Height="0" MinHeight="0" MaxHeight="0">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="90"/>
-                    <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="40" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
-                        1) Select an Organism.
-                    </TextBlock>
-                    <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
-                        Data in the Biodiversity Library is organized bt the organism. To retrieve data, please select an organism of interest, either 
-                        through the Phylum/Class explorer or through the Organism search box. If you want to analyze data from multiple 
-                        organisms, please export the data one organism at a time.
-                    </TextBlock>
-                </StackPanel>
-                <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylum/Class explorer</TextBlock>
-                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
-                <utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
-                    <utilities:MvvmTreeView.Resources>
-                        <HierarchicalDataTemplate DataType="{x:Type models:OrgDomain}" ItemsSource="{Binding OrgPhyla}">
-                            <TextBlock Text="{Binding DomainName}" FontWeight="Bold" FontSize="16" />
-                        </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type models:OrgPhylum}" ItemsSource="{Binding OrgClasses}">
-                            <TextBlock Text="{Binding PhylumName}" FontWeight="Bold" FontSize="14"/>
-                        </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type models:OrgClass}" ItemsSource="{Binding Organisms}">
-                            <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
-                        </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                            <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
-                        </HierarchicalDataTemplate>
-                    </utilities:MvvmTreeView.Resources>
-                </utilities:MvvmTreeView>
-                <Grid Grid.Row="3" Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="40" />
-                    </Grid.RowDefinitions>
-                    <TextBox Grid.Row="0" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              FontSize="12" FontWeight="Normal" Margin="20,0,20,0">
-                        <TextBox.InputBindings>
-                            <KeyBinding Command="{Binding Path=NextTabCommand}" Key="Enter"></KeyBinding>
-                        </TextBox.InputBindings>
-                    </TextBox>
-                    <Button Grid.Row="0" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
-                    <TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
-                        No Organism Matches found
-                    </TextBlock>
-                    <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
-                             FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
-                </Grid>
-                <Button Grid.Row="5" Grid.Column="0" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Row="5" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
-            </Grid>
-        </TabItem>
-
-        <!-- Pathway selection tab    -->
-        <TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
-            <TabItem.Header>
-                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TextBlock Width="200" Height="100" TextAlignment="Center"
-                        VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <LineBreak /> Pathways
-                    </TextBlock>
-                    <StackPanel.InputBindings>
-                        <MouseBinding MouseAction="LeftClick" Command="{Binding LoadPathwayCoverageCommand}"></MouseBinding>
-                    </StackPanel.InputBindings>
-                </StackPanel>
-            </TabItem.Header>
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="65" />
-                    <RowDefinition Height="40" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="40" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
-                        2) Select pathways of interest.
-                    </TextBlock>
-                    <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
-                        Pathway definitions and membership are defined by 
-                        <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.genome.jp/kegg/pathway.html"> KEGG. </Hyperlink> 
-                        Navigate to pathways and click the checkbox. 
-                        Multiple pathways can be selected.
-                    </TextBlock>
-                </StackPanel>
-
-                <TextBlock Grid.Row="2" Grid.Column="0" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">
-                    Kegg Pathways
-                </TextBlock>
-                <TextBlock Grid.Row="2" Grid.Column="1" TextAlignment="Center" FontWeight="Bold" Foreground="Black" FontSize="24">
-                    Pathways Selected
-                </TextBlock>
-
-                <utilities:MvvmTreeView Grid.Row="3" Grid.Column="0" ItemsSource="{Binding Pathways}" SelectedItemTarget="{Binding SelectedPathwayTreeItem, Mode=TwoWay}">
-                    <utilities:MvvmTreeView.Resources>
-                        <HierarchicalDataTemplate DataType="{x:Type models:PathwayCatagory}" ItemsSource="{Binding PathwayGroups}">
-                            <TextBlock Text="{Binding CatagoryName}" FontWeight="Bold" FontSize="18" />
-                        </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type models:PathwayGroup}" ItemsSource="{Binding Pathways}">
-                            <TextBlock Text="{Binding GroupName}" FontWeight="Bold" FontSize="16"/>
-                        </HierarchicalDataTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type models:Pathway}">
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="Bold" Padding="15,0,5,0"/>
-                                <TextBlock Text="{Binding PercentCoverString, UpdateSourceTrigger=PropertyChanged}" FontSize="12" FontWeight="Regular" Padding="5,0,0,0" />
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </utilities:MvvmTreeView.Resources>
-                    <utilities:MvvmTreeView.InputBindings>
-                        <MouseBinding Command="{Binding NextTabCommand}" MouseAction="LeftDoubleClick" />
-                        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
-                        <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
-                    </utilities:MvvmTreeView.InputBindings>
-                </utilities:MvvmTreeView>
-                <ListBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding ListPathways, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding ListPathwaySelectedItem}" FontSize="12" FontWeight="Normal" Margin="20, 0">
-                    <ListBox.InputBindings>
-                        <KeyBinding Key="Delete" Command="{Binding DeleteSelectedPathwayCommand}" />
-                        <KeyBinding Key="Back" Command="{Binding DeleteSelectedPathwayCommand}" />
-                    </ListBox.InputBindings>
-                </ListBox>
-                <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding DisplayPathwayImagesCommand}" IsEnabled="{Binding SelectionTabEnabled}">Next &gt;</Button>
-
-                <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
-                       Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
-                    </TextBlock>
-                </Border>
-
-            </Grid>
-
-        </TabItem>
-
-        <!-- Protein selection tab from many pathway -->
-        <TabItem Width="200" Height="100" FontSize="20" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
-                  IsEnabled="{Binding SelectionTabEnabled}">
-
-            <TabItem.Header>
-                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TextBlock Width="200" Height="100" TextAlignment="Center"
-                        VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <LineBreak />
-                        Select Proteins
-                        <LineBreak/>by Pathway
-                    </TextBlock>
-                    <StackPanel.InputBindings>
-                        <MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
-                    </StackPanel.InputBindings>
-                </StackPanel>
-            </TabItem.Header>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="110" />
-                    <RowDefinition Height="219*" />
-                    <RowDefinition Height="485*"/>
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="40" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0" Text="{Binding Path=SelectedOrganismText}"/>
-                    <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
-                        Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the 
-                        Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are 
-                        shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the 
-                        pathway image. (Deselected proteins appear as grey boxes.)
-                    </TextBlock>
-                </StackPanel>
-                <TabControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}" Grid.RowSpan="2">
-
-                    <TabControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:Pathway}">
-                            <TextBlock Text="{Binding Name}" FontSize="14"></TextBlock>
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
-
-                    <TabControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type models:Pathway}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="160" />
-                                </Grid.ColumnDefinitions>
-                                <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible"  HorizontalScrollBarVisibility="Visible">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="5*"/>
-                                            <ColumnDefinition Width="*"></ColumnDefinition>
-                                        </Grid.ColumnDefinitions>
-                                        <Image Grid.Row="0" Grid.Column="0" Source="{Binding PathwayImage, UpdateSourceTrigger=PropertyChanged}" Visibility="Visible" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <Canvas Grid.Row="0" Grid.Column="0" Name="PathwayDataCanvas" Visibility="Visible">
-                                            <ContentPresenter Content="{Binding PathwayDataCanvas, UpdateSourceTrigger=PropertyChanged}" Height="{Binding CanvasHeight}" Width="{Binding CanvasWidth}"/>
-                                        </Canvas>
-									</Grid>
-                                </ScrollViewer>
-                                <StackPanel Grid.Row="0" Grid.Column="1">
-                                    <TextBlock  FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InformationMessage}" Margin="0,5"></TextBlock>
-                                    <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SelectAllCommand}" Margin="0,5">Select All</Button>
-                                    <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding DeselectAllCommand}" Margin="0,5">Deselect All</Button>
-                                    <Button FontSize="15" Width="155" VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Binding SavePathwayImageCommand}" Margin="0,5">Save Pathway Image</Button>
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
-                <Button Grid.Row="5" Grid.Column="0" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="20" VerticalAlignment="Center">&lt; Previous</TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button Grid.Row="5" Grid.Column="1" FontSize="20" Width="150" HorizontalAlignment="Center" Command="{Binding AcquireProteinsCommand}">Next &gt;</Button>
-
-                <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="2" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
-                       Text="{Binding QueryString,  IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> <!-- Acquiring Genes <LineBreak /> based on selections <LineBreak /> Please Wait -->
-                    </TextBlock>
-                </Border>
-
-            </Grid>
-        </TabItem>
-
-        <TabItem Width="200" Height="100" FontSize="20" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
-                 IsEnabled="{Binding ReviewTabEnabled}">
-            <TabItem.Header>
-                <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <TextBlock Width="200" Height="100" TextAlignment="Center"
-                        VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <LineBreak />
-                        Review and <LineBreak /> 
-                        export to Skyline
-                    </TextBlock>
-                    <StackPanel.InputBindings>
-                        <MouseBinding MouseAction="LeftClick" Command="{Binding AcquireProteinsCommand}"></MouseBinding>
-                    </StackPanel.InputBindings>
-                </StackPanel>
-            </TabItem.Header>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="90" />
-                    <RowDefinition Height="1" />
-                    <RowDefinition Height="*"  />
-                    <RowDefinition Height="5" />
-                    <RowDefinition Height="3*"  />
-                    <RowDefinition Height="15" />
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="18*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="70" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" >
-                    <TextBlock FontSize="16" FontWeight="Bold" Foreground="Black" Margin="15,0,15,0">
-                        4) Review and export data to Skyline.
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                    <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
+                    <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15">
+                        ERROR: Your Skyline version must be version 3.1.1.7469 or later.
                     </TextBlock>
-                    <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Margin="15,0,15,0" Width="Auto" TextWrapping="Wrap">
-                        From this final tab, a table of genes for each organism and pathway are shown for review. By hitting the export button, all
-                        relevant data will be transferred to Skyline. This includes a FASTA file for all selected proteins, as well as the identified 
-                        peptides in a bibliospec library.
+                    <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding TextVersionMessage}" />
+                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15">
+                        
+                        Please go to
+                        <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://skyline.gs.washington.edu/labkey/project/home/software/Skyline/daily/register-form/begin.view?"> Skyline Daily's webpage </Hyperlink>
+                        for the latest version.
                     </TextBlock>
                 </StackPanel>
-
-                <DataGrid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" AutoGenerateColumns="False" RowHeaderWidth="0" FontSize="16" SelectedItem="{Binding SelectedAssociation}" ItemsSource="{Binding PathwayProteinAssociation}" CanUserAddRows="False" Margin="20,0,40,0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Organism" Width="*" IsReadOnly="True" Binding="{Binding Organism}" FontWeight="Regular"></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="Pathway" Width="*" IsReadOnly="True" Binding="{Binding Pathway}" FontWeight="Regular" ></DataGridTextColumn>
-                        <DataGridTextColumn FontSize="14" Foreground="Black" Header="# of Genes" Width="*" IsReadOnly="True" Binding="{Binding GeneList.Count}" FontWeight="Regular" ></DataGridTextColumn>
-                        <DataGridCheckBoxColumn Binding="{Binding AssociationSelected, Mode=TwoWay}" Header="Export?"></DataGridCheckBoxColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-
-                <ScrollViewer Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible">
-                    <ItemsControl Name="OrganismGeneGrid" ItemsSource="{Binding PathwayProteinAssociation, UpdateSourceTrigger=PropertyChanged}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Vertical" Margin="20,15,20,15"></StackPanel>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:OrganismPathwayProteinAssociation}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="5" />
-                                        <RowDefinition Height="25" />
-                                        <RowDefinition Height="25" />
-                                        <RowDefinition Height="15" />
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="10" />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="1" Foreground="Black" FontSize="18" Text="{Binding SelectedOrganismText}" />
-                                    <TextBlock Foreground="Black" Grid.Row="2" FontSize="18" Text="{Binding SelectedPathwayText}" />
-                                    <TextBlock Foreground="Black" Grid.Row="3" FontSize="14" Text="{Binding NumProteinsText}"/>
-                                    <DataGrid Margin="5,10,5,0" Grid.Row="4" FontSize="14" AutoGenerateColumns="False" RowHeaderWidth="0" ItemsSource="{Binding GeneList}">
-                                        <DataGrid.Columns>
-                                            <DataGridCheckBoxColumn Header="Export?" Binding="{Binding Selected}" IsReadOnly="False"></DataGridCheckBoxColumn>
-                                            <DataGridTextColumn FontSize="14" Foreground="Black" Header="Accession" Width="130" Binding="{Binding Accession}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                                            <DataGridTextColumn FontSize="14" Foreground="Black" Header="Protein name" Width="30*" Binding="{Binding Name}" FontWeight="Regular" IsReadOnly="True"></DataGridTextColumn>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-
-                <Button Grid.Column="0" Grid.Row="8" Width="150" Command="{Binding SelectAdditionalOrganismCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock VerticalAlignment="Center" FontSize="20">&lt;&lt;</TextBlock>
-                        <TextBlock VerticalAlignment="Center" FontSize="13"> Select another <LineBreak/> Organism</TextBlock>
-                    </StackPanel>
-                </Button>
-                <Button Grid.Column="1" Grid.Row="8" Width="150" FontSize="20" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                <Button Grid.Column="2" Grid.Row="8" Width="150" FontSize="20" Command="{Binding ExportToSkylineCommand}" >
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="DataFiles/skyline_logo.jpg" Width="60" Height="30"></Image>
-                        <TextBlock FontSize="13" VerticalAlignment="Center">Confirm to <LineBreak /> Export</TextBlock>
-                    </StackPanel>
-                </Button>
                 
-                <Border Grid.Row="4" Grid.Column="0" Grid.RowSpan="5" Grid.ColumnSpan="3" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                        Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}}">
-                    <TextBlock VerticalAlignment="Center" TextAlignment="Center" Foreground="AntiqueWhite" FontSize="32" FontWeight="Bold"
-                       Text="{Binding QueryString, IsAsync=True, UpdateSourceTrigger=PropertyChanged}">
-                    </TextBlock>
-                </Border>
+                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
+                    </StackPanel>
+                </Button>
             </Grid>
         </TabItem>
     </TabControl>
+    
 </Window>

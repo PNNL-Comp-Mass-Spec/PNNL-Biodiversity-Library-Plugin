@@ -70,6 +70,8 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _accessionsWithFastaErrors;
         private bool _ncbiDownloading;
         private string _pathwayCoverageOrg;
+        private bool _versionBool;
+        private int _topLevelWindow;
 
         #endregion
 
@@ -79,6 +81,30 @@ namespace BiodiversityPlugin.ViewModels
         {
             get { return _toolClient; }
             private set { _toolClient = value; }
+        }
+
+        public int TopLevelWindow
+        {
+            get { return _topLevelWindow; }
+            set
+            {
+                _topLevelWindow = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string TextVersionMessage
+        {
+            get
+            {
+                if (ToolClient != null)
+                {
+                    var version = ToolClient.GetSkylineVersion();
+                    return string.Format("Current version of Skyline: {0}.{1}.{2}.{3}", version.Major, version.Minor,
+                        version.Build, version.Revision);
+                }
+                return "";
+            }
         }
 
         public string DatabaseDate { get; set; }
@@ -436,6 +462,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectPathwayCommand { get; private set; }
         public RelayCommand ClearFilterCommand { get; private set; }
         public RelayCommand LoadPathwayCoverageCommand { get; private set; }
+        public RelayCommand CloseAppCommand { get; private set; }
 
         #endregion
 
@@ -483,7 +510,7 @@ namespace BiodiversityPlugin.ViewModels
 
         #endregion
 
-        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, ref SkylineToolClient toolClient)
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, ref SkylineToolClient toolClient, bool goodVersion)
         {
 
             _dbPath = dbPath;
@@ -515,9 +542,11 @@ namespace BiodiversityPlugin.ViewModels
             SelectPathwayCommand = new RelayCommand(SelectPathway);
             ClearFilterCommand = new RelayCommand(ClearFilter);
             LoadPathwayCoverageCommand = new RelayCommand(LoadPathwayCoverage);
+            CloseAppCommand = new RelayCommand(CloseApplication);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
+            TopLevelWindow = 0;
             _isOrganismSelected = false;
             _isPathwaySelected = false;
 
@@ -535,7 +564,18 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
             _pathwayCoverageOrg = "";
             _overviewTabEnabled = true;
+            _versionBool = goodVersion; //TODO: Delete this after check
 
+            if (ToolClient != null && !goodVersion)
+            {
+                TopLevelWindow = 2;
+            }
+
+        }
+
+        private void CloseApplication()
+        {
+            Application.Current.Shutdown();
         }
 
         private void LoadPathwayCoverage()
@@ -873,6 +913,7 @@ namespace BiodiversityPlugin.ViewModels
                                     }
 
                                     selectedPaths.Add(pathway);
+                                    Thread.Sleep(500);
                                 }
                             }
                         }
@@ -1333,9 +1374,10 @@ namespace BiodiversityPlugin.ViewModels
 					/* Need to keep app open until skyline is done loading the .blib information */
 					//TODO: See if Skyline can send us a message saying that it's done loading ^^^^
                     ToolClient.Dispose();
-                    dis.InvokeShutdown();
+                    TopLevelWindow = 1;
+                    //dis.InvokeShutdown();
                     //Application.Current.Shutdown();
-					//Environment.Exit(0);
+                    //Environment.Exit(0);
                 }
                 //if (ToolClient != null)
                 //{
