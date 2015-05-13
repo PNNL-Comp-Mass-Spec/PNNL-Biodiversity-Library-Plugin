@@ -1299,8 +1299,11 @@ namespace BiodiversityPlugin.ViewModels
                 IsQuerying = false;
                 if (ToolClient != null)
                 {
+					/* Need to keep app open until skyline is done loading the .blib information */
+					//TODO: See if Skyline can send us a message saying that it's done loading ^^^^
                     ToolClient.Dispose();
                     Application.Current.Shutdown();
+					//Environment.Exit(0);
                 }
 
             });
