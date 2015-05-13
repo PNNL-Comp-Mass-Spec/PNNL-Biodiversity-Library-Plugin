@@ -69,6 +69,7 @@ namespace BiodiversityPlugin.ViewModels
         private Dictionary<string, string> _ncbiFastaDictionary;
         private List<string> _accessionsWithFastaErrors;
         private bool _ncbiDownloading;
+        private string _pathwayCoverageOrg;
 
         #endregion
 
@@ -532,6 +533,7 @@ namespace BiodiversityPlugin.ViewModels
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>();
             SelectedValue = "";
             _priorOrg = "";
+            _pathwayCoverageOrg = "";
             _overviewTabEnabled = true;
 
         }
@@ -541,6 +543,20 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
             SelectedTabIndex = 2;
 
+            if (_priorOrg != SelectedOrganism.Name)
+            {
+                _priorOrg = SelectedOrganism.Name;
+                foreach (var catagory in Pathways)
+                {
+                    foreach (var g in catagory.PathwayGroups)
+                    {
+                        foreach (var pathway in g.Pathways)
+                        {
+                            pathway.PercentCover = -1;
+                        }
+                    }
+                }
+            }
 
             var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
             string[] queryingStrings =
@@ -564,16 +580,22 @@ namespace BiodiversityPlugin.ViewModels
                      from @group in catagory.PathwayGroups
                      from pathway in @group.Pathways
                      select pathway).ToList();
-                dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList, coordPrefix);
+
                 foreach (var path in pathList)
                 {
-                    foreach (var pathway in from catagory in Pathways
-                                            from @group in catagory.PathwayGroups
-                                            from pathway in @group.Pathways
-                                            where pathway.KeggId == path.KeggId
-                                            select pathway)
+                    if (SelectedTabIndex == 2 || path.PercentCover < -1)
                     {
-                        pathway.PercentCover = path.PercentCover;
+                        var pathAsList = new List<Pathway>();
+                        pathAsList.Add(path);
+                        dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathAsList, coordPrefix);
+                        foreach (var pathway in from catagory in Pathways
+                            from @group in catagory.PathwayGroups
+                            from pathway in @group.Pathways
+                            where pathway.KeggId == pathAsList[0].KeggId
+                            select pathway)
+                        {
+                            pathway.PercentCover = path.PercentCover;
+                        }
                     }
                 }
 
@@ -667,6 +689,10 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex > 0)
             {
                 SelectedTabIndex--;
+            }
+            if (SelectedTabIndex == 2)
+            {
+                LoadPathwayCoverage();
             }
         }
 
