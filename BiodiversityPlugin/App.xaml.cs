@@ -38,7 +38,7 @@ namespace BiodiversityPlugin
                 }
                 TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-                    _toolClient);
+                    ref _toolClient);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();
             }
@@ -48,7 +48,7 @@ namespace BiodiversityPlugin
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
                 //TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
-                    _toolClient);
+                    ref _toolClient);
                 var mainWindow = new MainWindow { DataContext = vm };
                 mainWindow.Show();
             }

@@ -483,7 +483,7 @@ namespace BiodiversityPlugin.ViewModels
 
         #endregion
 
-        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, SkylineToolClient toolClient)
+        public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, ref SkylineToolClient toolClient)
         {
 
             _dbPath = dbPath;
@@ -543,9 +543,9 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
             SelectedTabIndex = 2;
 
-            if (_priorOrg != SelectedOrganism.Name)
+            if (_pathwayCoverageOrg != SelectedOrganism.Name)
             {
-                _priorOrg = SelectedOrganism.Name;
+                _pathwayCoverageOrg = SelectedOrganism.Name;
                 foreach (var catagory in Pathways)
                 {
                     foreach (var g in catagory.PathwayGroups)
@@ -589,8 +589,7 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     if (SelectedTabIndex == 2 || path.PercentCover < -1)
                     {
-                        var pathAsList = new List<Pathway>();
-                        pathAsList.Add(path);
+                        var pathAsList = new List<Pathway> {path};
                         dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathAsList, coordPrefix);
                         foreach (var pathway in from catagory in Pathways
                             from @group in catagory.PathwayGroups
@@ -1089,6 +1088,8 @@ namespace BiodiversityPlugin.ViewModels
 			    };
             QueryString = queryingStrings[0];
 
+            var dis = Application.Current.Dispatcher;
+
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew(() =>
@@ -1332,9 +1333,16 @@ namespace BiodiversityPlugin.ViewModels
 					/* Need to keep app open until skyline is done loading the .blib information */
 					//TODO: See if Skyline can send us a message saying that it's done loading ^^^^
                     ToolClient.Dispose();
-                    Application.Current.Shutdown();
+                    dis.InvokeShutdown();
+                    //Application.Current.Shutdown();
 					//Environment.Exit(0);
                 }
+                //if (ToolClient != null)
+                //{
+                //    ToolClient.Dispose();
+                //    ToolClient = null;
+                //    //Application.Current.Shutdown();
+                //}
 
             });
         }
