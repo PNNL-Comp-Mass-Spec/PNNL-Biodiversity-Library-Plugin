@@ -574,12 +574,16 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var dataAccess = new DatabaseDataLoader(_dbPath);
 
+                var pathList = (from catagory in Pathways 
+                                from @group in catagory.PathwayGroups 
+                                where @group.GroupName != "Global and Overview Maps" 
+                                from path in @group.Pathways select path).ToList();
 
-                var pathList =
-                    (from catagory in Pathways
-                     from @group in catagory.PathwayGroups
-                     from pathway in @group.Pathways
-                     select pathway).ToList();
+                //var pathList =
+                //    (from catagory in Pathways
+                //     from @group in catagory.PathwayGroups
+                //     from pathway in @group.Pathways
+                //     select pathway).ToList();
 
                 foreach (var path in pathList)
                 {
