@@ -484,9 +484,9 @@ namespace BiodiversityPlugin.ViewModels
 
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, SkylineToolClient toolClient)
         {
+
             _dbPath = dbPath;
             ToolClient = toolClient;
-
             var dataAccess = new DatabaseDataLoader(_dbPath);
             string version, date;
             dataAccess.LoadDbMetaData(out version, out date);
@@ -533,6 +533,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectedValue = "";
             _priorOrg = "";
             _overviewTabEnabled = true;
+
         }
 
         private void LoadPathwayCoverage()
@@ -541,6 +542,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectedTabIndex = 2;
 
 
+            var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
             string[] queryingStrings =
 			    {
 				    "Determining Pathway Coverage   \nPlease Wait",
@@ -562,7 +564,7 @@ namespace BiodiversityPlugin.ViewModels
                      from @group in catagory.PathwayGroups
                      from pathway in @group.Pathways
                      select pathway).ToList();
-                dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList);
+                dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathList, coordPrefix);
                 foreach (var path in pathList)
                 {
                     foreach (var pathway in from catagory in Pathways
@@ -692,6 +694,7 @@ namespace BiodiversityPlugin.ViewModels
             QueryString = queryingStrings[0];
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
+            var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways
                                                                  from @group in pathwayCatagory.PathwayGroups
@@ -749,7 +752,7 @@ namespace BiodiversityPlugin.ViewModels
 
                                     // Now that we have the base image and the legend, load the coordinates
                                     // for every rectangle on the image, keyed on KO name.
-                                    var koToCoordDict = pathway.LoadCoordinates();
+                                    var koToCoordDict = pathway.LoadCoordinates(coordPrefix);
 
                                     // Use the database to determine which orthologs have data in MSMS and load
                                     // the coordinates
@@ -1000,12 +1003,12 @@ namespace BiodiversityPlugin.ViewModels
                 // Cycle through the messages passed in
                 if (FileManager.Percentage > 0)
                 {
-                    QueryString = overlayMessages[index%maxIndex] + "\nDownload " + FileManager.Percentage.ToString() +
+                    QueryString = overlayMessages[index % maxIndex] + "\nDownload " + FileManager.Percentage.ToString() +
                                   "% complete";
                 }
                 else
                 {
-                    QueryString = overlayMessages[index%maxIndex];
+                    QueryString = overlayMessages[index % maxIndex];
                 }
                 index++;
                 Thread.Sleep(500);
@@ -1214,7 +1217,7 @@ namespace BiodiversityPlugin.ViewModels
                         try
                         {
 
-                            var reqFtp = (FtpWebRequest) WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
+                            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
                             reqFtp.UseBinary = true;
                             reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
                             reqFtp.Method = "LIST";
@@ -1224,7 +1227,7 @@ namespace BiodiversityPlugin.ViewModels
 
                             var files = new List<string>();
 
-                            using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                            using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
                             {
                                 var response = webResponse.GetResponseStream();
                                 if (response == null)
@@ -1294,13 +1297,13 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 IsQuerying = false;
+                if (ToolClient != null)
+                {
+                    ToolClient.Dispose();
+                    Application.Current.Shutdown();
+                }
 
             });
-            if (ToolClient != null)
-            {
-                ToolClient.Dispose();
-                Application.Current.Shutdown();
-            }
         }
 
         /// <summary>
