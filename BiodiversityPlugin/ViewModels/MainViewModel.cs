@@ -1269,34 +1269,41 @@ namespace BiodiversityPlugin.ViewModels
                         organismList.Add(association.Organism);
                     }
                 }
+                var dataImported = true;
                 //This is a loop to use the Levenshtein class to find the closest file match to an organism name.
                 foreach (var org in organismList)
                 {
+                    var fileFound = false;
                     var fileLoc = CheckFileLocation(org);
                     if (!string.IsNullOrWhiteSpace(fileLoc))
                     {
-                        MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
-                        if (ToolClient != null)
+                        if (File.Exists(fileLoc))
                         {
-                            //Overlay so it says Importing to Skyline
-                            IsQuerying = false;
-                            Thread.Sleep(501);
+                            fileFound = true;
+                            MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
+                            if (ToolClient != null)
+                            {
+                                //Overlay so it says Importing to Skyline
+                                IsQuerying = false;
+                                Thread.Sleep(501);
 
 
-                            string[] importingStrings = {
-				            "Importing to Skyline   \nPlease Wait",
-				            "Importing to Skyline.  \nPlease Wait",
-				            "Importing to Skyline.. \nPlease Wait",
-				            "Importing to Skyline...\nPlease Wait"
-			                };
-                            QueryString = importingStrings[0];
-                            Task.Factory.StartNew(() => StartOverlay(importingStrings));
-                            //End
+                                string[] importingStrings =
+                                {
+                                    "Importing to Skyline   \nPlease Wait",
+                                    "Importing to Skyline.  \nPlease Wait",
+                                    "Importing to Skyline.. \nPlease Wait",
+                                    "Importing to Skyline...\nPlease Wait"
+                                };
+                                QueryString = importingStrings[0];
+                                Task.Factory.StartNew(() => StartOverlay(importingStrings));
+                                //End
 
-                            ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
+                                ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
+                            }
                         }
                     }
-                    else
+                    if(!fileFound)
                     {
 
                         string bestFile = "";
@@ -1394,6 +1401,7 @@ namespace BiodiversityPlugin.ViewModels
                                 "MassIVE Server unreachable; Unable to download .blib for " + org +
                                 "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
                                 MessageBoxButton.OK);
+                            dataImported = false;
                         }
                     }
                 }
@@ -1401,7 +1409,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 IsQuerying = false;
 
-                if (ToolClient != null)
+                if (ToolClient != null && dataImported)
                 {
 					/* Need to keep app open until skyline is done loading the .blib information */
 					//TODO: See if Skyline can send us a message saying that it's done loading ^^^^
@@ -1496,6 +1504,10 @@ namespace BiodiversityPlugin.ViewModels
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
+                    var deletionText = " DELETE FROM fileLocation WHERE orgName = \"" + orgName + "\"; ";
+                    cmd.CommandText = deletionText;
+                    cmd.ExecuteNonQuery();
+
                     var insertionText = " INSERT INTO fileLocation(orgName, fileLocation) VALUES ( ";
                     insertionText += "\"" + orgName + "\", \"" + fileLoc + "\" );";
                     cmd.CommandText = insertionText;
