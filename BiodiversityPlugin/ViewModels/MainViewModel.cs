@@ -802,7 +802,7 @@ namespace BiodiversityPlugin.ViewModels
                                 {
                                     // Load the image (From the static location)
                                     dis.Invoke(() =>
-                                        pathway.LoadImage());
+                                        pathway.LoadImage(coordPrefix));
 
                                     // Remove any rectangles from the canvas to provide accurate visualization
                                     dis.Invoke(() =>
