@@ -1278,6 +1278,21 @@ namespace BiodiversityPlugin.ViewModels
                         MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
                         if (ToolClient != null)
                         {
+                            //Overlay so it says Importing to Skyline
+                            IsQuerying = false;
+                            Thread.Sleep(501);
+
+
+                            string[] importingStrings = {
+				            "Importing to Skyline   \nPlease Wait",
+				            "Importing to Skyline.  \nPlease Wait",
+				            "Importing to Skyline.. \nPlease Wait",
+				            "Importing to Skyline...\nPlease Wait"
+			                };
+                            QueryString = importingStrings[0];
+                            Task.Factory.StartNew(() => StartOverlay(importingStrings));
+                            //End
+
                             ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
                         }
                     }
@@ -1353,6 +1368,21 @@ namespace BiodiversityPlugin.ViewModels
                                                 ".blib");
                                 if (ToolClient != null)
                                 {
+                                    //Overlay so it says Importing to Skyline
+                                    IsQuerying = false;
+                                    //Thread.Sleep(501);
+
+
+                                    string[] importinStrings = {
+				                    "Importing to Skyline   \nPlease Wait",
+				                    "Importing to Skyline.  \nPlease Wait",
+				                    "Importing to Skyline.. \nPlease Wait",
+				                    "Importing to Skyline...\nPlease Wait"
+			                        };
+                                    QueryString = importinStrings[0];
+                                    Task.Factory.StartNew(() => StartOverlay(importinStrings));
+                                    //End
+
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
                                         spectralLibPath + "\\" + bestFile + ".blib");
                                 }
@@ -1368,7 +1398,9 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
 
+
                 IsQuerying = false;
+
                 if (ToolClient != null)
                 {
 					/* Need to keep app open until skyline is done loading the .blib information */
