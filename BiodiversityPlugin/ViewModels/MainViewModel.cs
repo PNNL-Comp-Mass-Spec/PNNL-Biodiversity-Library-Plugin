@@ -1370,7 +1370,7 @@ namespace BiodiversityPlugin.ViewModels
                                 {
                                     //Overlay so it says Importing to Skyline
                                     IsQuerying = false;
-                                    //Thread.Sleep(501);
+                                    Thread.Sleep(501);
 
 
                                     string[] importinStrings = {
