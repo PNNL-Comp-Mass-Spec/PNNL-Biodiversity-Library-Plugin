@@ -1551,7 +1551,6 @@ namespace BiodiversityPlugin.ViewModels
                                 };
                                 QueryString = importingStrings[0];
                                 Task.Factory.StartNew(() => StartOverlay(importingStrings));
-                                //End
 
                                 ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
                             }
@@ -1612,6 +1611,7 @@ namespace BiodiversityPlugin.ViewModels
                             var result = true;
                             if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
                             {
+                                //Combining the path of the massive server (with username/password encoded) with the name of the file
                                 result =
                                     FileManager.DownloadFile(
                                         ("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile +
