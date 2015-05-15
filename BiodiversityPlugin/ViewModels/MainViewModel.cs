@@ -1162,7 +1162,7 @@ namespace BiodiversityPlugin.ViewModels
                         accKey = linePieces[4].Split('.')[0];
                         _ncbiFastaDictionary.Add(accKey, "");
                     }
-                    _ncbiFastaDictionary[accKey] += readLine;
+                    _ncbiFastaDictionary[accKey] += readLine + '\n';
                 }
             }
             File.Delete(faaFileLocation);
@@ -1456,7 +1456,14 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         if (!_accessionsWithFastaErrors.Contains(acc))
                         {
-                            allFastas += _ncbiFastaDictionary[acc] + '\n';
+                            if (_ncbiFastaDictionary.ContainsKey(acc))
+                            {
+                                allFastas += _ncbiFastaDictionary[acc] + '\n';
+                            }
+                            else
+                            {
+                                _accessionsWithFastaErrors.Add(acc);
+                            }
                         }
                     }
                     if (ToolClient != null)
