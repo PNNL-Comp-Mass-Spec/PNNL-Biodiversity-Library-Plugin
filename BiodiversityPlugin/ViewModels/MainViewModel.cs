@@ -1531,16 +1531,17 @@ namespace BiodiversityPlugin.ViewModels
                     var fileLoc = CheckFileLocation(org);
                     if (!string.IsNullOrWhiteSpace(fileLoc))
                     {
+                        //Check if the file is already downloaded and saved.
                         if (File.Exists(fileLoc))
                         {
                             fileFound = true;
+                            //Show where the file was already found at
                             MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
                             if (ToolClient != null)
                             {
-                                //Overlay so it says Importing to Skyline
+                                //Change overlay so it says Importing to Skyline
                                 IsQuerying = false;
                                 Thread.Sleep(501);
-
 
                                 string[] importingStrings =
                                 {
