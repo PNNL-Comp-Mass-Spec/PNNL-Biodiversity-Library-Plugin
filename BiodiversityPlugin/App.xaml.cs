@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows;
-using BiodiversityPlugin.IO;
 using BiodiversityPlugin.ViewModels;
 using KeggDataLibrary.DataManagement;
 using SkylineTool;
@@ -51,7 +48,6 @@ namespace BiodiversityPlugin
                     var ex = new DirectoryNotFoundException();
                     throw ex;
                 }
-                TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     ref _toolClient, goodVersion);
                 var mainWindow = new MainWindow { DataContext = vm };
@@ -61,7 +57,6 @@ namespace BiodiversityPlugin
             catch (DirectoryNotFoundException ex)
             {
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
-                //TextExporter.createInstance(dbPath);
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     ref _toolClient, goodVersion);
                 var mainWindow = new MainWindow { DataContext = vm };
