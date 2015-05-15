@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -785,7 +787,8 @@ namespace BiodiversityPlugin.ViewModels
             // Start the animated overlay with the message set above
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
-            Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism, curPathways.ToList()));
+            //Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism, curPathways.ToList()));
+            Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism));
 
             Task.Factory.StartNew((() =>
             {
@@ -950,6 +953,250 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
             _ncbiDownloading = false;
+        }
+
+        private void StartFastaDownloads(Organism currentOrg)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            _ncbiDownloading = true;
+            // Query DB to get ftp location for organism
+            var ftpLoc = GetFtpLocationFromDB(currentOrg.OrgCode);
+            //var ftpLoc = "ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Mycobacterium_tuberculosis_H37Rv_uid170532/";
+
+            // Connect to ftp site at above location to get all the .faa files
+            var filesForOrg =
+                GetFtpFileList(ftpLoc);
+
+            // For each .faa file
+            foreach (var file in filesForOrg)
+            {
+                if (file.EndsWith(".faa") || file.EndsWith(".fa.gz"))
+                {
+                    var tempFileLoc = DownloadFaaFile(ftpLoc + file);
+                    ParseFaaFile(tempFileLoc);
+                }
+            }
+            // parse the fasta
+            _ncbiDownloading = false;
+            watch.Stop();
+            Console.WriteLine(watch.Elapsed);
+            Console.WriteLine(watch.ElapsedMilliseconds);
+        }
+
+        private string GetFtpLocationFromDB(string orgCode)
+        {
+            var fileLoc = "";
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _dbPath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var selection = " SELECT ncbi_org_location FROM orgFaaLocation WHERE kegg_org_code = \"" + orgCode + "\"; ";
+                    cmd.CommandText = selection;
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        fileLoc = reader.GetString(0);
+                    }
+
+                }
+            }
+            return fileLoc;
+        }
+
+        private string DownloadFaaFile(string fileSource)
+        {
+            string NihUserName = "anonymous";
+            string NihPassword = "michael.degan@pnnl.gov";
+            int BUFFER_LENGTH = 2048;
+            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri(fileSource));
+            reqFtp.Credentials = new NetworkCredential(NihUserName, NihPassword);
+            reqFtp.KeepAlive = false;
+            reqFtp.Method = WebRequestMethods.Ftp.DownloadFile;
+            reqFtp.UseBinary = true;
+            reqFtp.Proxy = null;
+            reqFtp.UsePassive = true;
+            var tempFileLoc = "";
+
+            var response = (FtpWebResponse)reqFtp.GetResponse();
+
+            using (var responseStream = response.GetResponseStream())
+            {
+                if (responseStream == null)
+                {
+                    Console.WriteLine("Response is empty");
+                    return tempFileLoc;
+                }
+
+                var outputFilePath = Path.GetTempFileName();// Path.Combine(destinationFolderPath, fileName);
+                if (fileSource.EndsWith(".gz"))
+                {
+                    outputFilePath += ".gz";
+                }
+                tempFileLoc = outputFilePath ;
+                using (var outFile = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                {
+
+                    var buffer = new Byte[BUFFER_LENGTH];
+                    var bytesRead = responseStream.Read(buffer, 0, BUFFER_LENGTH);
+                    while (bytesRead > 0)
+                    {
+                        outFile.Write(buffer, 0, bytesRead);
+                        bytesRead = responseStream.Read(buffer, 0, BUFFER_LENGTH);
+                    }
+                }
+
+            }
+            return tempFileLoc;
+        }
+
+        private List<string> GetFtpFileList(string url)
+        {
+            var downloadFiles = new List<string>();
+            var result = new System.Text.StringBuilder();
+            string NihUserName = "anonymous";
+            string NihPassword = "michael.degan@pnnl.gov";
+
+            try
+            {
+                Console.WriteLine("Examining " + url);
+
+                var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri(url));
+                reqFtp.UseBinary = true;
+                reqFtp.Credentials = new NetworkCredential(NihUserName, NihPassword);
+                reqFtp.Method = "LIST";
+                reqFtp.Proxy = null;
+                reqFtp.KeepAlive = true;
+                reqFtp.UsePassive = true;
+                using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
+                {
+                    var response = webResponse.GetResponseStream();
+                    if (response == null)
+                    {
+                        Console.WriteLine("No files found for {0}", url);
+                        return downloadFiles;
+                    }
+
+                    using (var responseReader = new StreamReader(response))
+                    {
+                        while (responseReader.Peek() > -1)
+                        {
+                            var line = responseReader.ReadLine();
+                            if (string.IsNullOrWhiteSpace(line))
+                                continue;
+
+                            result.Append(line.Split(' ').Last());
+                            result.Append("\n");
+                        }
+                    }
+                }
+
+                var lastLinefeed = result.ToString().LastIndexOf('\n');
+
+                if (lastLinefeed > 0)
+                    result.Remove(lastLinefeed, 1);
+
+                downloadFiles = result.ToString().Split('\n').ToList();
+
+            }
+            catch (WebException wEx)
+            {
+                if (wEx.Message.Contains("(450)"))
+                {
+                    // Folder not found
+                    Console.WriteLine("Folder not found {0}", url);
+                }
+                else
+                {
+                    Console.WriteLine(wEx.Message);
+                    Console.WriteLine("No files found for {0}", url);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("No files found for {0}", url);
+            }
+
+            return downloadFiles;
+        }
+
+        private void ParseFaaFile(string faaFileLocation)
+        {
+            // while file open
+                // if line begins with >
+                    // parse the line to get the accession
+                    // save accession (without the version, e.g. YP_01234 instead of YP_01234.5)
+                    // add to accessionToFasta dict, accessionToFasta[key] = ""
+                // add to accessionToFasta[key] += line
+            if (faaFileLocation.EndsWith(".gz"))
+            {
+                var success = UnGzipFile(faaFileLocation);
+                if (success)
+                {
+                    File.Delete(faaFileLocation);
+                    faaFileLocation = faaFileLocation.Substring(0, faaFileLocation.Length - 3);
+                }
+
+            }
+            var accKey = "";
+            using (var reader = new StreamReader(new FileStream(faaFileLocation, FileMode.Open, FileAccess.Read, FileShare.Read)))
+            {
+                while (reader.Peek() > -1)
+                {
+                    var readLine = reader.ReadLine();
+                    if (string.IsNullOrWhiteSpace(readLine))
+                        continue;
+
+                    if (readLine.StartsWith(">"))
+                    {
+                        // Splits the .faa line into the relevant pieces:
+                        // piece 0 is empty, move ref|YP to the front followed by description
+                        // with gi|1234 at the end
+                        // Also splits out the organism name (enclosed in brackets)
+                        // and does NOT enter it into the line.
+                        char[] separators = { '>', '|', '[', ']' };
+                        var linePieces = readLine.Split(separators);
+                        accKey = linePieces[4].Split('.')[0];
+                        _ncbiFastaDictionary.Add(accKey, "");
+                    }
+                    _ncbiFastaDictionary[accKey] += readLine;
+                }
+            }
+            File.Delete(faaFileLocation);
+        }
+
+        private static bool UnGzipFile(string filePath)
+        {
+            var fiFile = new FileInfo(filePath);
+            if (fiFile.DirectoryName == null)
+            {
+                Console.WriteLine("Folder info not available for " + filePath);
+                return false;
+            }
+
+            if (fiFile.Extension.ToLower() != ".gz")
+            {
+                Console.WriteLine("Not a GZipped file; must have extension .gz: " + fiFile.FullName);
+                return false;
+            }
+
+            var fileName = fiFile.Name;
+            var decompressedFilePath = Path.Combine(fiFile.DirectoryName, fileName.Remove(fileName.Length - fiFile.Extension.Length));
+
+            using (FileStream inFile = fiFile.OpenRead())
+            using (GZipStream gzStream = new GZipStream(inFile, CompressionMode.Decompress))
+            {
+                // Create the decompressed file.
+                using (FileStream outFile = File.Create(decompressedFilePath))
+                {
+                    gzStream.CopyTo(outFile);
+                }
+            }
+
+            return true;
         }
 
         private void AcquireProteins()
