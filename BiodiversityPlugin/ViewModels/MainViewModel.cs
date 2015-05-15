@@ -85,16 +85,9 @@ namespace BiodiversityPlugin.ViewModels
             private set { _toolClient = value; }
         }
 
-        public int TopLevelWindow
-        {
-            get { return _topLevelWindow; }
-            set
-            {
-                _topLevelWindow = value;
-                RaisePropertyChanged();
-            }
-        }
-
+        /// <summary>
+        /// Property to display the current Skyline version of the user to the failure page.
+        /// </summary>
         public string TextVersionMessage
         {
             get
@@ -111,6 +104,9 @@ namespace BiodiversityPlugin.ViewModels
 
         public string DatabaseDate { get; set; }
 
+        /// <summary>
+        /// Property to display the version ofthe BioDiversity Library's DB that the user has installed
+        /// </summary>
         public string DatabaseVersion
         {
             get
@@ -384,13 +380,7 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _listPathwaySelectedItem = value;
-
-                //ListPathwaySelected = false;
-                //if (ListPathways.Contains(value))
-                //{
-                //    ListPathwaySelected = true;
-                //}
-
+                
                 ListPathwaySelected = ListPathways.Contains(value);
                 RaisePropertyChanged();
             }
@@ -510,8 +500,32 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property for the top level window index
+        /// 0 - Main view, the place the users spend the majority of their time
+        /// 1 - Successful import view, to inform the user their data is in
+        /// 2 - Error/failure view, primarily used to inform the user their skyline version is out of date
+        /// </summary>
+        public int TopLevelWindow
+        {
+            get { return _topLevelWindow; }
+            set
+            {
+                _topLevelWindow = value;
+                RaisePropertyChanged();
+            }
+        }
+
         #endregion
 
+        /// <summary>
+        /// Constructor for the view model
+        /// </summary>
+        /// <param name="orgData">Database connection which contains the organism data</param>
+        /// <param name="pathData">Database connection which contains the pathway data</param>
+        /// <param name="dbPath">Database location which contains the kegg and ncbi data</param>
+        /// <param name="toolClient">Skyline tool connection, is null if application ran in standalone mode</param>
+        /// <param name="goodVersion">Boolean flag for if the user's skyline version is late enough to allow the data to be pushed back to Skyline</param>
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, ref SkylineToolClient toolClient, bool goodVersion)
         {
 
@@ -566,7 +580,6 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
             _pathwayCoverageOrg = "";
             _overviewTabEnabled = true;
-            _versionBool = goodVersion; //TODO: Delete this after check
 
             if (ToolClient != null && !goodVersion)
             {
@@ -575,11 +588,27 @@ namespace BiodiversityPlugin.ViewModels
 
         }
 
+        /// <summary>
+        /// Used for buttons which can close the application (Currently only in the success and failure pages)
+        /// </summary>
         private void CloseApplication()
         {
             Application.Current.Shutdown();
         }
 
+        /// <summary>
+        /// Used for button to clear the filter
+        /// </summary>
+        private void ClearFilter()
+        {
+            SelectedValue = "";
+        }
+
+        /// <summary>
+        /// Method which dynamically loads the pathway coverage in a new thread
+        /// that only processes data while the user is in the Pathway View tab
+        /// and selecting the pathways of interest
+        /// </summary>
         private void LoadPathwayCoverage()
         {
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
@@ -601,16 +630,6 @@ namespace BiodiversityPlugin.ViewModels
             }
 
             var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
-            string[] queryingStrings =
-			    {
-				    "Determining Pathway Coverage   \nPlease Wait",
-				    "Determining Pathway Coverage.  \nPlease Wait",
-				    "Determining Pathway Coverage.. \nPlease Wait",
-				    "Determining Pathway Coverage...\nPlease Wait"
-			    };
-            QueryString = queryingStrings[0];
-
-            //Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew(() =>
             {
@@ -620,16 +639,10 @@ namespace BiodiversityPlugin.ViewModels
                                 from @group in catagory.PathwayGroups 
                                 where @group.GroupName != "Global and Overview Maps" 
                                 from path in @group.Pathways select path).ToList();
-
-                //var pathList =
-                //    (from catagory in Pathways
-                //     from @group in catagory.PathwayGroups
-                //     from pathway in @group.Pathways
-                //     select pathway).ToList();
-
+                
                 foreach (var path in pathList)
                 {
-                    if (SelectedTabIndex == 2 || path.PercentCover < -1)
+                    if (SelectedTabIndex == 2 || path.PercentCover <= -1)
                     {
                         var pathAsList = new List<Pathway> {path};
                         dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathAsList, coordPrefix);
@@ -644,16 +657,13 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
 
-
-                //IsQuerying = false;
             });
         }
 
-        private void ClearFilter()
-        {
-            SelectedValue = "";
-        }
-
+        /// <summary>
+        /// Event handler to update the Pathways that a user has selected
+        /// </summary>
+        /// <param name="message">The pathway that a user freshly selected</param>
         private void PathwaysSelectedChanged(PropertyChangedMessage<bool> message)
         {
             if (message.PropertyName == "Selected" && message.Sender is Pathway)
@@ -684,12 +694,19 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Method to select new Pathways
+        /// </summary>
         private void SelectPathway()
         {
             var temp = SelectedPathwayTreeItem;
             SelectedPathwayTreeItem = temp;
         }
 
+        /// <summary>
+        /// Method to delete a pathway from the list of selected pathways
+        /// and update the view on the GUI
+        /// </summary>
         private void DeleteSelectedPathway()
         {
             var treePathway = SelectedPathwayTreeItem as Pathway;
@@ -729,18 +746,26 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Method to tab backwards through the GUI
+        /// </summary>
         private void PreviousTab()
         {
             if (SelectedTabIndex > 0)
             {
                 SelectedTabIndex--;
             }
+            // If the user is now on Tab Index 2, continue the calculation of pathway coverage
             if (SelectedTabIndex == 2)
             {
                 LoadPathwayCoverage();
             }
         }
 
+        /// <summary>
+        /// Method to tab forward through the application, including controlling
+        /// whether the user can move forward or not.
+        /// </summary>
         private void NextTab()
         {
             // Do nothing if no selected organism and on the organism selection tab
@@ -750,6 +775,9 @@ namespace BiodiversityPlugin.ViewModels
             SelectedTabIndex++;
         }
 
+        /// <summary>
+        /// Method to display the images for the pathways with whether we have data observed in MSMS space
+        /// </summary>
         private void DisplayPathwayImages()
         {
             // Advance to the next tab
@@ -929,62 +957,44 @@ namespace BiodiversityPlugin.ViewModels
                 PathwayTabIndex = 0;
             }));
         }
-
-        private void StartFastaDownloads(Organism currentOrg, List<Pathway> curPathways)
-        {
-            _ncbiDownloading = true;
-
-            var dataLoader = new DatabaseDataLoader(_dbPath);
-            var proteins = dataLoader.ExportAllOrgPathwayAccessions(currentOrg, curPathways);
-
-            foreach (var protein in proteins)
-            {
-                if (!_ncbiFastaDictionary.ContainsKey(protein))
-                {
-                    try
-                    {
-                        var fasta = GetFastasFromNCBI(protein);
-                        _ncbiFastaDictionary.Add(protein, fasta);
-                    }
-                    catch (Exception)
-                    {
-                        _accessionsWithFastaErrors.Add(protein);
-                    }
-                }
-            }
-            _ncbiDownloading = false;
-        }
-
+        
+        /// <summary>
+        /// Method to begin the download of FASTA file for an organism
+        /// </summary>
+        /// <param name="currentOrg">Organism that the user has selected</param>
         private void StartFastaDownloads(Organism currentOrg)
         {
             var watch = new Stopwatch();
             watch.Start();
             _ncbiDownloading = true;
             // Query DB to get ftp location for organism
-            var ftpLoc = GetFtpLocationFromDB(currentOrg.OrgCode);
-            //var ftpLoc = "ftp://ftp.ncbi.nlm.nih.gov/genomes/Bacteria/Mycobacterium_tuberculosis_H37Rv_uid170532/";
+            var ftpLoc = GetFtpLocationFromDb(currentOrg.OrgCode);
 
             // Connect to ftp site at above location to get all the .faa files
-            var filesForOrg =
-                GetFtpFileList(ftpLoc);
+            var filesForOrg = GetFtpFileList(ftpLoc);
 
-            // For each .faa file
+            // For each .faa and .fa.gz file...
             foreach (var file in filesForOrg)
             {
                 if (file.EndsWith(".faa") || file.EndsWith(".fa.gz"))
                 {
+                    // Download the file and parse it
                     var tempFileLoc = DownloadFaaFile(ftpLoc + file);
                     ParseFaaFile(tempFileLoc);
                 }
             }
-            // parse the fasta
             _ncbiDownloading = false;
             watch.Stop();
             Console.WriteLine(watch.Elapsed);
             Console.WriteLine(watch.ElapsedMilliseconds);
         }
 
-        private string GetFtpLocationFromDB(string orgCode)
+        /// <summary>
+        /// Database Query to determine the FTP location for the organism based on OrgCode
+        /// </summary>
+        /// <param name="orgCode">Kegg Org Code of interested</param>
+        /// <returns>Full FTP location for the organism passed in</returns>
+        private string GetFtpLocationFromDb(string orgCode)
         {
             var fileLoc = "";
             using (var dbConnection = new SQLiteConnection("Datasource=" + _dbPath + ";Version=3;"))
@@ -1006,13 +1016,21 @@ namespace BiodiversityPlugin.ViewModels
             return fileLoc;
         }
 
+        /// <summary>
+        /// Method to download files from NCBI's FTP server
+        /// If this is a .gz file, it makes sure to persist the extension
+        /// </summary>
+        /// <param name="fileSource">FTP address of file to download</param>
+        /// <returns>Temporary file location that the file is saved in</returns>
         private string DownloadFaaFile(string fileSource)
         {
-            string NihUserName = "anonymous";
-            string NihPassword = "michael.degan@pnnl.gov";
-            int BUFFER_LENGTH = 2048;
+            const string nihUserName = "anonymous";
+            const string nihPassword = "michael.degan@pnnl.gov";
+            const int bufferLength = 2048;
+
+            // Set up the FTP connection and settings
             var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri(fileSource));
-            reqFtp.Credentials = new NetworkCredential(NihUserName, NihPassword);
+            reqFtp.Credentials = new NetworkCredential(nihUserName, nihPassword);
             reqFtp.KeepAlive = false;
             reqFtp.Method = WebRequestMethods.Ftp.DownloadFile;
             reqFtp.UseBinary = true;
@@ -1030,7 +1048,7 @@ namespace BiodiversityPlugin.ViewModels
                     return tempFileLoc;
                 }
 
-                var outputFilePath = Path.GetTempFileName();// Path.Combine(destinationFolderPath, fileName);
+                var outputFilePath = Path.GetTempFileName();
                 if (fileSource.EndsWith(".gz"))
                 {
                     outputFilePath += ".gz";
@@ -1039,12 +1057,12 @@ namespace BiodiversityPlugin.ViewModels
                 using (var outFile = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                 {
 
-                    var buffer = new Byte[BUFFER_LENGTH];
-                    var bytesRead = responseStream.Read(buffer, 0, BUFFER_LENGTH);
+                    var buffer = new Byte[bufferLength];
+                    var bytesRead = responseStream.Read(buffer, 0, bufferLength);
                     while (bytesRead > 0)
                     {
                         outFile.Write(buffer, 0, bytesRead);
-                        bytesRead = responseStream.Read(buffer, 0, BUFFER_LENGTH);
+                        bytesRead = responseStream.Read(buffer, 0, bufferLength);
                     }
                 }
 
@@ -1052,12 +1070,18 @@ namespace BiodiversityPlugin.ViewModels
             return tempFileLoc;
         }
 
+        /// <summary>
+        /// Method to return a list of all files at an NCBI ftp location
+        /// that user is interested in
+        /// </summary>
+        /// <param name="url">Top level location of files at URL</param>
+        /// <returns>List of all file names in the folder of interest (not full paths)</returns>
         private List<string> GetFtpFileList(string url)
         {
             var downloadFiles = new List<string>();
             var result = new System.Text.StringBuilder();
-            string NihUserName = "anonymous";
-            string NihPassword = "michael.degan@pnnl.gov";
+            const string nihUserName = "anonymous";
+            const string nihPassword = "michael.degan@pnnl.gov";
 
             try
             {
@@ -1065,7 +1089,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri(url));
                 reqFtp.UseBinary = true;
-                reqFtp.Credentials = new NetworkCredential(NihUserName, NihPassword);
+                reqFtp.Credentials = new NetworkCredential(nihUserName, nihPassword);
                 reqFtp.Method = "LIST";
                 reqFtp.Proxy = null;
                 reqFtp.KeepAlive = true;
@@ -1123,14 +1147,13 @@ namespace BiodiversityPlugin.ViewModels
             return downloadFiles;
         }
 
+        /// <summary>
+        /// Method to parse a fasta file, linking the fasta information to refSeq accessions
+        /// </summary>
+        /// <param name="faaFileLocation">File location for the .faa or .fa.gz file</param>
         private void ParseFaaFile(string faaFileLocation)
         {
-            // while file open
-                // if line begins with >
-                    // parse the line to get the accession
-                    // save accession (without the version, e.g. YP_01234 instead of YP_01234.5)
-                    // add to accessionToFasta dict, accessionToFasta[key] = ""
-                // add to accessionToFasta[key] += line
+            // If file is gzipped, file needs to unzip and update the file location
             if (faaFileLocation.EndsWith(".gz"))
             {
                 var success = UnGzipFile(faaFileLocation);
@@ -1139,35 +1162,46 @@ namespace BiodiversityPlugin.ViewModels
                     File.Delete(faaFileLocation);
                     faaFileLocation = faaFileLocation.Substring(0, faaFileLocation.Length - 3);
                 }
-
             }
+
             var accKey = "";
+            
+            
             using (var reader = new StreamReader(new FileStream(faaFileLocation, FileMode.Open, FileAccess.Read, FileShare.Read)))
             {
                 while (reader.Peek() > -1)
                 {
                     var readLine = reader.ReadLine();
+
+                    //If the line is empty, pass over it
                     if (string.IsNullOrWhiteSpace(readLine))
                         continue;
 
+                    //If the line is the start of information for new accession
                     if (readLine.StartsWith(">"))
                     {
                         // Splits the .faa line into the relevant pieces:
-                        // piece 0 is empty, move ref|YP to the front followed by description
-                        // with gi|1234 at the end
-                        // Also splits out the organism name (enclosed in brackets)
-                        // and does NOT enter it into the line.
+                        // Only piece we desire is the portion with the accession
+                        // We do not care about the version of the accession due to data returned
+                        // from the database, so we strip of that portion.
                         char[] separators = { '>', '|', '[', ']' };
                         var linePieces = readLine.Split(separators);
                         accKey = linePieces[4].Split('.')[0];
                         _ncbiFastaDictionary.Add(accKey, "");
                     }
+                    //Add the line to the accession we are currently working on
                     _ncbiFastaDictionary[accKey] += readLine + '\n';
                 }
             }
+            // Clean up temporary file as it's no longer necessary
             File.Delete(faaFileLocation);
         }
 
+        /// <summary>
+        /// Method to unzip a file, used for if the file is a .fa.gz
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns>True if the file was successfully unzipped, false otherwise</returns>
         private static bool UnGzipFile(string filePath)
         {
             var fiFile = new FileInfo(filePath);
@@ -1199,6 +1233,11 @@ namespace BiodiversityPlugin.ViewModels
             return true;
         }
 
+        /// <summary>
+        /// Method to load the accessions that a user is interested in based on Pathways selected
+        /// and kegg orthologs desired from their selections, and then creating a association between
+        /// both the organism and the pathway
+        /// </summary>
         private void AcquireProteins()
         {
             SelectedTabIndex = 4;
@@ -1210,12 +1249,7 @@ namespace BiodiversityPlugin.ViewModels
 				    "Acquiring Genes...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
-
-            // Need this for when the observable collections change.
-            // The application level dispatcher needs to be utilized and through
-            // dis.Invoke(() => <COMMAND TO EXECUTE> );
-            var dis = Application.Current.Dispatcher;
-
+            
             var dataAccess = new DatabaseDataLoader(_dbPath);
 
             Task.Factory.StartNew(() =>
@@ -1223,17 +1257,15 @@ namespace BiodiversityPlugin.ViewModels
                 Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
                 var selectedPaths = SelectedPathways.ToList();
-                //var accessions = new List<ProteinInformation>();
                 if (SelectedPathway != null && SelectedOrganism != null)
                 {
                     // Load accessions for the pathway based on the selected proteins
                     foreach (var pathway in selectedPaths)
                     {
-                        var temp = new List<Pathway> { pathway }; // Current flow is that exporting
+                        // Current flow is that exporting
                         // accessions requires a list of pathways
-                        // todo: CHANGE THIS TO USE SINGLE PATHWAY
+                        var temp = new List<Pathway> { pathway }; 
                         var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
-                        //accessions.AddRange(pathwayAcc);
 
                         var association = new OrganismPathwayProteinAssociation
                         {
@@ -1349,6 +1381,7 @@ namespace BiodiversityPlugin.ViewModels
             FilteredProteins.Clear();
             ProteinsToExport.Clear();
 
+            // Allow the user to 
             string spectralLibPath;
             FolderBrowserDialog spectralLibPathDialog = new FolderBrowserDialog();
             spectralLibPathDialog.Description = "Select folder to save spectral library.";
@@ -1364,8 +1397,6 @@ namespace BiodiversityPlugin.ViewModels
                 return;
             }
 
-
-
             SelectedTabIndex = 4;
             string[] queryingStrings =
 			    {
@@ -1375,9 +1406,7 @@ namespace BiodiversityPlugin.ViewModels
 				    "Generating Fasta...\nPlease Wait"
 			    };
             QueryString = queryingStrings[0];
-
-            var dis = Application.Current.Dispatcher;
-
+            
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew(() =>
@@ -1415,43 +1444,17 @@ namespace BiodiversityPlugin.ViewModels
                 var accessionList = ProteinsToExport.ToList();
                 var accessionString = String.Join("+OR+", accessionList);
 
+                // Continue waiting for the downloading to be complete.
                 while (_ncbiDownloading)
                 {
                     continue;
                 }
 
                 var allFastas = "";
-                // Need to see if there are any NCBI accessions to pull use to 
-                // create the FASTA file.
+                // Need to see if there are any NCBI accessions to pull and use this to 
+                // create the FASTA file for skyline.
                 if (!string.IsNullOrWhiteSpace(accessionString))
                 {
-                    // Write the Fasta(s) from NCBI to file. This could eventually
-                    // follow a different workflow depending on what Skyline needs.
-                    //try
-                    //{
-                    //    GetFastasFromNCBI(accessionString);
-                    //}
-                    //catch (WebException)
-                    //{
-                    //    var errorMessage =
-                    //        "Error accessing NCBI database\nPlease check your internet connection and try again.";
-                    //    MessageBox.Show(errorMessage, "Error connecting to NCBI", MessageBoxButton.OK);
-                    //}
-                    //catch (Exception)
-                    //{
-                    //    var outputpath = "C:\\Temp\\accessionList.txt";
-                    //    using (var fastaWriter = new StreamWriter(outputpath))
-                    //    {
-                    //        foreach (var acc in accessionList)
-                    //        {
-                    //            fastaWriter.WriteLine(acc);
-                    //        }
-                    //    }
-                    //    var errorMessage =
-                    //        "Error accessing NCBI database\nPlease check that the accessions are valid";
-                    //    MessageBox.Show(errorMessage, "Error During creation", MessageBoxButton.OK);
-                    //}
-
                     foreach (var acc in accessionList)
                     {
                         if (!_accessionsWithFastaErrors.Contains(acc))
@@ -1468,9 +1471,11 @@ namespace BiodiversityPlugin.ViewModels
                     }
                     if (ToolClient != null)
                     {
+                        // If we're using skyline interaction, push that data to Skyline
                         ToolClient.ImportFasta(allFastas);
                     }
                     var errors = string.Join("\n", _accessionsWithFastaErrors);
+                    // Display to the user the errors that occurred during fasta construction
                     if (!string.IsNullOrEmpty(errors))
                     {
                         using (var errorWriter = new StreamWriter(@"C:\Temp\BioDiversityPluginNCBIErrors.txt"))
@@ -1496,6 +1501,8 @@ namespace BiodiversityPlugin.ViewModels
                 }
 
                 IsQuerying = false;
+
+                // IMPORTANT! This sleep length is so that the overlay can "refresh" to the proper information to show to the user
                 Thread.Sleep(501);
 
 
@@ -1508,10 +1515,7 @@ namespace BiodiversityPlugin.ViewModels
                 QueryString = downloadingStrings[0];
                 Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
 
-
-                //var something = new DatabaseDataLoader(_dbPath);
-                //something.PeptidePuller(accessionList, "C:\\Temp\\peptideList.tsv");
-
+                
                 //Create list of organisms to use with the downloader below.
                 List<string> organismList = new List<string>();
 
@@ -1553,15 +1557,15 @@ namespace BiodiversityPlugin.ViewModels
                                 QueryString = importingStrings[0];
                                 Task.Factory.StartNew(() => StartOverlay(importingStrings));
 
+                                // If we're using the Skyline connection, push the downloaded .blib to Skyline
                                 ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
                             }
                         }
                     }
+                    //File hasn't been downloaded yet from the massive server for this organism
                     if(!fileFound)
                     {
-
                         string bestFile = "";
-                        //var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://MSV000079053:a@massive.ucsd.edu/library/"));
                         try
                         {
 
@@ -1592,7 +1596,6 @@ namespace BiodiversityPlugin.ViewModels
                                             continue;
 
                                         files.Add(line.Split(' ').Last());
-                                        //result.Append("\n");
                                     }
                                 }
                             }
@@ -1643,7 +1646,6 @@ namespace BiodiversityPlugin.ViewModels
 			                        };
                                     QueryString = importinStrings[0];
                                     Task.Factory.StartNew(() => StartOverlay(importinStrings));
-                                    //End
 
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
                                         spectralLibPath + "\\" + bestFile + ".blib");
@@ -1660,73 +1662,22 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                 }
-
-
                 IsQuerying = false;
 
                 if (ToolClient != null && dataImported)
                 {
-					/* Need to keep app open until skyline is done loading the .blib information */
-					//TODO: See if Skyline can send us a message saying that it's done loading ^^^^
+                    // Dispose of the client connection and move the user to the "Successful import view"
                     ToolClient.Dispose();
                     TopLevelWindow = 1;
-                    //dis.InvokeShutdown();
-                    //Application.Current.Shutdown();
-                    //Environment.Exit(0);
                 }
-                //if (ToolClient != null)
-                //{
-                //    ToolClient.Dispose();
-                //    ToolClient = null;
-                //    //Application.Current.Shutdown();
-                //}
-
             });
         }
-
+        
         /// <summary>
-        /// Use of the NCBI web API to get the FASTAs for the string of Accessions selected.
-        /// Creates a FASTA formatted file, currently to C:\Temp\currentSelection.fasta
+        /// Short database script to check if the organism has downloaded a blib before
         /// </summary>
-        /// <param name="accessionString">A list of NCBI accessions, separated by "+OR+" for use with NCBI</param>
-        /// <returns>The FASTA for all accessions</returns>
-        private string GetFastasFromNCBI(string accessionString)
-        {
-            var fastas = "";
-
-            var esearchURL =
-                "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=protein&id=" + accessionString + "&rettype=fasta&retmode=txt";//&usehistory=y";
-
-            var esearchGetUrl = WebRequest.Create(esearchURL);
-
-            var getStream = esearchGetUrl.GetResponse().GetResponseStream();
-            var reader = new StreamReader(getStream);
-            var streamLine = "";
-            while (streamLine != null)
-            {
-                streamLine = reader.ReadLine();
-                if (streamLine != null)
-                {
-                    fastas += streamLine + '\n';
-                }
-            }
-            fastas = fastas.Replace("\n\n", "\n");
-
-            var outputpath = "C:\\Temp\\currentSelection.fasta";
-
-            if (File.Exists(outputpath))
-            {
-                File.Delete(outputpath);
-            }
-
-            using (var fastaWriter = new StreamWriter(outputpath))
-            {
-                fastaWriter.Write(fastas, 0, fastas.Length);
-            }
-
-            return fastas;
-        }
-
+        /// <param name="orgName"></param>
+        /// <returns>File location of the .blib</returns>
         private string CheckFileLocation(string orgName)
         {
             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
@@ -1750,6 +1701,12 @@ namespace BiodiversityPlugin.ViewModels
             return fileLoc;
         }
 
+        /// <summary>
+        /// Update the database with a linking of organism name to file location.
+        /// This will not only add, but update the database with the proper location.
+        /// </summary>
+        /// <param name="orgName"></param>
+        /// <param name="fileLoc"></param>
         private void AddFileLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
