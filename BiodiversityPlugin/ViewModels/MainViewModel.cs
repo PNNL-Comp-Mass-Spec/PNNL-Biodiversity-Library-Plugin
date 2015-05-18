@@ -637,12 +637,12 @@ namespace BiodiversityPlugin.ViewModels
 
                 var pathList = (from catagory in Pathways 
                                 from @group in catagory.PathwayGroups 
-                                where @group.GroupName != "Global and Overview Maps" 
+                                where @group.GroupName != "Chemical structure transformation maps" 
                                 from path in @group.Pathways select path).ToList();
                 
                 foreach (var path in pathList)
                 {
-                    if (SelectedTabIndex == 2 || path.PercentCover <= -1)
+                    if (SelectedTabIndex == 2 && path.PercentCover <= -1)
                     {
                         var pathAsList = new List<Pathway> {path};
                         dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathAsList, coordPrefix);
