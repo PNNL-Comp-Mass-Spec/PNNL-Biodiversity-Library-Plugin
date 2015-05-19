@@ -81,7 +81,7 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility _ncbiSolution;
         private Visibility _massiveSolution;
         private bool _errorFound;
-
+        private List<string> _parsedFiles = new List<string>(); 
         #endregion
 
         #region Public Properties
@@ -982,6 +982,11 @@ namespace BiodiversityPlugin.ViewModels
         /// <param name="currentOrg">Organism that the user has selected</param>
         private void StartFastaDownloads(Organism currentOrg)
         {
+            // To prevent concurrent calls
+            while (_ncbiDownloading)
+            {
+                continue;
+            }
             try
             {
                 _ncbiDownloading = true;
@@ -995,11 +1000,12 @@ namespace BiodiversityPlugin.ViewModels
 
                 foreach (var file in filesForOrg)
                 {
-                    if (file.EndsWith(".faa") || file.EndsWith(".fa.gz"))
+                    if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
                     {
                         // Download the file and parse it
                         var tempFileLoc = DownloadFaaFile(ftpLoc + file);
                         ParseFaaFile(tempFileLoc);
+                        _parsedFiles.Add(file);
                     }
                 }
                 _ncbiDownloading = false;
@@ -1215,10 +1221,13 @@ namespace BiodiversityPlugin.ViewModels
                         // Only piece we desire is the portion with the accession
                         // We do not care about the version of the accession due to data returned
                         // from the database, so we strip of that portion.
-                        char[] separators = { '>', '|', '[', ']' };
+                        char[] separators = {'>', '|', '[', ']'};
                         var linePieces = readLine.Split(separators);
                         accKey = linePieces[4].Split('.')[0];
-                        _ncbiFastaDictionary.Add(accKey, "");
+                        if (!_ncbiFastaDictionary.ContainsKey(accKey))
+                        {
+                            _ncbiFastaDictionary.Add(accKey, "");
+                        }
                     }
                     //Add the line to the accession we are currently working on
                     _ncbiFastaDictionary[accKey] += readLine + '\n';
