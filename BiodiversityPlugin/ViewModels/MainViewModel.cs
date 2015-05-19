@@ -1606,6 +1606,7 @@ namespace BiodiversityPlugin.ViewModels
                     if(!fileFound)
                     {
                         string bestFile = "";
+                        // Attempt to access the anonymous user MassIVE link
                         try
                         {
                             var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu:2121/MSV000079053/library/"));
@@ -1618,12 +1619,13 @@ namespace BiodiversityPlugin.ViewModels
 
                             var files = new List<string>();
 
-                            using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
+                            using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
                             {
                                 var response = webResponse.GetResponseStream();
                                 if (response == null)
                                 {
-                                    Console.WriteLine("No files found for ftp://massive.ucsd.edu:2121/MSV000079053/library/");
+                                    Console.WriteLine(
+                                        "No files found for ftp://massive.ucsd.edu:2121/MSV000079053/library/");
                                     break;
                                 }
                                 using (var responseReader = new StreamReader(response))
@@ -1677,12 +1679,13 @@ namespace BiodiversityPlugin.ViewModels
                                     Thread.Sleep(501);
 
 
-                                    string[] importinStrings = {
-				                    "Importing to Skyline   \nPlease Wait",
-				                    "Importing to Skyline.  \nPlease Wait",
-				                    "Importing to Skyline.. \nPlease Wait",
-				                    "Importing to Skyline...\nPlease Wait"
-			                        };
+                                    string[] importinStrings =
+                                    {
+                                        "Importing to Skyline   \nPlease Wait",
+                                        "Importing to Skyline.  \nPlease Wait",
+                                        "Importing to Skyline.. \nPlease Wait",
+                                        "Importing to Skyline...\nPlease Wait"
+                                    };
                                     QueryString = importinStrings[0];
                                     Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
@@ -1691,8 +1694,13 @@ namespace BiodiversityPlugin.ViewModels
                                 }
                             }
                         }
-                        catch(WebException ex)
+                        catch (WebException ex)
                         {
+                        }
+                        // Attempt to access the Username based MassIVE link
+                        try
+                        {
+
                             var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
                             reqFtp.UseBinary = true;
                             reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
@@ -1701,10 +1709,10 @@ namespace BiodiversityPlugin.ViewModels
                             reqFtp.KeepAlive = true;
                             reqFtp.UsePassive = true;
                             reqFtp.Timeout = 15000;
-                            
+
                             var files = new List<string>();
 
-                            using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
+                            using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
                             {
                                 var response = webResponse.GetResponseStream();
                                 if (response == null)
@@ -1763,12 +1771,103 @@ namespace BiodiversityPlugin.ViewModels
                                     Thread.Sleep(501);
 
 
-                                    string[] importinStrings = {
-				                    "Importing to Skyline   \nPlease Wait",
-				                    "Importing to Skyline.  \nPlease Wait",
-				                    "Importing to Skyline.. \nPlease Wait",
-				                    "Importing to Skyline...\nPlease Wait"
-			                        };
+                                    string[] importinStrings =
+                                    {
+                                        "Importing to Skyline   \nPlease Wait",
+                                        "Importing to Skyline.  \nPlease Wait",
+                                        "Importing to Skyline.. \nPlease Wait",
+                                        "Importing to Skyline...\nPlease Wait"
+                                    };
+                                    QueryString = importinStrings[0];
+                                    Task.Factory.StartNew(() => StartOverlay(importinStrings));
+
+                                    ToolClient.AddSpectralLibrary(org + " Spectral Library",
+                                        spectralLibPath + "\\" + bestFile + ".blib");
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            
+                        }
+                        // LAST DITCH ATTEMPT: look on the PNL ftp for the blib.
+                        try
+                        {
+                            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/"));
+                            reqFtp.UseBinary = true;
+                            reqFtp.Credentials = new NetworkCredential("proteomics", "Amt23Data");
+                            reqFtp.Method = "LIST";
+                            reqFtp.Proxy = null;
+                            reqFtp.KeepAlive = true;
+                            reqFtp.UsePassive = true;
+                            reqFtp.Timeout = 15000;
+
+                            var files = new List<string>();
+
+                            using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                            {
+                                var response = webResponse.GetResponseStream();
+                                if (response == null)
+                                {
+                                    Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
+                                    break;
+                                }
+                                using (var responseReader = new StreamReader(response))
+                                {
+                                    while (responseReader.Peek() > -1)
+                                    {
+                                        var line = responseReader.ReadLine();
+                                        if (string.IsNullOrWhiteSpace(line))
+                                            continue;
+
+                                        files.Add(line.Split(' ').Last());
+                                    }
+                                }
+                            }
+
+                            int minDistance = 99;
+                            //Loop to call the Levenshtein distance to find the best match
+                            foreach (var file in files)
+                            {
+                                int distance = LevenshteinDistance.Compute(org, file);
+                                if (distance < minDistance)
+                                {
+                                    minDistance = distance;
+                                    bestFile = file;
+                                }
+                            }
+                            //Finally, download the best file that we found for the organism.
+                            var result = true;
+                            if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+                            {
+                                //Combining the path of the massive server (with username/password encoded) with the name of the file
+                                result =
+                                    FileManager.DownloadFile(
+                                        ("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/" + bestFile),
+                                        (spectralLibPath), overwrite:true, inNetwork:true);
+                            }
+                            else
+                            {
+                                bestFile = org.Replace(" ", "_");
+                            }
+                            if (result)
+                            {
+                                AddFileLocation(org, spectralLibPath + "\\" + bestFile);
+                                MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile);
+                                if (ToolClient != null)
+                                {
+                                    //Overlay so it says Importing to Skyline
+                                    IsQuerying = false;
+                                    Thread.Sleep(501);
+
+
+                                    string[] importinStrings =
+                                    {
+                                        "Importing to Skyline   \nPlease Wait",
+                                        "Importing to Skyline.  \nPlease Wait",
+                                        "Importing to Skyline.. \nPlease Wait",
+                                        "Importing to Skyline...\nPlease Wait"
+                                    };
                                     QueryString = importinStrings[0];
                                     Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
