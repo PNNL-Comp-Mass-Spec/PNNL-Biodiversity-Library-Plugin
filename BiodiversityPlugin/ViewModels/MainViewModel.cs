@@ -74,6 +74,13 @@ namespace BiodiversityPlugin.ViewModels
         private string _pathwayCoverageOrg;
         private bool _versionBool;
         private int _topLevelWindow;
+        private int _noNewDataCount;
+        private Visibility _skylineSolution;
+        private string _errorDetail;
+        private string _errorMessage;
+        private Visibility _ncbiSolution;
+        private Visibility _massiveSolution;
+        private bool _errorFound;
 
         #endregion
 
@@ -580,9 +587,20 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
             _pathwayCoverageOrg = "";
             _overviewTabEnabled = true;
+            _noNewDataCount = 0;
+            ErrorDetail = "";
+            ErrorMessage = "";
+            SkylineSolution = Visibility.Collapsed;
+            NcbiSolution = Visibility.Collapsed;
+            MassiveSolution = Visibility.Collapsed;
+            _errorFound = false;
 
             if (ToolClient != null && !goodVersion)
             {
+                ErrorMessage = "ERROR: Your Skyline version must be version 3.1.1.7469 or later.";
+                ErrorDetail = TextVersionMessage;
+                SkylineSolution = Visibility.Visible;
+                _errorFound = true;
                 TopLevelWindow = 2;
             }
 
@@ -829,7 +847,7 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             foreach (var pathway in group.Pathways)
                             {
-                                if (pathway.Selected)
+                                if (pathway.Selected && !_errorFound)
                                 {
                                     // Load the image (From the static location)
                                     dis.Invoke(() =>
@@ -964,29 +982,40 @@ namespace BiodiversityPlugin.ViewModels
         /// <param name="currentOrg">Organism that the user has selected</param>
         private void StartFastaDownloads(Organism currentOrg)
         {
-            var watch = new Stopwatch();
-            watch.Start();
-            _ncbiDownloading = true;
-            // Query DB to get ftp location for organism
-            var ftpLoc = GetFtpLocationFromDb(currentOrg.OrgCode);
-
-            // Connect to ftp site at above location to get all the .faa files
-            var filesForOrg = GetFtpFileList(ftpLoc);
-
-            // For each .faa and .fa.gz file...
-            foreach (var file in filesForOrg)
+            try
             {
-                if (file.EndsWith(".faa") || file.EndsWith(".fa.gz"))
+                _ncbiDownloading = true;
+                // Query DB to get ftp location for organism
+                var ftpLoc = GetFtpLocationFromDb(currentOrg.OrgCode);
+
+                // Connect to ftp site at above location to get all the .faa files
+                var filesForOrg = GetFtpFileList(ftpLoc);
+
+                // For each .faa and .fa.gz file...
+
+                foreach (var file in filesForOrg)
                 {
-                    // Download the file and parse it
-                    var tempFileLoc = DownloadFaaFile(ftpLoc + file);
-                    ParseFaaFile(tempFileLoc);
+                    if (file.EndsWith(".faa") || file.EndsWith(".fa.gz"))
+                    {
+                        // Download the file and parse it
+                        var tempFileLoc = DownloadFaaFile(ftpLoc + file);
+                        ParseFaaFile(tempFileLoc);
+                    }
                 }
+                _ncbiDownloading = false;
             }
-            _ncbiDownloading = false;
-            watch.Stop();
-            Console.WriteLine(watch.Elapsed);
-            Console.WriteLine(watch.ElapsedMilliseconds);
+            catch (Exception)
+            {
+                _ncbiDownloading = false;
+                _errorFound = true;
+                TopLevelWindow = 2;
+
+                ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
+
+                //ErrorDetail = "HERP DERP DO!!!!";
+                
+                NcbiSolution = Visibility.Visible;
+            }
         }
 
         /// <summary>
@@ -1036,6 +1065,7 @@ namespace BiodiversityPlugin.ViewModels
             reqFtp.UseBinary = true;
             reqFtp.Proxy = null;
             reqFtp.UsePassive = true;
+            reqFtp.Timeout = 15000;
             var tempFileLoc = "";
 
             var response = (FtpWebResponse)reqFtp.GetResponse();
@@ -1094,6 +1124,7 @@ namespace BiodiversityPlugin.ViewModels
                 reqFtp.Proxy = null;
                 reqFtp.KeepAlive = true;
                 reqFtp.UsePassive = true;
+                reqFtp.Timeout = 15000;
                 using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
                 {
                     var response = webResponse.GetResponseStream();
@@ -1347,7 +1378,7 @@ namespace BiodiversityPlugin.ViewModels
             ReviewTabEnabled = false;
             OverviewEnabled = false;
             Thread.Sleep(500);
-            while (IsQuerying)
+            while (IsQuerying && !_errorFound)
             {
                 // Cycle through the messages passed in
                 if (FileManager.Percentage > 0)
@@ -1576,7 +1607,8 @@ namespace BiodiversityPlugin.ViewModels
                             reqFtp.Proxy = null;
                             reqFtp.KeepAlive = true;
                             reqFtp.UsePassive = true;
-
+                            reqFtp.Timeout = 15000;
+                            
                             var files = new List<string>();
 
                             using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
@@ -1654,10 +1686,18 @@ namespace BiodiversityPlugin.ViewModels
                         }
                         catch (Exception)
                         {
-                            MessageBox.Show(
-                                "MassIVE Server unreachable; Unable to download .blib for " + org +
-                                "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
-                                MessageBoxButton.OK);
+                            TopLevelWindow = 2;
+
+                            MassiveSolution = Visibility.Visible;
+                            ErrorMessage = "MassIVE Server unreachable";
+                            ErrorDetail = "Unable to download .blib for " + org;
+
+                            _errorFound = true;
+
+                            //MessageBox.Show(
+                            //    "MassIVE Server unreachable; Unable to download .blib for " + org +
+                            //    "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
+                            //    MessageBoxButton.OK);
                             dataImported = false;
                         }
                     }
@@ -1758,5 +1798,15 @@ namespace BiodiversityPlugin.ViewModels
             curList.Add(newAssociation);
             PathwayProteinAssociation = new ObservableCollection<OrganismPathwayProteinAssociation>(curList);
         }
+
+        public Visibility SkylineSolution { get { return _skylineSolution; } set { _skylineSolution = value; RaisePropertyChanged(); } }
+
+        public string ErrorDetail { get { return _errorDetail; } set { _errorDetail = value; RaisePropertyChanged(); } }
+
+        public string ErrorMessage { get { return _errorMessage; } set { _errorMessage = value; RaisePropertyChanged(); } }
+
+        public Visibility NcbiSolution { get { return _ncbiSolution; } set { _ncbiSolution = value; RaisePropertyChanged(); } }
+
+        public Visibility MassiveSolution { get { return _massiveSolution; } set { _massiveSolution = value; RaisePropertyChanged(); } }
     }
 }

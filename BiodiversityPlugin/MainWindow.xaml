@@ -542,16 +542,29 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
                     <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
-                    <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15">
-                        ERROR: Your Skyline version must be version 3.1.1.7469 or later.
-                    </TextBlock>
-                    <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding TextVersionMessage}" />
-                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15">
-                        
+                    <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorMessage}" />
+                    <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorDetail}" />
+                    
+                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding SkylineSolution}">
                         Please go to
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://skyline.gs.washington.edu/labkey/project/home/software/Skyline/daily/register-form/begin.view?"> Skyline Daily's webpage </Hyperlink>
                         for the latest version.
                     </TextBlock>
+                    
+                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding NcbiSolution}">
+                        Please send an email directly to 
+                        <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="info@ncbi.nlm.nih.gov"> info@ncbi.nlm.nih.gov </Hyperlink>
+                        for further assistance with their FTP connection.
+                    </TextBlock>
+                    
+                    <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding MassiveSolution}">
+                        Please contact either <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="ccms-web@proteomics.ucsd.edu"> ccms-web@proteomics.ucsd.edu </Hyperlink>
+                        or <LineBreak />
+                        <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="ccms-web@cs.ucsd.edu"> ccms-web@cs.ucsd.edu </Hyperlink>
+                        for further assistance with their FTP connection.
+                    </TextBlock>
+                    
+                    
                 </StackPanel>
                 
                 <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
