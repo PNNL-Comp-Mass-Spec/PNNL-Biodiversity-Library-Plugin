@@ -1838,7 +1838,7 @@ namespace BiodiversityPlugin.ViewModels
                             }
                             //Finally, download the best file that we found for the organism.
                             var result = true;
-                            if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+                            if (!File.Exists(Path.Combine(spectralLibPath, org.Replace(" ", "_") + ".blib")))
                             {
                                 //Combining the path of the massive server (with username/password encoded) with the name of the file
                                 result =
@@ -1848,7 +1848,7 @@ namespace BiodiversityPlugin.ViewModels
                             }
                             else
                             {
-                                bestFile = org.Replace(" ", "_");
+                                bestFile = org.Replace(" ", "_") + ".blib";
                             }
                             if (result)
                             {
@@ -1872,7 +1872,7 @@ namespace BiodiversityPlugin.ViewModels
                                     Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                        spectralLibPath + "\\" + bestFile + ".blib");
+                                        spectralLibPath + "\\" + bestFile);
                                 }
                             }
                         }
