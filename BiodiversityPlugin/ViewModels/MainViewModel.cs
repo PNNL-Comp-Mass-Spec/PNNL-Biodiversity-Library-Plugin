@@ -1838,17 +1838,13 @@ namespace BiodiversityPlugin.ViewModels
                             }
                             //Finally, download the best file that we found for the organism.
                             var result = true;
-                            if (!File.Exists(Path.Combine(spectralLibPath, org.Replace(" ", "_") + ".blib")))
+                            if (!File.Exists(Path.Combine(spectralLibPath, bestFile)))
                             {
                                 //Combining the path of the massive server (with username/password encoded) with the name of the file
                                 result =
                                     FileManager.DownloadFile(
                                         ("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/" + bestFile),
                                         (spectralLibPath), overwrite:true, inNetwork:true);
-                            }
-                            else
-                            {
-                                bestFile = org.Replace(" ", "_") + ".blib";
                             }
                             if (result)
                             {
