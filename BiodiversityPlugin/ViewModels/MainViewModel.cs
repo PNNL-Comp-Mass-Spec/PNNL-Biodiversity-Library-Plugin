@@ -1545,17 +1545,6 @@ namespace BiodiversityPlugin.ViewModels
                 // IMPORTANT! This sleep length is so that the overlay can "refresh" to the proper information to show to the user
                 Thread.Sleep(501);
 
-
-                string[] downloadingStrings = {
-				    "Downloading Spectral Library   \nPlease Wait",
-				    "Downloading Spectral Library.  \nPlease Wait",
-				    "Downloading Spectral Library.. \nPlease Wait",
-				    "Downloading Spectral Library...\nPlease Wait"
-			    };
-                QueryString = downloadingStrings[0];
-                Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
-
-                
                 //Create list of organisms to use with the downloader below.
                 List<string> organismList = new List<string>();
 
@@ -1571,6 +1560,14 @@ namespace BiodiversityPlugin.ViewModels
                 //This is a loop to use the Levenshtein class to find the closest file match to an organism name.
                 foreach (var org in organismList)
                 {
+                    string[] downloadingStrings = {
+				    "Downloading Spectral Library   \nPlease Wait",
+				    "Downloading Spectral Library.  \nPlease Wait",
+				    "Downloading Spectral Library.. \nPlease Wait",
+				    "Downloading Spectral Library...\nPlease Wait"
+			    };
+                    QueryString = downloadingStrings[0];
+                    Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
                     var fileFound = false;
                     var fileLoc = CheckFileLocation(org);
                     if (!string.IsNullOrWhiteSpace(fileLoc))
@@ -1583,20 +1580,6 @@ namespace BiodiversityPlugin.ViewModels
                             MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
                             if (ToolClient != null)
                             {
-                                //Change overlay so it says Importing to Skyline
-                                IsQuerying = false;
-                                Thread.Sleep(501);
-
-                                string[] importingStrings =
-                                {
-                                    "Importing to Skyline   \nPlease Wait",
-                                    "Importing to Skyline.  \nPlease Wait",
-                                    "Importing to Skyline.. \nPlease Wait",
-                                    "Importing to Skyline...\nPlease Wait"
-                                };
-                                QueryString = importingStrings[0];
-                                Task.Factory.StartNew(() => StartOverlay(importingStrings));
-
                                 // If we're using the Skyline connection, push the downloaded .blib to Skyline
                                 ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
                             }
@@ -1674,20 +1657,6 @@ namespace BiodiversityPlugin.ViewModels
                                                 ".blib");
                                 if (ToolClient != null)
                                 {
-                                    //Overlay so it says Importing to Skyline
-                                    IsQuerying = false;
-                                    Thread.Sleep(501);
-
-
-                                    string[] importinStrings =
-                                    {
-                                        "Importing to Skyline   \nPlease Wait",
-                                        "Importing to Skyline.  \nPlease Wait",
-                                        "Importing to Skyline.. \nPlease Wait",
-                                        "Importing to Skyline...\nPlease Wait"
-                                    };
-                                    QueryString = importinStrings[0];
-                                    Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
                                         spectralLibPath + "\\" + bestFile + ".blib");
@@ -1766,20 +1735,6 @@ namespace BiodiversityPlugin.ViewModels
                                                 ".blib");
                                 if (ToolClient != null)
                                 {
-                                    //Overlay so it says Importing to Skyline
-                                    IsQuerying = false;
-                                    Thread.Sleep(501);
-
-
-                                    string[] importinStrings =
-                                    {
-                                        "Importing to Skyline   \nPlease Wait",
-                                        "Importing to Skyline.  \nPlease Wait",
-                                        "Importing to Skyline.. \nPlease Wait",
-                                        "Importing to Skyline...\nPlease Wait"
-                                    };
-                                    QueryString = importinStrings[0];
-                                    Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
                                         spectralLibPath + "\\" + bestFile + ".blib");
@@ -1852,20 +1807,6 @@ namespace BiodiversityPlugin.ViewModels
                                 MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile);
                                 if (ToolClient != null)
                                 {
-                                    //Overlay so it says Importing to Skyline
-                                    IsQuerying = false;
-                                    Thread.Sleep(501);
-
-
-                                    string[] importinStrings =
-                                    {
-                                        "Importing to Skyline   \nPlease Wait",
-                                        "Importing to Skyline.  \nPlease Wait",
-                                        "Importing to Skyline.. \nPlease Wait",
-                                        "Importing to Skyline...\nPlease Wait"
-                                    };
-                                    QueryString = importinStrings[0];
-                                    Task.Factory.StartNew(() => StartOverlay(importinStrings));
 
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library",
                                         spectralLibPath + "\\" + bestFile);
@@ -1889,10 +1830,18 @@ namespace BiodiversityPlugin.ViewModels
                             dataImported = false;
                         }
                     }
-                    IsQuerying = false;
-                    Thread.Sleep(501);
                 }
                 IsQuerying = false;
+                Thread.Sleep(501);
+                string[] importingStrings =
+                                    {
+                                        "Importing to Skyline   \nPlease Wait",
+                                        "Importing to Skyline.  \nPlease Wait",
+                                        "Importing to Skyline.. \nPlease Wait",
+                                        "Importing to Skyline...\nPlease Wait"
+                                    };
+                QueryString = importingStrings[0];
+                Task.Factory.StartNew(() => StartOverlay(importingStrings));
 
                 if (ToolClient != null && dataImported)
                 {
