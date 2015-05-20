@@ -1844,7 +1844,7 @@ namespace BiodiversityPlugin.ViewModels
                                 result =
                                     FileManager.DownloadFile(
                                         ("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/" + bestFile),
-                                        (spectralLibPath), overwrite:true, inNetwork:true);
+                                        (spectralLibPath), inNetwork:true);
                             }
                             if (result)
                             {
