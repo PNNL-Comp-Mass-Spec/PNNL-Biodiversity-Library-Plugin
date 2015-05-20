@@ -26,7 +26,7 @@ namespace BiodiversityPlugin
                     {
                         if (version.Build >= 1)
                         {
-                            if (version.Revision >= 7469)
+                            if (version.Revision >= 7490)
                             {
                                 goodVersion = true;
                             }
