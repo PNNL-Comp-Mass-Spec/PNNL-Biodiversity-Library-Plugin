@@ -1889,6 +1889,8 @@ namespace BiodiversityPlugin.ViewModels
                             dataImported = false;
                         }
                     }
+                    IsQuerying = false;
+                    Thread.Sleep(501);
                 }
                 IsQuerying = false;
 
