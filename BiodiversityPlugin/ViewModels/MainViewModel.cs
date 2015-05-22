@@ -1586,251 +1586,269 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                     //File hasn't been downloaded yet from the massive server for this organism
-                    if(!fileFound)
+                    if (!fileFound)
                     {
+                        var dlFailed = false;
                         string bestFile = "";
                         // Attempt to access the anonymous user MassIVE link
-                        try
+                        if (!org.StartsWith("Homo sapiens"))
                         {
-                            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/MSV000079053/library/"));
-                            reqFtp.UseBinary = true;
-                            reqFtp.Method = "LIST";
-                            reqFtp.Proxy = null;
-                            reqFtp.KeepAlive = true;
-                            reqFtp.UsePassive = true;
-                            reqFtp.Timeout = 15000;
-
-                            var files = new List<string>();
-
-                            using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
+                            try
                             {
-                                var response = webResponse.GetResponseStream();
-                                if (response == null)
-                                {
-                                    Console.WriteLine(
-                                        "No files found for ftp://massive.ucsd.edu/MSV000079053/library/");
-                                    break;
-                                }
-                                using (var responseReader = new StreamReader(response))
-                                {
-                                    while (responseReader.Peek() > -1)
-                                    {
-                                        var line = responseReader.ReadLine();
-                                        if (string.IsNullOrWhiteSpace(line))
-                                            continue;
+                                var reqFtp =
+                                    (FtpWebRequest)
+                                        WebRequest.Create(new Uri("ftp://massive.ucsd.edu/MSV000079053/library/"));
+                                reqFtp.UseBinary = true;
+                                reqFtp.Method = "LIST";
+                                reqFtp.Proxy = null;
+                                reqFtp.KeepAlive = true;
+                                reqFtp.UsePassive = true;
+                                reqFtp.Timeout = 15000;
 
-                                        files.Add(line.Split(' ').Last());
+                                var files = new List<string>();
+
+                                using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                                {
+                                    var response = webResponse.GetResponseStream();
+                                    if (response == null)
+                                    {
+                                        Console.WriteLine(
+                                            "No files found for ftp://massive.ucsd.edu/MSV000079053/library/");
+                                        break;
+                                    }
+                                    using (var responseReader = new StreamReader(response))
+                                    {
+                                        while (responseReader.Peek() > -1)
+                                        {
+                                            var line = responseReader.ReadLine();
+                                            if (string.IsNullOrWhiteSpace(line))
+                                                continue;
+
+                                            files.Add(line.Split(' ').Last());
+                                        }
+                                    }
+                                }
+
+                                int minDistance = 99;
+                                //Loop to call the Levenshtein distance to find the best match
+                                foreach (var file in files)
+                                {
+                                    int distance = LevenshteinDistance.Compute(org, file);
+                                    if (distance < minDistance)
+                                    {
+                                        minDistance = distance;
+                                        bestFile = file;
+                                    }
+                                }
+                                //Finally, download the best file that we found for the organism.
+                                var result = true;
+                                if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+                                {
+                                    //Combining the path of the massive server (with username/password encoded) with the name of the file
+                                    result =
+                                        FileManager.DownloadFile(
+                                            ("ftp://massive.ucsd.edu/MSV000079053/library/" + bestFile + "/" + bestFile +
+                                             ".blib"),
+                                            (spectralLibPath));
+                                }
+                                else
+                                {
+                                    bestFile = org.Replace(" ", "_");
+                                }
+                                if (result)
+                                {
+                                    AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
+                                    MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
+                                                    ".blib");
+                                    if (ToolClient != null)
+                                    {
+
+                                        ToolClient.AddSpectralLibrary(org + " Spectral Library",
+                                            spectralLibPath + "\\" + bestFile + ".blib");
                                     }
                                 }
                             }
-
-                            int minDistance = 99;
-                            //Loop to call the Levenshtein distance to find the best match
-                            foreach (var file in files)
+                            catch (WebException ex)
                             {
-                                int distance = LevenshteinDistance.Compute(org, file);
-                                if (distance < minDistance)
-                                {
-                                    minDistance = distance;
-                                    bestFile = file;
-                                }
+                                dlFailed = true;
                             }
-                            //Finally, download the best file that we found for the organism.
-                            var result = true;
-                            if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+                            // Attempt to access the Username based MassIVE link
+                            if (dlFailed)
                             {
-                                //Combining the path of the massive server (with username/password encoded) with the name of the file
-                                result =
-                                    FileManager.DownloadFile(
-                                        ("ftp://massive.ucsd.edu/MSV000079053/library/" + bestFile + "/" + bestFile +
-                                         ".blib"),
-                                        (spectralLibPath));
-                            }
-                            else
-                            {
-                                bestFile = org.Replace(" ", "_");
-                            }
-                            if (result)
-                            {
-                                AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
-                                MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
-                                                ".blib");
-                                if (ToolClient != null)
+                                try
                                 {
 
-                                    ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                        spectralLibPath + "\\" + bestFile + ".blib");
-                                }
-                            }
-                        }
-                        catch (WebException ex)
-                        {
-                        }
-                        // Attempt to access the Username based MassIVE link
-                        try
-                        {
+                                    var reqFtp =
+                                        (FtpWebRequest) WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
+                                    reqFtp.UseBinary = true;
+                                    reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
+                                    reqFtp.Method = "LIST";
+                                    reqFtp.Proxy = null;
+                                    reqFtp.KeepAlive = true;
+                                    reqFtp.UsePassive = true;
+                                    reqFtp.Timeout = 15000;
 
-                            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
-                            reqFtp.UseBinary = true;
-                            reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
-                            reqFtp.Method = "LIST";
-                            reqFtp.Proxy = null;
-                            reqFtp.KeepAlive = true;
-                            reqFtp.UsePassive = true;
-                            reqFtp.Timeout = 15000;
+                                    var files = new List<string>();
 
-                            var files = new List<string>();
-
-                            using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
-                            {
-                                var response = webResponse.GetResponseStream();
-                                if (response == null)
-                                {
-                                    Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
-                                    break;
-                                }
-                                using (var responseReader = new StreamReader(response))
-                                {
-                                    while (responseReader.Peek() > -1)
+                                    using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
                                     {
-                                        var line = responseReader.ReadLine();
-                                        if (string.IsNullOrWhiteSpace(line))
-                                            continue;
+                                        var response = webResponse.GetResponseStream();
+                                        if (response == null)
+                                        {
+                                            Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
+                                            break;
+                                        }
+                                        using (var responseReader = new StreamReader(response))
+                                        {
+                                            while (responseReader.Peek() > -1)
+                                            {
+                                                var line = responseReader.ReadLine();
+                                                if (string.IsNullOrWhiteSpace(line))
+                                                    continue;
 
-                                        files.Add(line.Split(' ').Last());
+                                                files.Add(line.Split(' ').Last());
+                                            }
+                                        }
+                                    }
+
+                                    int minDistance = 99;
+                                    //Loop to call the Levenshtein distance to find the best match
+                                    foreach (var file in files)
+                                    {
+                                        int distance = LevenshteinDistance.Compute(org, file);
+                                        if (distance < minDistance)
+                                        {
+                                            minDistance = distance;
+                                            bestFile = file;
+                                        }
+                                    }
+                                    //Finally, download the best file that we found for the organism.
+                                    var result = true;
+                                    if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
+                                    {
+                                        //Combining the path of the massive server (with username/password encoded) with the name of the file
+                                        result =
+                                            FileManager.DownloadFile(
+                                                ("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" +
+                                                 bestFile +
+                                                 ".blib"),
+                                                (spectralLibPath));
+                                    }
+                                    else
+                                    {
+                                        bestFile = org.Replace(" ", "_");
+                                    }
+                                    if (result)
+                                    {
+                                        AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
+                                        MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
+                                                        ".blib");
+                                        if (ToolClient != null)
+                                        {
+
+                                            ToolClient.AddSpectralLibrary(org + " Spectral Library",
+                                                spectralLibPath + "\\" + bestFile + ".blib");
+                                        }
+                                        dlFailed = false;
                                     }
                                 }
-                            }
-
-                            int minDistance = 99;
-                            //Loop to call the Levenshtein distance to find the best match
-                            foreach (var file in files)
-                            {
-                                int distance = LevenshteinDistance.Compute(org, file);
-                                if (distance < minDistance)
+                                catch (Exception)
                                 {
-                                    minDistance = distance;
-                                    bestFile = file;
+                                    dlFailed = true;
                                 }
                             }
-                            //Finally, download the best file that we found for the organism.
-                            var result = true;
-                            if (!File.Exists(spectralLibPath + org.Replace(" ", "_") + ".blib"))
-                            {
-                                //Combining the path of the massive server (with username/password encoded) with the name of the file
-                                result =
-                                    FileManager.DownloadFile(
-                                        ("ftp://MSV000079053:a@massive.ucsd.edu/library/" + bestFile + "/" + bestFile +
-                                         ".blib"),
-                                        (spectralLibPath));
-                            }
-                            else
-                            {
-                                bestFile = org.Replace(" ", "_");
-                            }
-                            if (result)
-                            {
-                                AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
-                                MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
-                                                ".blib");
-                                if (ToolClient != null)
-                                {
-
-                                    ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                        spectralLibPath + "\\" + bestFile + ".blib");
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-
                         }
                         // LAST DITCH ATTEMPT: look on the PNL ftp for the blib.
-                        try
+                        if (dlFailed || org.StartsWith("Homo sapiens"))
                         {
-                            var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/"));
-                            reqFtp.UseBinary = true;
-                            reqFtp.Credentials = new NetworkCredential("proteomics", "Amt23Data");
-                            reqFtp.Method = "LIST";
-                            reqFtp.Proxy = null;
-                            reqFtp.KeepAlive = true;
-                            reqFtp.UsePassive = true;
-                            reqFtp.Timeout = 15000;
-
-                            var files = new List<string>();
-
-                            using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                            try
                             {
-                                var response = webResponse.GetResponseStream();
-                                if (response == null)
-                                {
-                                    Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
-                                    break;
-                                }
-                                using (var responseReader = new StreamReader(response))
-                                {
-                                    while (responseReader.Peek() > -1)
-                                    {
-                                        var line = responseReader.ReadLine();
-                                        var opts = StringSplitOptions.RemoveEmptyEntries;
-                                        var delims = new string[] {" "};
-                                        var pieces = line.Split(delims, opts);
-                                        if (string.IsNullOrWhiteSpace(line))
-                                            continue;
+                                var reqFtp =
+                                    (FtpWebRequest)
+                                        WebRequest.Create(new Uri("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/"));
+                                reqFtp.UseBinary = true;
+                                reqFtp.Credentials = new NetworkCredential("proteomics", "Amt23Data");
+                                reqFtp.Method = "LIST";
+                                reqFtp.Proxy = null;
+                                reqFtp.KeepAlive = true;
+                                reqFtp.UsePassive = true;
+                                reqFtp.Timeout = 15000;
 
-                                        files.Add(line.Split(' ').Last());
+                                var files = new List<string>();
+
+                                using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                                {
+                                    var response = webResponse.GetResponseStream();
+                                    if (response == null)
+                                    {
+                                        Console.WriteLine("No files found for ftp://massive.ucsd.edu/library/");
+                                        break;
+                                    }
+                                    using (var responseReader = new StreamReader(response))
+                                    {
+                                        while (responseReader.Peek() > -1)
+                                        {
+                                            var line = responseReader.ReadLine();
+                                            var opts = StringSplitOptions.RemoveEmptyEntries;
+                                            var delims = new string[] {" "};
+                                            var pieces = line.Split(delims, opts);
+                                            if (string.IsNullOrWhiteSpace(line))
+                                                continue;
+
+                                            files.Add(line.Split(' ').Last());
+                                        }
+                                    }
+                                }
+
+                                int minDistance = 99;
+                                //Loop to call the Levenshtein distance to find the best match
+                                foreach (var file in files)
+                                {
+                                    int distance = LevenshteinDistance.Compute(org, file);
+                                    if (distance < minDistance)
+                                    {
+                                        minDistance = distance;
+                                        bestFile = file;
+                                    }
+                                }
+                                //Finally, download the best file that we found for the organism.
+                                var result = true;
+                                if (!File.Exists(Path.Combine(spectralLibPath, bestFile)))
+                                {
+                                    //Combining the path of the massive server (with username/password encoded) with the name of the file
+                                    result =
+                                        FileManager.DownloadFile(
+                                            ("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/" + bestFile),
+                                            (spectralLibPath), inNetwork: true);
+                                }
+                                if (result)
+                                {
+                                    AddFileLocation(org, spectralLibPath + "\\" + bestFile);
+                                    MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile);
+                                    if (ToolClient != null)
+                                    {
+
+                                        ToolClient.AddSpectralLibrary(org + " Spectral Library",
+                                            spectralLibPath + "\\" + bestFile);
                                     }
                                 }
                             }
-
-                            int minDistance = 99;
-                            //Loop to call the Levenshtein distance to find the best match
-                            foreach (var file in files)
+                            catch (Exception)
                             {
-                                int distance = LevenshteinDistance.Compute(org, file);
-                                if (distance < minDistance)
-                                {
-                                    minDistance = distance;
-                                    bestFile = file;
-                                }
+                                TopLevelWindow = 2;
+
+                                MassiveSolution = Visibility.Visible;
+                                ErrorMessage = "MassIVE Server unreachable";
+                                ErrorDetail = "Unable to download .blib for " + org;
+
+                                _errorFound = true;
+
+                                //MessageBox.Show(
+                                //    "MassIVE Server unreachable; Unable to download .blib for " + org +
+                                //    "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
+                                //    MessageBoxButton.OK);
+                                dataImported = false;
                             }
-                            //Finally, download the best file that we found for the organism.
-                            var result = true;
-                            if (!File.Exists(Path.Combine(spectralLibPath, bestFile)))
-                            {
-                                //Combining the path of the massive server (with username/password encoded) with the name of the file
-                                result =
-                                    FileManager.DownloadFile(
-                                        ("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/" + bestFile),
-                                        (spectralLibPath), inNetwork:true);
-                            }
-                            if (result)
-                            {
-                                AddFileLocation(org, spectralLibPath + "\\" + bestFile);
-                                MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile);
-                                if (ToolClient != null)
-                                {
-
-                                    ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                        spectralLibPath + "\\" + bestFile);
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            TopLevelWindow = 2;
-
-                            MassiveSolution = Visibility.Visible;
-                            ErrorMessage = "MassIVE Server unreachable";
-                            ErrorDetail = "Unable to download .blib for " + org;
-
-                            _errorFound = true;
-
-                            //MessageBox.Show(
-                            //    "MassIVE Server unreachable; Unable to download .blib for " + org +
-                            //    "\nPlease check network connection and try again.", "MassIVE Server Unreachable",
-                            //    MessageBoxButton.OK);
-                            dataImported = false;
                         }
                     }
                 }
