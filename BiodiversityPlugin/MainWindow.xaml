@@ -87,7 +87,7 @@
                         The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data 
                         can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
                         in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library 
-                        catalogs MS/MS spectra from 2 million pepitdes and 200,000 proteins from 118 distinct organisms across the tree of life. 
+                        catalogs MS/MS spectra from 2 million peptides and 200,000 proteins from 118 distinct organisms across the tree of life. 
                         All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
                         Sam Payne at 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
