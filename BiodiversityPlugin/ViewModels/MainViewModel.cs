@@ -1420,6 +1420,7 @@ namespace BiodiversityPlugin.ViewModels
             //Clear the prior Proteins to export!!
             FilteredProteins.Clear();
             ProteinsToExport.Clear();
+            var allFastas = "";
 
             // Allow the user to 
             string spectralLibPath;
@@ -1490,7 +1491,7 @@ namespace BiodiversityPlugin.ViewModels
                     continue;
                 }
 
-                var allFastas = "";
+                
                 // Need to see if there are any NCBI accessions to pull and use this to 
                 // create the FASTA file for skyline.
                 if (!string.IsNullOrWhiteSpace(accessionString))
@@ -1557,7 +1558,8 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
                 var dataImported = true;
-                //This is a loop to use the Levenshtein class to find the closest file match to an organism name.
+
+                //This is a loop to download the .blib files for each organism selected.
                 foreach (var org in organismList)
                 {
                     string[] downloadingStrings = {
