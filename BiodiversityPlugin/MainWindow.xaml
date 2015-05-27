@@ -4,7 +4,7 @@
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
         Icon="DataFiles/colorLogo.png"
-        Title="Biodiversity Plugin" Height="768" Width="1024" MinHeight="600" MinWidth="800">
+        Title="PNNL Biodiversity Library" Height="768" Width="1024" MinHeight="600" MinWidth="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
