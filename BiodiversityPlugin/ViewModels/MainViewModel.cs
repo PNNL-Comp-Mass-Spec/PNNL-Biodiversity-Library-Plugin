@@ -597,7 +597,7 @@ namespace BiodiversityPlugin.ViewModels
 
             if (ToolClient != null && !goodVersion)
             {
-                ErrorMessage = "ERROR: Your Skyline version must be version 3.1.1.7469 or later.";
+                ErrorMessage = "ERROR: Your Skyline version must be version 3.1.1.7490 or later.";
                 ErrorDetail = TextVersionMessage;
                 SkylineSolution = Visibility.Visible;
                 _errorFound = true;
@@ -1567,7 +1567,7 @@ namespace BiodiversityPlugin.ViewModels
 				    "Downloading Spectral Library.  \nPlease Wait",
 				    "Downloading Spectral Library.. \nPlease Wait",
 				    "Downloading Spectral Library...\nPlease Wait"
-			    };
+			        };
                     QueryString = downloadingStrings[0];
                     Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
                     var fileFound = false;
