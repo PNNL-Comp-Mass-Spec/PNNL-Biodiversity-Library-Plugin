@@ -157,7 +157,7 @@
                         organisms, please export the data one organism at a time.
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylum/Class explorer</TextBlock>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylogeny Explorer</TextBlock>
                         <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
                         <utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
                             <utilities:MvvmTreeView.Resources>
