@@ -1637,6 +1637,7 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             try
                             {
+                                Logger.DownloadLocation = DownloadLocationEnum.MASSIVE_PUBLIC;
                                 var reqFtp =
                                     (FtpWebRequest)
                                         WebRequest.Create(new Uri("ftp://massive.ucsd.edu/MSV000079053/library/"));
@@ -1719,7 +1720,7 @@ namespace BiodiversityPlugin.ViewModels
                             {
                                 try
                                 {
-
+                                    Logger.DownloadLocation = DownloadLocationEnum.MASSIVE_PRIVATE;
                                     var reqFtp =
                                         (FtpWebRequest) WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
                                     reqFtp.UseBinary = true;
@@ -1805,6 +1806,7 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             try
                             {
+                                Logger.DownloadLocation = DownloadLocationEnum.PNNL;
                                 var reqFtp =
                                     (FtpWebRequest)
                                         WebRequest.Create(new Uri("ftp://ftp.pnl.gov/outgoing/BiodiversityLibrary/"));

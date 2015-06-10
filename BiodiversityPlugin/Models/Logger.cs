@@ -88,13 +88,9 @@ namespace BiodiversityPlugin.Models
             {
 
                 SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
-
-                //mailClient.UseDefaultCredentials = true;
-                MailAddress to = new MailAddress("michael.degan@pnnl.gov");
-
-                MailAddress f = new MailAddress("michael.degan@pnnl.gov");
-                MailMessage message = new MailMessage(f, to);
-                //message.To = to;
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress("BioDiversityErrorLogger@gmail.com");
+                message.To.Add(new MailAddress("michael.degan@pnnl.gov"));
                 message.To.Add(new MailAddress("grant.fujimoto@pnnl.gov"));
                 message.Subject = subject;
                 message.Body = body;
