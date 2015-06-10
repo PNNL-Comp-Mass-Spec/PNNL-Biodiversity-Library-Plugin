@@ -7,12 +7,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 using BiodiversityPlugin.Calculations;
+using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -29,6 +31,8 @@ namespace BiodiversityPlugin.ViewModels
     public class MainViewModel : ViewModelBase
     {
         #region Private attributes
+
+        private Logger _logger;
 
         private readonly string _dbPath;
 
@@ -85,6 +89,11 @@ namespace BiodiversityPlugin.ViewModels
         #endregion
 
         #region Public Properties
+
+        public Logger Logger
+        {
+            get { return _logger; }
+        }
 
         public SkylineToolClient ToolClient
         {
@@ -218,6 +227,7 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     _selectedOrganismTreeItem = value;
                     SelectedOrganism = (Organism)_selectedOrganismTreeItem;
+                    Logger.SelectedOrganism = SelectedOrganism;
                     IsOrganismSelected = false;
                     if (SelectedOrganism != null)
                         SelectedOrganismText = string.Format("Organism: {0}", SelectedOrganism.Name);
@@ -462,6 +472,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand ClearFilterCommand { get; private set; }
         public RelayCommand LoadPathwayCoverageCommand { get; private set; }
         public RelayCommand CloseAppCommand { get; private set; }
+        public RelayCommand SendLogCommand { get; private set; }
 
         #endregion
 
@@ -488,6 +499,7 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _selectedTabIndex = value;
+                Logger.SelectedTabIndex = _selectedTabIndex;
                 PathwaysTabEnabled = false;
                 SelectionTabEnabled = false;
                 ReviewTabEnabled = false;
@@ -535,19 +547,25 @@ namespace BiodiversityPlugin.ViewModels
         /// <param name="goodVersion">Boolean flag for if the user's skyline version is late enough to allow the data to be pushed back to Skyline</param>
         public MainViewModel(IDataAccess orgData, IDataAccess pathData, string dbPath, ref SkylineToolClient toolClient, bool goodVersion)
         {
+            _logger = Logger.Instance;
 
             _dbPath = dbPath;
+            Logger.DatabasePath = dbPath;
+
             ToolClient = toolClient;
+            Logger.ContainsToolClient = ToolClient != null;
+            
             var dataAccess = new DatabaseDataLoader(_dbPath);
             string version, date;
             dataAccess.LoadDbMetaData(out version, out date);
             DatabaseVersion = version;
             DatabaseDate = date;
-
+            Logger.DatabaseVersion = version;
+            Logger.DatabaseCreationDate = date;
+            
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
             var organisms = orgData.LoadOrganisms(ref organismList);
-
             organismList.Sort();
             OrganismList = organismList;
             organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
@@ -566,6 +584,7 @@ namespace BiodiversityPlugin.ViewModels
             ClearFilterCommand = new RelayCommand(ClearFilter);
             LoadPathwayCoverageCommand = new RelayCommand(LoadPathwayCoverage);
             CloseAppCommand = new RelayCommand(CloseApplication);
+            SendLogCommand = new RelayCommand(SendLog);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -598,12 +617,18 @@ namespace BiodiversityPlugin.ViewModels
             if (ToolClient != null && !goodVersion)
             {
                 ErrorMessage = "ERROR: Your Skyline version must be version 3.1.1.7490 or later.";
+                Logger.ErrorType = ErrorTypeEnum.SkylineError;
                 ErrorDetail = TextVersionMessage;
                 SkylineSolution = Visibility.Visible;
                 _errorFound = true;
                 TopLevelWindow = 2;
             }
 
+        }
+
+        private void SendLog()
+        {
+            Logger.SendEmailLog();
         }
 
         /// <summary>
@@ -772,6 +797,7 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex > 0)
             {
                 SelectedTabIndex--;
+                Logger.SelectedTabIndex = SelectedTabIndex;
             }
             // If the user is now on Tab Index 2, continue the calculation of pathway coverage
             if (SelectedTabIndex == 2)
@@ -818,6 +844,13 @@ namespace BiodiversityPlugin.ViewModels
                                                                  from p in @group.Pathways
                                                                  where p.Selected
                                                                  select p).ToList());
+            foreach (var pathway in curPathways)
+            {
+                if (!Logger.SelectedPathways.Contains(pathway))
+                {
+                    Logger.SelectedPathways.Add(pathway);
+                }
+            }
 
             // Check if the current pathways selected are the same as the prior selected pathways
             // If they are and the org is the same, nothing needs to be done to display images.
@@ -1017,8 +1050,7 @@ namespace BiodiversityPlugin.ViewModels
                 TopLevelWindow = 2;
 
                 ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
-
-                //ErrorDetail = "HERP DERP DO!!!!";
+                Logger.ErrorType = ErrorTypeEnum.NcbiError;
                 
                 NcbiSolution = Visibility.Visible;
             }
@@ -1164,6 +1196,14 @@ namespace BiodiversityPlugin.ViewModels
             }
             catch (WebException wEx)
             {
+                _ncbiDownloading = false;
+                _errorFound = true;
+                TopLevelWindow = 2;
+
+                ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
+                Logger.ErrorType = ErrorTypeEnum.NcbiError;
+
+                NcbiSolution = Visibility.Visible;
                 if (wEx.Message.Contains("(450)"))
                 {
                     // Folder not found
@@ -1558,7 +1598,7 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
                 var dataImported = true;
-
+                Logger.AllOrgs = organismList;
                 //This is a loop to download the .blib files for each organism selected.
                 foreach (var org in organismList)
                 {
@@ -1842,6 +1882,7 @@ namespace BiodiversityPlugin.ViewModels
                                 MassiveSolution = Visibility.Visible;
                                 ErrorMessage = "MassIVE Server unreachable";
                                 ErrorDetail = "Unable to download .blib for " + org;
+                                Logger.ErrorType = ErrorTypeEnum.MassiveError;
 
                                 _errorFound = true;
 
@@ -1871,6 +1912,7 @@ namespace BiodiversityPlugin.ViewModels
                     // Dispose of the client connection and move the user to the "Successful import view"
                     ToolClient.Dispose();
                     TopLevelWindow = 1;
+
                 }
                 IsQuerying = false;
             });
@@ -1971,5 +2013,6 @@ namespace BiodiversityPlugin.ViewModels
         public Visibility NcbiSolution { get { return _ncbiSolution; } set { _ncbiSolution = value; RaisePropertyChanged(); } }
 
         public Visibility MassiveSolution { get { return _massiveSolution; } set { _massiveSolution = value; RaisePropertyChanged(); } }
+        
     }
 }

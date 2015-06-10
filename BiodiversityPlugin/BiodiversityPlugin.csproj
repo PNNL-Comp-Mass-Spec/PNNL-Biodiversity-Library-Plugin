@@ -136,6 +136,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Calculations\LevenshteinDistance.cs" />
+    <Compile Include="Models\DownloadLocationEnum.cs" />
+    <Compile Include="Models\ErrorTypeEnum.cs" />
+    <Compile Include="Models\Logger.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

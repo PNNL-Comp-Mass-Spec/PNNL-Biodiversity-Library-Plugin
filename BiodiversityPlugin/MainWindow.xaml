@@ -532,7 +532,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="18*" />
-                    <RowDefinition Height="30" />
+                    <RowDefinition Height="70" />
                     <RowDefinition Height="70" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -563,9 +563,9 @@
                         <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="ccms-web@cs.ucsd.edu"> ccms-web@cs.ucsd.edu </Hyperlink>
                         for further assistance with their FTP connection.
                     </TextBlock>
-                    
-                    
                 </StackPanel>
+                
+                <Button Grid.Column="1" Grid.Row="2" Height="50" Width="150" FontSize="16" FontWeight="Bold" Command="{Binding SendLogCommand}">Send Error Log</Button>
                 
                 <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
                     <StackPanel Orientation="Horizontal">
