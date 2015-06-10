@@ -530,8 +530,9 @@
         <TabItem Height="0" MinHeight="0" MaxHeight="0">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="14*" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="18*" />
+                    <RowDefinition Height="2*" />
                     <RowDefinition Height="70" />
                     <RowDefinition Height="70" />
                 </Grid.RowDefinitions>
@@ -540,7 +541,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
                     <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
                     <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorMessage}" />
                     <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorDetail}" />
@@ -564,10 +565,29 @@
                         for further assistance with their FTP connection.
                     </TextBlock>
                 </StackPanel>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" 
+                           FontSize="18" FontWeight="Bold" Foreground="Black"
+                           Margin="0,0,10,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right">Contact email (Optional)</TextBlock>
+
+                <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="5" Text="{Binding UserEmailInput}">
+                </TextBox>
+
+                <TextBlock Grid.Column="0" Grid.Row="2" 
+                           FontSize="18" FontWeight="Bold" Foreground="Black"
+                           Margin="0,0,10,0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Description of what <LineBreak /> 
+                    lead to the error  
+                </TextBlock>
                 
-                <Button Grid.Column="1" Grid.Row="2" Height="50" Width="150" FontSize="16" FontWeight="Bold" Command="{Binding SendLogCommand}">Send Error Log</Button>
+                <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5" Text="{Binding ErrorInputText}">
+                </TextBox>
                 
-                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
+                <Button Grid.Column="1" Grid.Row="3" Height="50" Width="150" FontSize="16" FontWeight="Bold" Command="{Binding SendLogCommand}">Send Error Log</Button>
+                
+                <Button Grid.Column="1" Grid.Row="4" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
                     </StackPanel>

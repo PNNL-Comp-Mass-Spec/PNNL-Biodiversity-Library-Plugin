@@ -14,7 +14,8 @@ namespace BiodiversityPlugin.Models
     public class Logger
     {
         private static Logger _logger;
-        
+
+        public string ErrorMessage { get; set; }
         public Organism SelectedOrganism { get; set; }
         public List<string> AllOrgs { get; set; } 
         public int SelectedTabIndex { get; set; }
@@ -26,6 +27,7 @@ namespace BiodiversityPlugin.Models
         public string DatabaseCreationDate { get; set; }
         public bool ValidSkylineVersion { get; set; }
         public ErrorTypeEnum ErrorType { get; set; }
+        public string UserEmail { get; set; }
 
         public static Logger Instance
         {
@@ -61,8 +63,13 @@ namespace BiodiversityPlugin.Models
             var linebreak = "%0D%0A";
             const string subject = "BioDiversity Library Error Log";
             var body = "";
+            body += "User Message : " + ErrorMessage + linebreak + linebreak;
+            if (UserEmail != "")
+            {
+                body += "Email to reply to : " + UserEmail + linebreak + linebreak;
+            }
             body += "Selected Tab Index : " + SelectedTabIndex + linebreak;
-            body += "Selected Organism  : " + orgText + linebreak;
+            body += "Selected Organism : " + orgText + linebreak;
             body += "All Organisms Selected : " + linebreak;
             foreach (var org in AllOrgs)
             {

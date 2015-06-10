@@ -85,10 +85,34 @@ namespace BiodiversityPlugin.ViewModels
         private Visibility _ncbiSolution;
         private Visibility _massiveSolution;
         private bool _errorFound;
-        private List<string> _parsedFiles = new List<string>(); 
+        private List<string> _parsedFiles = new List<string>();
+        private string _errorInputText = "";
+        private string _userEmailInput = "";
         #endregion
 
         #region Public Properties
+
+        public string UserEmailInput
+        {
+            get { return _userEmailInput; }
+            set
+            {
+                _userEmailInput = value;
+                Logger.ErrorMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public string ErrorInputText
+        {
+            get { return _errorInputText; }
+            set
+            {
+                _errorInputText = value;
+                Logger.UserEmail = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public Logger Logger
         {
