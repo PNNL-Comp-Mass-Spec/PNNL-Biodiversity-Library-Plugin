@@ -638,7 +638,7 @@ namespace BiodiversityPlugin.ViewModels
             MassiveSolution = Visibility.Collapsed;
             _errorFound = false;
 
-            if (ToolClient != null && !goodVersion)
+            if (true)//(ToolClient != null && !goodVersion)
             {
                 ErrorMessage = "ERROR: Your Skyline version must be version 3.1.1.7490 or later.";
                 Logger.ErrorType = ErrorTypeEnum.SkylineError;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -7,7 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.VisualStyles;
+using BiodiversityPlugin.ViewModels;
+using BiodiversityPlugin.Views;
 using KeggDataLibrary.Models;
+using Microsoft.Win32;
 
 namespace BiodiversityPlugin.Models
 {
@@ -108,15 +112,39 @@ namespace BiodiversityPlugin.Models
             }
             catch (Exception)
             {
-
-                var address = "mailto:michael.degan@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" + body;
-                try
+                object mailClient = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Clients\Mail", "", "none");
+                var mail = mailClient.ToString();
+                if (string.IsNullOrEmpty(mail))
                 {
-                    System.Diagnostics.Process.Start(address);
+                    var address = "mailto:michael.degan@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" +
+                                  body;
+                    try
+                    {
+                        System.Diagnostics.Process.Start(address);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("That e-mail address is invalid.", "E-mail error");
+                    }
                 }
-                catch (Exception)
+                else
                 {
-                    MessageBox.Show("That e-mail address is invalid.", "E-mail error");
+                    var tempPath = Path.GetTempPath();
+                    Directory.CreateDirectory(Path.Combine(tempPath, "BioDiversityLogger"));
+                    tempPath = Path.Combine(tempPath, "BioDiversityLogger");
+                    tempPath = Path.Combine(tempPath, "bioDiversityLog.txt");
+
+                    body = body.Replace(linebreak, "\n\r\n\r");
+
+                    using (var tempWriter = new StreamWriter(tempPath))
+                    {
+                        tempWriter.Write(body);
+                    }
+
+                    var navBoxVM = new ClickableErrorMessageBox(Path.GetDirectoryName(tempPath));
+                    var navBox = new ClickableErrorMessageBoxView();
+                    navBox.DataContext = navBoxVM;
+                    navBox.Show();
                 }
 
             }
