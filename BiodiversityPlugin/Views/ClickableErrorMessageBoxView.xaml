@@ -1,0 +1,17 @@
+﻿<Window x:Class="BiodiversityPlugin.Views.ClickableErrorMessageBoxView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Error log and message saved" Height="200" Width="300"
+        MinHeight="200" MinWidth="300" MaxHeight="200" MaxWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <TextBlock TextWrapping="Wrap" TextAlignment="Justify" VerticalAlignment="Center" HorizontalAlignment="Center">
+            Error log and message have been saved to a
+            <Hyperlink Command="{Binding OpenFolderCommand}"> Temporary File Location</Hyperlink>.
+            Please email this file to michael.degan@pnnl.gov for further assistance with this error.
+        </TextBlock>
+    </Grid>
+</Window>
