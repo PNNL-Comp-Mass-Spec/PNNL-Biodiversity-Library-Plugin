@@ -114,7 +114,7 @@ namespace BiodiversityPlugin.Models
             {
                 object mailClient = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Clients\Mail", "", "none");
                 var mail = mailClient.ToString();
-                if (string.IsNullOrEmpty(mail))
+                if (!string.IsNullOrEmpty(mail))
                 {
                     var address = "mailto:michael.degan@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" +
                                   body;
