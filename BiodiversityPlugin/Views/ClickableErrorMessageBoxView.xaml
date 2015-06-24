@@ -11,7 +11,7 @@
         <TextBlock TextWrapping="Wrap" TextAlignment="Justify" VerticalAlignment="Center" HorizontalAlignment="Center">
             Error log and message have been saved to a
             <Hyperlink Command="{Binding OpenFolderCommand}"> Temporary File Location</Hyperlink>.
-            Please email this file to michael.degan@pnnl.gov for further assistance with this error.
+            Please email this file to BiodiversityPlugin.Support@pnnl.gov for further assistance with this error.
         </TextBlock>
     </Grid>
 </Window>

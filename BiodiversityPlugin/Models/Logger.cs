@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms.VisualStyles;
 using BiodiversityPlugin.ViewModels;
 using BiodiversityPlugin.Views;
 using KeggDataLibrary.Models;
@@ -114,7 +110,7 @@ namespace BiodiversityPlugin.Models
             {
                 object mailClient = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Clients\Mail", "", "none");
                 var mail = mailClient.ToString();
-                if (!string.IsNullOrEmpty(mail))
+                if (string.IsNullOrEmpty(mail))
                 {
                     var address = "mailto:michael.degan@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" +
                                   body;
