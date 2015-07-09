@@ -86,9 +86,39 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _parsedFiles = new List<string>();
         private string _errorInputText = "";
         private string _userEmailInput = "";
+
+        private bool _workDone;
+        
+        private List<string> _blibFiles = new List<string>();
+        private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>(); 
         #endregion
 
         #region Public Properties
+
+        public string SelectedIrt
+        {
+            get; set;
+        }
+
+        public ObservableCollection<string> IrtLibraries
+        {
+            get { return _irtLibraries; }
+            set
+            {
+                _irtLibraries = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool WorkDone
+        {
+            get { return _workDone; }
+            set
+            {
+                _workDone = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public string UserEmailInput
         {
@@ -495,6 +525,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand LoadPathwayCoverageCommand { get; private set; }
         public RelayCommand CloseAppCommand { get; private set; }
         public RelayCommand SendLogCommand { get; private set; }
+        public RelayCommand AlignToIrtCommand { get; private set; }
 
         #endregion
 
@@ -607,6 +638,7 @@ namespace BiodiversityPlugin.ViewModels
             LoadPathwayCoverageCommand = new RelayCommand(LoadPathwayCoverage);
             CloseAppCommand = new RelayCommand(CloseApplication);
             SendLogCommand = new RelayCommand(SendLog);
+            AlignToIrtCommand = new RelayCommand(AlignToIrt);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -645,7 +677,30 @@ namespace BiodiversityPlugin.ViewModels
                 _errorFound = true;
                 TopLevelWindow = 2;
             }
+            _irtLibraries.Add("No iRT Library");
+            var files = Directory.GetFiles(Path.Combine(_dbPath.Replace("PBL.db", ""), "iRt_Libraries")).ToList();
+            foreach (var file in files)
+            {
+                _irtLibraries.Add(file);
+            }
+        }
 
+        private void AlignToIrt()
+        {
+            if (SelectedIrt == "No iRT Library")
+            {
+                return;
+            }
+            foreach (var blibFile in _blibFiles)
+            {
+                var corrector =
+                    new RtDatabaseCorrector(
+                        Path.GetFullPath(SelectedIrt));
+                if (corrector.ContainsAnchorPeptides(blibFile))
+                {
+                    Console.WriteLine("We have anchorz!!");
+                }
+            }
         }
 
         private void SendLog()
@@ -1640,6 +1695,7 @@ namespace BiodiversityPlugin.ViewModels
                         if (File.Exists(fileLoc))
                         {
                             fileFound = true;
+                            _blibFiles.Add(fileLoc);
                             //Show where the file was already found at
                             MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
                             if (ToolClient != null)
@@ -1725,6 +1781,7 @@ namespace BiodiversityPlugin.ViewModels
                                     AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
                                     MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
                                                     ".blib");
+                                    _blibFiles.Add(spectralLibPath + "\\" + bestFile + ".blib");
                                     if (ToolClient != null)
                                     {
 
@@ -1808,6 +1865,7 @@ namespace BiodiversityPlugin.ViewModels
                                         AddFileLocation(org, spectralLibPath + "\\" + bestFile + ".blib");
                                         MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile +
                                                         ".blib");
+                                        _blibFiles.Add(spectralLibPath + "\\" + bestFile + ".blib");
                                         if (ToolClient != null)
                                         {
 
@@ -1891,6 +1949,7 @@ namespace BiodiversityPlugin.ViewModels
                                 {
                                     AddFileLocation(org, spectralLibPath + "\\" + bestFile);
                                     MessageBox.Show("Spectral Library saved to " + spectralLibPath + "\\" + bestFile);
+                                    _blibFiles.Add(spectralLibPath + "\\" + bestFile);
                                     if (ToolClient != null)
                                     {
 
@@ -1939,6 +1998,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 }
                 IsQuerying = false;
+                TopLevelWindow = 1;
             });
         }
         

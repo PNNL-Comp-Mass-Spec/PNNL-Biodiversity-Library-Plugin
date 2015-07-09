@@ -499,6 +499,21 @@
         </TabItem>
 
         <TabItem Height="0" MinHeight="0" MaxHeight="0">
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Foreground="Black">
+                        Please choose an iRT library to align to.
+                </TextBlock>
+                <ComboBox ItemsSource="{Binding IrtLibraries}" SelectedItem="{Binding SelectedIrt}">
+
+                </ComboBox>
+                <Button Command="{Binding AlignToIrtCommand}">
+                    Perform correction
+                </Button>
+            </StackPanel>
+        </TabItem>
+        
+        <TabItem Height="0" MinHeight="0" MaxHeight="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -511,7 +526,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
                     <Image Source="DataFiles/colorLogo.png" Width="100" Height="100" HorizontalAlignment="Center"></Image>
                     <TextBlock FontSize="17" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center"  TextWrapping="Wrap" Margin="15">
                         Your data has been successfully imported into Skyline. Peptide targets linked to the spectral library are waiting for you there.
@@ -519,11 +534,13 @@
                     <Image Source="DataFiles/SkylineWithLibrary.png" HorizontalAlignment="Center" Width="700"> </Image>
                 </StackPanel>
 
-                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
+                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
                     </StackPanel>
                 </Button>
+                
+
             </Grid>
         </TabItem>
 
