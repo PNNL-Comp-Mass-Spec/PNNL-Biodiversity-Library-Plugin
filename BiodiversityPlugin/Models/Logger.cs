@@ -97,6 +97,7 @@ namespace BiodiversityPlugin.Models
                 SmtpClient mailClient = new SmtpClient("smtp.gmail.com", 587);
                 MailMessage message = new MailMessage();
                 message.From = new MailAddress("BioDiversityErrorLogger@gmail.com");
+                message.To.Add(new MailAddress("lillian.ryadinskiy@pnnl.gov"));
                 message.To.Add(new MailAddress("michael.degan@pnnl.gov"));
                 message.To.Add(new MailAddress("grant.fujimoto@pnnl.gov"));
                 message.Subject = subject;
@@ -112,7 +113,7 @@ namespace BiodiversityPlugin.Models
                 var mail = mailClient.ToString();
                 if (string.IsNullOrEmpty(mail))
                 {
-                    var address = "mailto:michael.degan@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" +
+                    var address = "mailto:michael.degan@pnnl.gov;lillian.ryadinskiy@pnnl.gov;grant.fujimoto@pnnl.gov?subject=" + subject + "&body=" +
                                   body;
                     try
                     {
