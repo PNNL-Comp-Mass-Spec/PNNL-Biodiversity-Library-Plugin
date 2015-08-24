@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
-        Icon="DataFiles/colorLogo.png"
+        Icon="DataFiles/archaeaTree.jpg"
         Title="PNNL Biodiversity Library" Height="768" Width="1024" MinHeight="600" MinWidth="800">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -82,7 +82,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
-                            <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
+                            <Image Source="DataFiles/archaeaTree.jpg" Width="500" Height="265" HorizontalAlignment="Center"></Image>
                             <TextBlock FontSize="15.8" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15">
                         The PNNL Biodiversity Library is designed to provide an easy interface for retrieving mass spectrometry data. This data 
                         can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
@@ -527,7 +527,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
-                    <Image Source="DataFiles/colorLogo.png" Width="100" Height="100" HorizontalAlignment="Center"></Image>
+                    <Image Source="DataFiles/archaeaTree.jpg" Width="200" Height="110" HorizontalAlignment="Center"></Image>
                     <TextBlock FontSize="17" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center"  TextWrapping="Wrap" Margin="15">
                         Your data has been successfully imported into Skyline. Peptide targets linked to the spectral library are waiting for you there.
                     </TextBlock>
@@ -559,7 +559,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
-                    <Image Source="DataFiles/colorLogo.png" Width="200" Height="200" HorizontalAlignment="Center"></Image>
+                    <Image Source="DataFiles/archaeaTree.jpg" Width="300" Height="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorMessage}" />
                     <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorDetail}" />
                     
