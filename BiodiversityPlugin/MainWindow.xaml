@@ -128,7 +128,7 @@
                                 <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo.png" Width="180" Margin="120,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                        <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo-no-seal.png" Width="180" Margin="130,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
                     </Grid>
                 </TabItem>
 
