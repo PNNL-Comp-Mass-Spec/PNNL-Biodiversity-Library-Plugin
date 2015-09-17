@@ -696,7 +696,8 @@ namespace BiodiversityPlugin.ViewModels
                 var corrector =
                     new RtDatabaseCorrector(
                         Path.GetFullPath(SelectedIrt));
-                if (corrector.ContainsAnchorPeptides(blibFile))
+                var listThing = new List<PeptideRetentionTime>();
+                if (corrector.ContainsAnchorPeptides(blibFile, out listThing))
                 {
                     Console.WriteLine("We have anchorz!!");
                 }
@@ -980,7 +981,8 @@ namespace BiodiversityPlugin.ViewModels
 
                                     // Now that we have the base image and the legend, load the coordinates
                                     // for every rectangle on the image, keyed on KO name.
-                                    var koToCoordDict = pathway.LoadCoordinates(coordPrefix);
+                                    pathway.LoadCoordinates(coordPrefix);
+                                    var koToCoordDict = pathway.RectangleCoordDict;
 
                                     // Use the database to determine which orthologs have data in MSMS and load
                                     // the coordinates
