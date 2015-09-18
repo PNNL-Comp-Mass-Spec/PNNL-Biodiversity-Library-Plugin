@@ -90,7 +90,8 @@ namespace BiodiversityPlugin.ViewModels
         private bool _workDone;
         
         private List<string> _blibFiles = new List<string>();
-        private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>(); 
+        private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>();
+        private  string _irtCorrectionMessage; 
         #endregion
 
         #region Public Properties
@@ -691,6 +692,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 return;
             }
+            IrtCorrectionMessage = "";
             foreach (var blibFile in _blibFiles)
             {
                 var corrector =
@@ -699,7 +701,15 @@ namespace BiodiversityPlugin.ViewModels
                 var listThing = new List<PeptideRetentionTime>();
                 if (corrector.ContainsAnchorPeptides(blibFile, out listThing))
                 {
-                    Console.WriteLine("We have anchorz!!");
+                    IrtCorrectionMessage += "Database " + Path.GetFileName(blibFile) +
+                                            " has been aligned to selected iRT Library successfully\n";
+                    
+                }
+                else
+                {
+
+                    IrtCorrectionMessage += "Database " + Path.GetFileName(blibFile) +
+                                            " was not able to be aligned to selected iRT Library; No anchor peptides were found\n";
                 }
             }
         }
@@ -2099,6 +2109,11 @@ namespace BiodiversityPlugin.ViewModels
         public Visibility NcbiSolution { get { return _ncbiSolution; } set { _ncbiSolution = value; RaisePropertyChanged(); } }
 
         public Visibility MassiveSolution { get { return _massiveSolution; } set { _massiveSolution = value; RaisePropertyChanged(); } }
-        
+
+
+        public string IrtCorrectionMessage { get { return _irtCorrectionMessage; } set
+        {
+            _irtCorrectionMessage = value; RaisePropertyChanged();
+        } }
     }
 }

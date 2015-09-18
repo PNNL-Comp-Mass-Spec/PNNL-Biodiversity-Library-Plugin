@@ -510,6 +510,9 @@
                 <Button Command="{Binding AlignToIrtCommand}">
                     Perform correction
                 </Button>
+                <TextBlock Margin="0,100" FontSize="24" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IrtCorrectionMessage}" TextWrapping="Wrap">
+                    
+                </TextBlock>
             </StackPanel>
         </TabItem>
         
