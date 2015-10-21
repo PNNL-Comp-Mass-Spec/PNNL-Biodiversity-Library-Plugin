@@ -956,7 +956,7 @@ namespace BiodiversityPlugin.ViewModels
 
             //Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism, curPathways.ToList()));
             Task.Factory.StartNew(() => StartFastaDownloads(SelectedOrganism));
-
+            //StartFastaDownloads(SelectedOrganism);
             Task.Factory.StartNew((() =>
             {
                 if (currentOrg != _priorOrg || !same)
@@ -1125,7 +1125,7 @@ namespace BiodiversityPlugin.ViewModels
                     if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
                     {
                         // Download the file and parse it
-                        var tempFileLoc = DownloadFaaFile(ftpLoc + file);
+                        var tempFileLoc = DownloadFaaFile(Path.Combine(ftpLoc, file));
                         ParseFaaFile(tempFileLoc);
                         _parsedFiles.Add(file);
                     }
