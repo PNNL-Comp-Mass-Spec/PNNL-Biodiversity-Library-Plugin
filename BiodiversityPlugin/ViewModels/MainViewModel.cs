@@ -1716,6 +1716,11 @@ namespace BiodiversityPlugin.ViewModels
                                 ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
                             }
                         }
+                        else
+                        {
+                           //TODO: Add message box maybe?
+                           continue;
+                        }
                     }
                     //File hasn't been downloaded yet from the massive server for this organism
                     if (!fileFound)

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BiodiversityPlugin</RootNamespace>
     <AssemblyName>BiodiversityPlugin</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -80,6 +80,9 @@
     <Reference Include="KeggDataLibrary">
       <HintPath>..\libs\KeggDataLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="KeggParsesClassLibrary">
+      <HintPath>..\libs\KeggParsesClassLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.3.7.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -142,7 +145,9 @@
     <Compile Include="Calculations\LevenshteinDistance.cs" />
     <Compile Include="Models\DownloadLocationEnum.cs" />
     <Compile Include="Models\ErrorTypeEnum.cs" />
+    <Compile Include="Models\InsertNewOrganism.cs" />
     <Compile Include="Models\Logger.cs" />
+    <Compile Include="Models\UpdateExistingOrganism.cs" />
     <Compile Include="ViewModels\ClickableErrorMessageBox.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Views\ClickableErrorMessageBoxView.xaml.cs">
