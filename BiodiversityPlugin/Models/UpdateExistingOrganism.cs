@@ -5,27 +5,31 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using KeggParsesClassLibrary;
+
+//using System.Threading.Tasks;
+//using KeggParsesClassLibrary;
 
 namespace BiodiversityPlugin.Models
 {
-    class UpdateExistingOrganism
+    public class UpdateExistingOrganism
     {
         private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
         private static List<string> _refseqs = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
 
-        public static void UpdateExisting(string orgcode, string blibLoc, string msgfFolderLoc, string _databasePath)
+        public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string _databasePath)
         {
             //Call all the methods here that will update the existing organism
+            //TODO: we can get rid of the org code if i make a method to pull org code based on organism name
+            string orgcode = ""; //call  method to set org code like in biodiv org adder
             GetKeggGenes(orgcode);
             GetConnectedPathways(orgcode, _keggGenes);
             SearchMsgfFiles(msgfFolderLoc);
             DetermineObserved();
             UpdateObservedKeggGeneTable(orgcode, _keggGenes, _databasePath);
-            UpdateBlibLocation(orgcode, blibLoc, _databasePath);
+            UpdateBlibLocation(orgName, blibLoc, _databasePath);
         }
 
         private static void GetKeggGenes(string keggOrgCode)

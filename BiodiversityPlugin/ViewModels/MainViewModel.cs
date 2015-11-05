@@ -91,7 +91,8 @@ namespace BiodiversityPlugin.ViewModels
         
         private List<string> _blibFiles = new List<string>();
         private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>();
-        private  string _irtCorrectionMessage; 
+        private  string _irtCorrectionMessage;
+
         #endregion
 
         #region Public Properties
@@ -527,6 +528,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand CloseAppCommand { get; private set; }
         public RelayCommand SendLogCommand { get; private set; }
         public RelayCommand AlignToIrtCommand { get; private set; }
+        public RelayCommand UpdateButtonCommand { get; private set; }
 
         #endregion
 
@@ -589,6 +591,8 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+
+
         #endregion
 
         /// <summary>
@@ -640,6 +644,7 @@ namespace BiodiversityPlugin.ViewModels
             CloseAppCommand = new RelayCommand(CloseApplication);
             SendLogCommand = new RelayCommand(SendLog);
             AlignToIrtCommand = new RelayCommand(AlignToIrt);
+            UpdateButtonCommand = new RelayCommand(UpdateButton);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -906,6 +911,14 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex == 2 && !IsPathwaySelected) return;
             SelectedTabIndex++;
         }
+
+        private void UpdateButton()
+        {
+            var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
+            var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
+            updateWindow.Show();
+        }
+
 
         /// <summary>
         /// Method to display the images for the pathways with whether we have data observed in MSMS space
@@ -1538,6 +1551,8 @@ namespace BiodiversityPlugin.ViewModels
             OverviewEnabled = overviewTab;
             PathwayTabIndex = 0;
         }
+
+ 
 
         /// <summary>
         /// Gathers all the protein accessions from the associations that have been selected

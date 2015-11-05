@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Navigation;
+using BiodiversityPlugin.ViewModels;
 
 namespace BiodiversityPlugin
 {
@@ -35,6 +36,5 @@ namespace BiodiversityPlugin
                 MessageBox.Show("That e-mail address is invalid.", "E-mail error");
             }
         }
-
     }
 }

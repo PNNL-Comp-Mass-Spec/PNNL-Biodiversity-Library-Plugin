@@ -1,0 +1,47 @@
+﻿<Window x:Class="BiodiversityPlugin.UpdateExistingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BiodiversityPlugin"
+        xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
+        xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
+        mc:Ignorable="d"
+        Title="Update Existing Window" Height="200" Width="525">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="170"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="75"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Column="0" Grid.Row="0" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="MSGF Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text ="Organism Name/drop down?" FontWeight="Bold" HorizontalAlignment="Center"/>
+        
+        <TextBox Grid.Column="1" Grid.Row="0" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding BlibPath}" IsReadOnly="True"/>
+        <Button Grid.Column="2" Grid.Row="0" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
+            <Image Source="DataFiles/search-icon.png"/>
+        </Button>
+        
+        <TextBox Grid.Column="1" Grid.Row="1" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding MsgfPath}" IsReadOnly="True"/>
+        <Button Grid.Column="2" Grid.Row="1" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectMsgfCommand}">
+            <Image Source="DataFiles/search-icon.png" />
+        </Button>
+
+        <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Margin ="5,5" BorderThickness="1" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+                             FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="Visible" />
+       
+      
+        <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Content="Start" Width="100" Height="30" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding UpdateExistingClassCommand}" HorizontalAlignment="Right"/>
+       <!-- <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Width="100" Height="30" Content="Cancel" HorizontalAlignment="Right" Command="{Binding }"/> -->
+
+    </Grid>
+</Window>

@@ -194,8 +194,10 @@
                             <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
                              FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
                         </Grid>
-                        <Button Grid.Row="5" Grid.Column="0" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                        <Button Grid.Row="5" Grid.Column="1" FontSize="20"   Width="150" HorizontalAlignment="Center" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
+                        <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Left" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
+                        <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Right" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
+                        <Button Grid.Row="5" Grid.Column="0" FontSize="15" Margin="30,0" Width="150 " HorizontalAlignment="Left" Command="{Binding UpdateButtonCommand}">Update Existing</Button>
+                        <Button Grid.Row="5" Grid.Column="0" FontSize="20" Margin="30,0" Width="150 " HorizontalAlignment="Right">Insert New</Button>
                     </Grid>
                 </TabItem>
 
