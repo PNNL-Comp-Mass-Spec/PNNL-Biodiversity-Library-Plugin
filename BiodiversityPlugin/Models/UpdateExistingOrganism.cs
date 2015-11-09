@@ -5,10 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Windows;
 using KeggParsesClassLibrary;
-
-//using System.Threading.Tasks;
-//using KeggParsesClassLibrary;
 
 namespace BiodiversityPlugin.Models
 {
@@ -18,67 +16,92 @@ namespace BiodiversityPlugin.Models
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
         private static List<string> _refseqs = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
+        private static string _databasePath;
 
-        public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string _databasePath)
+        public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
         {
             //Call all the methods here that will update the existing organism
-            //TODO: we can get rid of the org code if i make a method to pull org code based on organism name
-            string orgcode = ""; //call  method to set org code like in biodiv org adder
+            _databasePath = databasePath;
+            string orgcode = GetKeggOrgCode(orgName);
             GetKeggGenes(orgcode);
-            GetConnectedPathways(orgcode, _keggGenes);
+            GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
             DetermineObserved();
-            UpdateObservedKeggGeneTable(orgcode, _keggGenes, _databasePath);
-            UpdateBlibLocation(orgName, blibLoc, _databasePath);
+            UpdateObservedKeggGeneTable(orgcode);
+            UpdateBlibLocation(orgName, blibLoc);
         }
 
+        private static string GetKeggOrgCode(string orgName)
+        {
+            string orgCode = "";
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE kegg_org_name = \"" + orgName + "\" ;";
+                    cmd.CommandText = getOrgText;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        orgCode = Convert.ToString(reader[0]);
+                    }
+                    else
+                    {
+                        //TODO handle humans stuff and anything else that might return a blank value.
+                    }
+                }
+            }
+            return orgCode;
+        }
+
+        //TODO combine this method with get kegg org code so we don't open connection twice?
         private static void GetKeggGenes(string keggOrgCode)
         {
-            var options = StringSplitOptions.RemoveEmptyEntries;
-            char[] lineSplit = { '\n' };
-            var keggGeneUrl = WebRequest.Create("http://rest.kegg.jp/list/" + keggOrgCode);
-            var keggGeneStream = keggGeneUrl.GetResponse().GetResponseStream();
-            var lines = new List<string>();
-            using (var geneReader = new StreamReader(keggGeneStream))
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
-                while (geneReader.Peek() > -1)
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var wholeFile = geneReader.ReadToEnd();
-                    lines = wholeFile.Split(lineSplit, options).ToList();
-                    foreach (var line in lines)
+                    var getOrgText = " SELECT kegg_gene_id FROM kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    cmd.CommandText = getOrgText;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        var geneID = line.Split('\t')[0].Split(':')[1];
-                        if (!_keggGenes.ContainsKey(geneID))
+                        _keggGenes.Add(Convert.ToString(reader["kegg_gene_id"]),
+                            new KeggGene(keggOrgCode, Convert.ToString(reader["kegg_gene_id"])));
+                    }
+                }
+            }                                   
+        }
+
+        private static void GetConnectedPathways(string keggOrgCode)
+        {
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var getOrgText = " SELECT * FROM observed_kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    cmd.CommandText = getOrgText;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        try
                         {
-                            //Add gene id to the dictionary
-                            _keggGenes.Add(geneID, new KeggGene(keggOrgCode, geneID));
+                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
+                                Convert.ToString(reader["kegg_pathway_id"]));
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("The given key was not present in the dictionary: " +
+                                            Convert.ToString(reader["kegg_gene_id"]));
                         }
                     }
                 }
             }
-        }
 
-        private static void GetConnectedPathways(string keggOrgCode, Dictionary<string, KeggGene> _keggGenes)
-        {
-            var options = StringSplitOptions.RemoveEmptyEntries;
-            char[] lineSplit = { '\n' };
-            var lines = new List<string>();
-            var PathwayGeneListUrl = WebRequest.Create("http://rest.kegg.jp/link/pathway/" + keggOrgCode);
-            var PathwayGeneListStream = PathwayGeneListUrl.GetResponse().GetResponseStream();
-            using (var geneReader = new StreamReader(PathwayGeneListStream))
-            {
-                while (geneReader.Peek() > -1)
-                {
-                    var wholeFile = geneReader.ReadToEnd();
-                    lines = wholeFile.Split(lineSplit, options).ToList();
-                    foreach (var line in lines)
-                    {
-                        var geneID = line.Split('\t')[0].Split(':')[1];
-                        var pathPiece = line.Split('\t')[1];
-                        _keggGenes[geneID].ConnectedPathways.Add(pathPiece.Substring(pathPiece.Length - 5));
-                    }
-                }
-            }
+            
         }
 
         private static void SearchMsgfFiles(string msgfFolder)
@@ -160,7 +183,7 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void UpdateObservedKeggGeneTable(string keggOrgCode, Dictionary<string, KeggGene> _keggGenes, string _databasePath)
+        private static void UpdateObservedKeggGeneTable(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
@@ -192,7 +215,7 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void UpdateBlibLocation(string orgName, string fileLoc, string _databasePath)
+        private static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
 
