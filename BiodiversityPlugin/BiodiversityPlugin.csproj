@@ -148,8 +148,18 @@
     <Compile Include="Models\InsertNewOrganism.cs" />
     <Compile Include="Models\Logger.cs" />
     <Compile Include="Models\UpdateExistingOrganism.cs" />
+    <Compile Include="SelectDropDownOrganismWindow.xaml.cs">
+      <DependentUpon>SelectDropDownOrganismWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TypeInOrganismWindow.xaml.cs">
+      <DependentUpon>TypeInOrganismWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UpdateExistingWindow.xaml.cs">
+      <DependentUpon>UpdateExistingWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\ClickableErrorMessageBox.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SelectOrgViewModel.cs" />
     <Compile Include="ViewModels\UpdateExistingViewModel.cs" />
     <Compile Include="Views\ClickableErrorMessageBoxView.xaml.cs">
       <DependentUpon>ClickableErrorMessageBoxView.xaml</DependentUpon>
@@ -166,6 +176,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="SelectDropDownOrganismWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TypeInOrganismWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateExistingWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ClickableErrorMessageBoxView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

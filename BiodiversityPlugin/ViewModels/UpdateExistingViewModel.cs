@@ -16,7 +16,6 @@ namespace BiodiversityPlugin.ViewModels
     {
         private string _blibPath;
         private string _msgfPath;
-        private string _orgName;
         private bool _startEnable;
         private string _dbPath;
         private ObservableCollection<string> _filteredOrganisms;
@@ -25,13 +24,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             get { return _dbPath; }
             set { _dbPath = value; }
-        }
-
-        public ObservableCollection<string> FilteredOrganisms
-        {
-            get { return _filteredOrganisms; }
-            set { _filteredOrganisms = value; }
-        }
+        }      
 
         public string BlibPath
         {
@@ -55,16 +48,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public string OrgName
-        {
-            get { return _orgName; }
-            set
-            {
-                _orgName = value;
-                RaisePropertyChanged();
-                IsStartEnabled();
-            }
-        }
+       
 
         public bool StartButtonEnabled
         {
@@ -75,22 +59,22 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
-        public RelayCommand UpdateExistingClassCommand { get; private set; }
+        
         public RelayCommand SelectBlibCommand { get; private set; }
         public RelayCommand SelectMsgfCommand { get; private set; }
-        
+        public RelayCommand SelectButtonCommand { get; private set; }
 
-        public UpdateExistingViewModel(string dbpath, ObservableCollection<string> organisms) //TODO pass in the database path from the main view model
+
+        public UpdateExistingViewModel(string dbpath, ObservableCollection<string> filteredOrganisms)
         {
             _dbPath = dbpath;
-            _filteredOrganisms = organisms;
-            UpdateExistingClassCommand = new RelayCommand(UpdateExistingClass);
+            _filteredOrganisms = filteredOrganisms;
             SelectBlibCommand = new RelayCommand(SelectBlib);
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
-            
+            SelectButtonCommand = new RelayCommand(SelectButton);
         }
-        
-        
+
+
 
         private void IsStartEnabled()
         {
@@ -105,10 +89,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        private void UpdateExistingClass()
+        private void SelectButton()
         {
-            UpdateExistingOrganism.UpdateExisting(_orgName, _blibPath, _msgfPath, _dbPath);
-            
+            var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath);
+            var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
+            selectOrg.Show();
         }
 
         private void SelectBlib()
