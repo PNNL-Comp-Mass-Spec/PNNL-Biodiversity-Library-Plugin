@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using BiodiversityPlugin.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -93,7 +94,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void IsStartEnabled()
         {
-            if (!string.IsNullOrEmpty(BlibPath) && !string.IsNullOrEmpty(MsgfPath) && !string.IsNullOrEmpty(OrgName))
+            if (!string.IsNullOrEmpty(BlibPath) && !string.IsNullOrEmpty(MsgfPath)) //&& !string.IsNullOrEmpty(OrgName)
             {
                 StartButtonEnabled = true;
                 RaisePropertyChanged();
@@ -107,6 +108,7 @@ namespace BiodiversityPlugin.ViewModels
         private void UpdateExistingClass()
         {
             UpdateExistingOrganism.UpdateExisting(_orgName, _blibPath, _msgfPath, _dbPath);
+            
         }
 
         private void SelectBlib()

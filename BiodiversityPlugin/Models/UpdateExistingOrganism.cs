@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Windows;
+using System.Windows.Forms;
 using KeggParsesClassLibrary;
+using MessageBox = System.Windows.MessageBox;
 
 namespace BiodiversityPlugin.Models
 {
@@ -23,12 +25,11 @@ namespace BiodiversityPlugin.Models
             //Call all the methods here that will update the existing organism
             _databasePath = databasePath;
             string orgcode = GetKeggOrgCode(orgName);
-            GetKeggGenes(orgcode);
+            GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
-            DetermineObserved();
-            UpdateObservedKeggGeneTable(orgcode);
-            UpdateBlibLocation(orgName, blibLoc);
+            DetermineObserved(orgcode, blibLoc, orgName);
+            
         }
 
         private static string GetKeggOrgCode(string orgName)
@@ -39,16 +40,12 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE kegg_org_name = \"" + orgName + "\" ;";
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;"; //add an OR kegg_org_name = "[orgname]" ? to make sure it covers all?
                     cmd.CommandText = getOrgText;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
                         orgCode = Convert.ToString(reader[0]);
-                    }
-                    else
-                    {
-                        //TODO handle humans stuff and anything else that might return a blank value.
                     }
                 }
             }
@@ -56,22 +53,28 @@ namespace BiodiversityPlugin.Models
         }
 
         //TODO combine this method with get kegg org code so we don't open connection twice?
-        private static void GetKeggGenes(string keggOrgCode)
+        private static void GetKeggGenesWithRefs(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_gene_id FROM kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    var getOrgText = " SELECT kegg_gene_id, refseq_id FROM kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
                     cmd.CommandText = getOrgText;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
+                        //Add the kegg gene to dictionary
                         _keggGenes.Add(Convert.ToString(reader["kegg_gene_id"]),
                             new KeggGene(keggOrgCode, Convert.ToString(reader["kegg_gene_id"])));
+
+                        //Pull the refseqs for that organism
+                        _keggGenes[Convert.ToString(reader["kegg_gene_id"])].RefseqID =
+                            Convert.ToString(reader["refseq_id"]);
                     }
                 }
+                dbConnection.Close();
             }                                   
         }
 
@@ -87,21 +90,15 @@ namespace BiodiversityPlugin.Models
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        try
+                        if (_keggGenes.ContainsKey(Convert.ToString(reader["kegg_gene_id"])))
                         {
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
                                 Convert.ToString(reader["kegg_pathway_id"]));
                         }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("The given key was not present in the dictionary: " +
-                                            Convert.ToString(reader["kegg_gene_id"]));
-                        }
                     }
                 }
+                dbConnection.Close();
             }
-
-            
         }
 
         private static void SearchMsgfFiles(string msgfFolder)
@@ -168,18 +165,36 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void DetermineObserved()
+        private static void DetermineObserved(string orgcode, string blibLoc, string orgName)
         {
+            var observedCount = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
+                keggGene.IsObserved = 0;
                 foreach (var refseq in _refseqs)
                 {
                     if (refseq.Split('.').First() == keggGene.RefseqID)
                     {
                         keggGene.IsObserved = 1;
+                        observedCount++;
                         break;
                     }
                 }
+            }
+            var result = MessageBox.Show("The observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
+                MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                UpdateObservedKeggGeneTable(orgcode);
+                UpdateBlibLocation(orgName, blibLoc);
+            }
+            if (result == MessageBoxResult.No)
+            {
+                //Clear variable here so they can go back and choose a differnet file
+                _keggGenes.Clear();
+                _proteinPeptideMap.Clear();
+                _refseqs.Clear();
+                _peptides.Clear();
             }
         }
 
@@ -187,6 +202,7 @@ namespace BiodiversityPlugin.Models
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
+                dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
                     var transaction = dbConnection.BeginTransaction();
@@ -211,7 +227,9 @@ namespace BiodiversityPlugin.Models
                             }
                         }
                     }
+                    transaction.Commit();
                 }
+                dbConnection.Close();
             }
         }
 
@@ -224,11 +242,13 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var insertUpdate = " INSERT OR REPLACE INTO fileLocation ( \"" + orgName + "\", \"" + fileLoc + "\" ) WHERE orgName = \"" + orgName + "\"; ";
+                    var insertUpdate = " INSERT OR REPLACE INTO fileLocation (orgName, fileLocation) VALUES ( \"" + orgName + "\", \"" + fileLoc + "\" ); ";
+                    //TODO add a timestamp? The main view model doesn't do this either. Time stamp in db is null
                     cmd.CommandText = insertUpdate;
                     cmd.ExecuteNonQuery();
                 }
                 dbConnection.Close();
+                MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
             }
         }
     }

@@ -23,8 +23,8 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="0" Grid.Row="0" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Column="0" Grid.Row="1" Text="MSGF Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Column="0" Grid.Row="2" Text ="Organism Name/drop down?" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="mzIdentML Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text ="Organism" FontWeight="Bold" HorizontalAlignment="Center"/>
         
         <TextBox Grid.Column="1" Grid.Row="0" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding BlibPath}" IsReadOnly="True"/>
         <Button Grid.Column="2" Grid.Row="0" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
@@ -38,10 +38,10 @@
 
         <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Margin ="5,5" BorderThickness="1" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
                              FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="Visible" />
-       
-      
-        <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Content="Start" Width="100" Height="30" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding UpdateExistingClassCommand}" HorizontalAlignment="Right"/>
-       <!-- <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Width="100" Height="30" Content="Cancel" HorizontalAlignment="Right" Command="{Binding }"/> -->
+
+        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment ="Left" Width="130" Height="30" Margin="40,0,0,0" Content="Replace Organism" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding UpdateExistingClassCommand}"/>
+        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Width="130" Height="30" Content="Supplement Organism" IsEnabled="False" Command="{Binding }"/>
+        <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="130" Height="30" Margin="0,0,40,0" Content="Add New Organism" IsEnabled="False" Command="{Binding }"/>
 
     </Grid>
 </Window>
