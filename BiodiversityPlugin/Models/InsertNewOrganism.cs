@@ -95,7 +95,6 @@ namespace BiodiversityPlugin.Models
 
         private static void DownloadKeggGenes(string _keggOrgCode)
         {
-            int numLines = 0;
             var options = StringSplitOptions.RemoveEmptyEntries;
             char[] lineSplit = { '\n' };
 

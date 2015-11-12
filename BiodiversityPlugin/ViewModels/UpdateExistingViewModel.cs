@@ -64,7 +64,6 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectMsgfCommand { get; private set; }
         public RelayCommand SelectButtonCommand { get; private set; }
 
-
         public UpdateExistingViewModel(string dbpath, ObservableCollection<string> filteredOrganisms)
         {
             _dbPath = dbpath;

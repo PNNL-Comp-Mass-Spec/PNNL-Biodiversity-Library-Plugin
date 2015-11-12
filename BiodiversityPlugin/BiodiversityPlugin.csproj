@@ -147,6 +147,7 @@
     <Compile Include="Models\ErrorTypeEnum.cs" />
     <Compile Include="Models\InsertNewOrganism.cs" />
     <Compile Include="Models\Logger.cs" />
+    <Compile Include="Models\SupplementOrgansim.cs" />
     <Compile Include="Models\UpdateExistingOrganism.cs" />
     <Compile Include="SelectDropDownOrganismWindow.xaml.cs">
       <DependentUpon>SelectDropDownOrganismWindow.xaml</DependentUpon>

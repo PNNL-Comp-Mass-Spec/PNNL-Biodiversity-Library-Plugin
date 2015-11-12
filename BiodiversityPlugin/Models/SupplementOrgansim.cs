@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
+using BiodiversityPlugin.ViewModels;
 using KeggParsesClassLibrary;
-using MessageBox = System.Windows.MessageBox;
 
 namespace BiodiversityPlugin.Models
 {
-    public class UpdateExistingOrganism
+    class SupplementOrgansim
     {
         private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
@@ -20,16 +19,14 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
-        public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
+        public void Supplement(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
         {
-            //Call all the methods here that will update the existing organism
             _databasePath = databasePath;
             string orgcode = GetKeggOrgCode(orgName);
             GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
             DetermineObserved(orgcode, blibLoc, orgName);
-            
         }
 
         private static string GetKeggOrgCode(string orgName)
@@ -52,7 +49,6 @@ namespace BiodiversityPlugin.Models
             return orgCode;
         }
 
-        //TODO combine this method with get kegg org code so we don't open connection twice?
         private static void GetKeggGenesWithRefs(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -75,7 +71,7 @@ namespace BiodiversityPlugin.Models
                     }
                 }
                 dbConnection.Close();
-            }                                   
+            }
         }
 
         private static void GetConnectedPathways(string keggOrgCode)
@@ -170,7 +166,6 @@ namespace BiodiversityPlugin.Models
             var observedCount = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
-                keggGene.IsObserved = 0;
                 foreach (var refseq in _refseqs)
                 {
                     if (refseq.Split('.').First() == keggGene.RefseqID)
@@ -181,7 +176,7 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            var result = MessageBox.Show("The observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
+            var result = MessageBox.Show("The new combined observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
                 MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
@@ -213,8 +208,8 @@ namespace BiodiversityPlugin.Models
                     {
                         foreach (var pathway in keggGene.ConnectedPathways)
                         {
-                            var insertion = obsGeneInsertion + 
-                                            string.Format(" SET is_observed = " + keggGene.IsObserved + 
+                            var insertion = obsGeneInsertion +
+                                            string.Format(" SET is_observed = " + keggGene.IsObserved +
                                             " WHERE ( kegg_org_code = {0}{1}{0} AND kegg_pathway_id = {0}{2}{0} AND kegg_gene_id = {0}{3}{0} ); ", '\"',
                                                 keggOrgCode, pathway, keggGene.KeggGeneID);
                             cmd.CommandText = insertion;
@@ -233,7 +228,7 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void UpdateBlibLocation(string orgName, string fileLoc)
+        public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
 
@@ -242,13 +237,13 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var insertUpdate = " INSERT INTO or REPLACE fileLocation (orgName, fileLocation, custom)";
+                    var insertUpdate = " INSERT INTO fileLocation (orgName, fileLocation, custom)";
                     var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {3}); ", "\"", orgName, fileLoc, true);
                     cmd.CommandText = insertUpdate + lastBit;
                     cmd.ExecuteNonQuery();
 
-                    var insertType = "INSERT INTO or REPLACE customOrganisms (orgName, bothBlibs)";
-                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {2}); ", "\"", orgName, false);
+                    var insertType = "INSERT INTO customOrganisms (orgName, bothBlibs)";
+                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {2}); ", "\"", orgName, true);
                     cmd.CommandText = insertType + insertLast;
                     cmd.ExecuteNonQuery();
                 }

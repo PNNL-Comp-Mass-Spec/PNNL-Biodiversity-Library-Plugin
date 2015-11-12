@@ -88,7 +88,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _userEmailInput = "";
 
         private bool _workDone;
-        
+
         private List<string> _blibFiles = new List<string>();
         private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>();
         private  string _irtCorrectionMessage;
