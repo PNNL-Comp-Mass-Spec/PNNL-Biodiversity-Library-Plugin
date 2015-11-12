@@ -238,12 +238,12 @@ namespace BiodiversityPlugin.Models
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
                     var insertUpdate = " INSERT INTO fileLocation (orgName, fileLocation, custom)";
-                    var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {3}); ", "\"", orgName, fileLoc, true);
+                    var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {0}{3}{0}); ", "\"", orgName, fileLoc, true);
                     cmd.CommandText = insertUpdate + lastBit;
                     cmd.ExecuteNonQuery();
 
                     var insertType = "INSERT INTO customOrganisms (orgName, bothBlibs)";
-                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {2}); ", "\"", orgName, true);
+                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}); ", "\"", orgName, true);
                     cmd.CommandText = insertType + insertLast;
                     cmd.ExecuteNonQuery();
                 }

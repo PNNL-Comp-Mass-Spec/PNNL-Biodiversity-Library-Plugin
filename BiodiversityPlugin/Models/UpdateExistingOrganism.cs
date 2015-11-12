@@ -243,18 +243,18 @@ namespace BiodiversityPlugin.Models
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
                     var insertUpdate = " INSERT INTO or REPLACE fileLocation (orgName, fileLocation, custom)";
-                    var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {3}); ", "\"", orgName, fileLoc, true);
+                    var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {0}{3}{0}); ", "\"", orgName, fileLoc, true);
                     cmd.CommandText = insertUpdate + lastBit;
                     cmd.ExecuteNonQuery();
 
                     var insertType = "INSERT INTO or REPLACE customOrganisms (orgName, bothBlibs)";
-                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {2}); ", "\"", orgName, false);
+                    var insertLast = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}); ", "\"", orgName, false);
                     cmd.CommandText = insertType + insertLast;
                     cmd.ExecuteNonQuery();
                 }
                 dbConnection.Close();
                 MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
-            }
+            } 
         }
     }
-}
+} 

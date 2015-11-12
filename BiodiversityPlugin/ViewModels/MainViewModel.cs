@@ -1716,27 +1716,46 @@ namespace BiodiversityPlugin.ViewModels
                     Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
                     var fileFound = false;
                     var fileLoc = CheckFileLocation(org);
-                    if (!string.IsNullOrWhiteSpace(fileLoc))
+                    if (fileLoc.Count != 0)
                     {
-                        //Check if the file is already downloaded and saved.
-                        if (File.Exists(fileLoc))
+                        foreach (var file in fileLoc.Select(t=>t.Item1).ToList()) 
                         {
-                            fileFound = true;
-                            _blibFiles.Add(fileLoc);
-                            //Show where the file was already found at
-                            MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
-                            if (ToolClient != null)
+                            //Check if the file is already downloaded and saved.
+                            if (File.Exists(file))
                             {
-                                // If we're using the Skyline connection, push the downloaded .blib to Skyline
-                                ToolClient.AddSpectralLibrary(org + " Spectral Library", fileLoc);
+                                fileFound = true;
+                                _blibFiles.Add(file);
+                                //Show where the file was already found at
+                                MessageBox.Show("Spectral Library was already found saved to " + fileLoc);
+                                if (ToolClient != null)
+                                {
+                                    // If we're using the Skyline connection, push the downloaded .blib to Skyline
+                                    ToolClient.AddSpectralLibrary(org + " Spectral Library", file);
+                                }
+                            
+                                //Get a dictionary of orgs that are custom to check if they need both blibs
+                                if (fileLoc.Contains(new Tuple<string, bool>(org, true)))
+                                {
+                                    Dictionary<string, bool> types = GetTypeOfChange(org);
+                                    //if the type uses both blibs, make sure we get the blib from massive too
+                                    if (types[org])
+                                    {
+                                        if (!fileLoc.Contains(new Tuple<string, bool>(org, false)))
+                                        {
+                                            break; //no massive blib found, go to get the massive blib too.
+                                        }
+                                    }
+                                }                                
+                            }
+                            else
+                            {
+                                MessageBox.Show("Blib file for " + org +
+                                                " was not found in the orginal location. Program will use blib from massive.", "Warning!");
+                                break; //No blib not found, download the blib from massive
                             }
                         }
-                        else
-                        {
-                           //TODO: Add message box maybe?
-                           continue;
-                        }
                     }
+
                     //File hasn't been downloaded yet from the massive server for this organism
                     if (!fileFound)
                     {
@@ -2039,28 +2058,51 @@ namespace BiodiversityPlugin.ViewModels
         /// </summary>
         /// <param name="orgName"></param>
         /// <returns>File location of the .blib</returns>
-        private string CheckFileLocation(string orgName)
+        private HashSet<Tuple<string, bool>> CheckFileLocation(string orgName)
         {
             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
-            var fileLoc = "";
+            var fileLoc = new HashSet<Tuple<string, bool>>();
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selectionText = " SELECT fileLocation FROM fileLocation WHERE orgName = \"" + orgName + "\"; ";
+                    var selectionText = " SELECT fileLocation, custom FROM fileLocation WHERE orgName = \"" + orgName + "\"; ";
                     cmd.CommandText = selectionText;
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            fileLoc = reader.GetString(0);
+                            fileLoc.Add(new Tuple<string, bool>(reader.GetString(0), reader.GetBoolean(1)));
                         }
                     }
                 }
             }
             return fileLoc;
         }
+
+        private Dictionary<string, bool> GetTypeOfChange(string orgName)
+        {
+            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLoc = new Dictionary<string, bool>();
+            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var getType = "SELECT * FROM customOrganisms WHERE orgName = \"" + orgName + "\"; ";
+                    cmd.CommandText = getType;
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            fileLoc.Add(reader.GetString(0), reader.GetBoolean(1));
+                        }
+                    }
+                }
+            }
+            return fileLoc;
+        } 
 
         /// <summary>
         /// Update the database with a linking of organism name to file location.
@@ -2081,8 +2123,8 @@ namespace BiodiversityPlugin.ViewModels
                     cmd.CommandText = deletionText;
                     cmd.ExecuteNonQuery();
 
-                    var insertionText = " INSERT INTO fileLocation(orgName, fileLocation) VALUES ( ";
-                    insertionText += "\"" + orgName + "\", \"" + fileLoc + "\" );";
+                    var insertionText = " INSERT INTO fileLocation(orgName, fileLocation, custom) ";
+                    insertionText += string.Format("VALUES ({0}{1}{0}.{0}{2}{0},{0}{3}{0}); ", "\"", orgName, fileLoc, false); 
                     cmd.CommandText = insertionText;
                     cmd.ExecuteNonQuery();
                 }
