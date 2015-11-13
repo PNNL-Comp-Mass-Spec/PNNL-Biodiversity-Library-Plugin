@@ -145,6 +145,7 @@
     <Compile Include="Calculations\LevenshteinDistance.cs" />
     <Compile Include="Models\DownloadLocationEnum.cs" />
     <Compile Include="Models\ErrorTypeEnum.cs" />
+    <Compile Include="Models\FileLocContainer.cs" />
     <Compile Include="Models\InsertNewOrganism.cs" />
     <Compile Include="Models\Logger.cs" />
     <Compile Include="Models\SupplementOrgansim.cs" />
@@ -204,7 +205,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="DataFiles\blibFileLoc.db">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DataFiles\iRT_Libraries\Ariadne_Thread_iRT_C18.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

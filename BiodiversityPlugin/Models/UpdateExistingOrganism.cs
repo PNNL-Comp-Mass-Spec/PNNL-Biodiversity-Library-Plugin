@@ -22,6 +22,12 @@ namespace BiodiversityPlugin.Models
 
         public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
         {
+            //Do initial clean up of what was in the lists just to be safe
+            _keggGenes.Clear();
+            _proteinPeptideMap.Clear();
+            _refseqs.Clear();
+            _peptides.Clear();
+
             //Call all the methods here that will update the existing organism
             _databasePath = databasePath;
             string orgcode = GetKeggOrgCode(orgName);
@@ -242,12 +248,12 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var insertUpdate = " INSERT INTO or REPLACE fileLocation (orgName, fileLocation, custom)";
+                    var insertUpdate = " INSERT or REPLACE INTO fileLocation (orgName, fileLocation, custom)";
                     var lastBit = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}, {0}{3}{0}); ", "\"", orgName, fileLoc, true);
                     cmd.CommandText = insertUpdate + lastBit;
                     cmd.ExecuteNonQuery();
 
-                    var insertType = "INSERT INTO or REPLACE customOrganisms (orgName, bothBlibs)";
+                    var insertType = "INSERT or REPLACE INTO customOrganisms (orgName, bothBlibs)";
                     var insertLast = string.Format(" VALUES ({0}{1}{0}, {0}{2}{0}); ", "\"", orgName, false);
                     cmd.CommandText = insertType + insertLast;
                     cmd.ExecuteNonQuery();

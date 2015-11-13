@@ -1718,12 +1718,23 @@ namespace BiodiversityPlugin.ViewModels
                     var fileLoc = CheckFileLocation(org);
                     if (fileLoc.Count != 0)
                     {
-                        foreach (var file in fileLoc.Select(t=>t.Item2).ToList()) 
+                        var needsMassive = GetTypeOfChange(org);
+                        if (!needsMassive)
                         {
-                            //Check if the file is already downloaded and saved.
+                            //get just local blib
+                            var file = "";
+                            fileFound = true;
+
+                            foreach (var thing in fileLoc)
+                            {
+                                if (thing.IsCustom == true)
+                                {
+                                    file = thing.FileLocation;
+                                }
+                            }
+                            
                             if (File.Exists(file))
                             {
-                                fileFound = true;
                                 _blibFiles.Add(file);
                                 //Show where the file was already found at
                                 MessageBox.Show("Spectral Library was already found saved to " + file);
@@ -1732,38 +1743,50 @@ namespace BiodiversityPlugin.ViewModels
                                     // If we're using the Skyline connection, push the downloaded .blib to Skyline
                                     ToolClient.AddSpectralLibrary(org + " Spectral Library", file);
                                 }
-                            
-                                //Get a dictionary of orgs that are custom to check if they need both blibs
-                                foreach (var tuple in fileLoc)
-                                {
-                                    if (tuple.Item3 == true)
-                                    {
-                                        Dictionary<string, bool> types = GetTypeOfChange(org);
-                                        if (types[org])
-                                        {
-                                            var massiveBlib = false;
-                                            foreach (var item in fileLoc)
-                                            {
-                                                if (item.Item3 == false)
-                                                {
-                                                    massiveBlib = true;
-                                                }
-                                            }
-                                            if (massiveBlib == false)
-                                            {
-                                                //set fileFound to false so it will go and download it later.
-                                                fileFound = false;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }                                                         
                             }
                             else
                             {
-                                MessageBox.Show("Blib file for " + org +
-                                                " was not found in the orginal location. Program will use blib from massive.", "Warning!");
-                                break; //No blib not found, download the blib from massive
+                                MessageBox.Show("Local blib file for " + org +
+                                                    " was not found in the orginal location.",
+                                        "Warning!");
+                            }
+                        }
+                        else
+                        {
+                            foreach (var item in fileLoc)
+                            {
+                                var file = Convert.ToString(item.FileLocation);
+                                //Check if the file is already downloaded and saved.
+                                if (File.Exists(file))
+                                {
+                                    if (item.IsCustom == false)
+                                    {
+                                        fileFound = true;
+                                    }    
+                                    _blibFiles.Add(file);
+                                    //Show where the file was already found at
+                                    MessageBox.Show("Spectral Library was already found saved to " + file);
+                                    if (ToolClient != null)
+                                    {
+                                        // If we're using the Skyline connection, push the downloaded .blib to Skyline
+                                        ToolClient.AddSpectralLibrary(org + " Spectral Library", file);
+                                    }
+                                }
+                                else
+                                {
+                                    if (item.IsCustom == false)
+                                    {
+                                        MessageBox.Show("Blib file from Massive for " + org +
+                                                        " was not found in the orginal location. \n Blib will be redownloaded from Massive.",
+                                            "Warning!");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Local blib file for " + org +
+                                                    " was not found in the orginal location.",
+                                        "Warning!");
+                                    }
+                                }
                             }
                         }
                     }
@@ -2061,7 +2084,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 }
                 IsQuerying = false;
-                TopLevelWindow = 1;
+                //TopLevelWindow = 1;
             });
         }
         
@@ -2070,10 +2093,10 @@ namespace BiodiversityPlugin.ViewModels
         /// </summary>
         /// <param name="orgName"></param>
         /// <returns>File location of the .blib</returns>
-        private HashSet<Tuple<string, string, bool>> CheckFileLocation(string orgName)
+        private List<FileLocContainer> CheckFileLocation(string orgName)
         {
             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
-            var fileLoc = new HashSet<Tuple<string, string, bool>>();
+            List<FileLocContainer> fileLoc = new List<FileLocContainer>();
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
                 dbConnection.Open();
@@ -2085,8 +2108,9 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         while (reader.Read())
                         {
-                            fileLoc.Add(new Tuple<string, string, bool>(reader.GetString(0), 
-                                reader.GetString(1), Convert.ToBoolean(reader.GetString(2))));
+                            FileLocContainer loc = new FileLocContainer(reader.GetString(0),
+                                reader.GetString(1), Convert.ToBoolean(reader.GetString(2)));
+                            fileLoc.Add(loc);
                         }
                     }
                 }
@@ -2094,10 +2118,10 @@ namespace BiodiversityPlugin.ViewModels
             return fileLoc;
         }
 
-        private Dictionary<string, bool> GetTypeOfChange(string orgName)
+        private bool GetTypeOfChange(string orgName)
         {
             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
-            var fileLoc = new Dictionary<string, bool>();
+            var needsBoth = true;
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
                 dbConnection.Open();
@@ -2109,12 +2133,12 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         while (reader.Read())
                         {
-                            fileLoc.Add(reader.GetString(0), Convert.ToBoolean(reader.GetString(1)));
+                            needsBoth = Convert.ToBoolean(reader.GetString(1));
                         }
                     }
                 }
             }
-            return fileLoc;
+            return needsBoth;
         } 
 
         /// <summary>
@@ -2132,12 +2156,12 @@ namespace BiodiversityPlugin.ViewModels
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var deletionText = " DELETE FROM fileLocation WHERE orgName = \"" + orgName + "\"; ";
+                    var deletionText = " DELETE FROM fileLocation WHERE orgName = \"" + orgName + "\" and custom = \"false\""; 
                     cmd.CommandText = deletionText;
                     cmd.ExecuteNonQuery();
 
-                    var insertionText = " INSERT INTO fileLocation(orgName, fileLocation, custom) ";
-                    insertionText += string.Format("VALUES ({0}{1}{0}.{0}{2}{0},{0}{3}{0}); ", "\"", orgName, fileLoc, false); 
+                    var insertionText = " INSERT or REPLACE INTO fileLocation (orgName, fileLocation, custom) ";
+                    insertionText += string.Format("VALUES ({0}{1}{0},{0}{2}{0},{0}{3}{0}); ", "\"", orgName, fileLoc, false); 
                     cmd.CommandText = insertionText;
                     cmd.ExecuteNonQuery();
                 }
