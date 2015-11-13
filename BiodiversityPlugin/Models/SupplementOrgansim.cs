@@ -19,7 +19,7 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
-        public void Supplement(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
+        public static void Supplement(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
         {
             _databasePath = databasePath;
             string orgcode = GetKeggOrgCode(orgName);

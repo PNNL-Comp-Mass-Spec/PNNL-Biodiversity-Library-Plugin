@@ -16,6 +16,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _msgfPath;
         private string _orgName;
         private string _dbPath;
+        private string _whichFunction;
         private bool _startEnable;
         private ObservableCollection<string> _filteredOrganisms;
 
@@ -61,18 +62,27 @@ namespace BiodiversityPlugin.ViewModels
 
         public RelayCommand UpdateExistingClassCommand { get; private set; }
 
-        public SelectOrgViewModel(string dbpath, ObservableCollection<string> organisms, string blibPath, string msgfPath)
+        public SelectOrgViewModel(string dbpath, ObservableCollection<string> organisms, string blibPath, string msgfPath, string whichFunction)
         {
             _dbPath = dbpath;
             _filteredOrganisms = organisms;
             _blibPath = blibPath;
             _msgfPath = msgfPath;
+            _whichFunction = whichFunction;
             UpdateExistingClassCommand = new RelayCommand(UpdateExistingClass);
         }
 
         private void UpdateExistingClass()
         {
-            UpdateExistingOrganism.UpdateExisting(_orgName, _blibPath, _msgfPath, _dbPath);
+            if (_whichFunction == "replace")
+            {
+                UpdateExistingOrganism.UpdateExisting(_orgName, _blibPath, _msgfPath, _dbPath);
+            }
+            else if (_whichFunction == "supplement")
+            {
+                SupplementOrgansim.Supplement(_orgName, _blibPath, _msgfPath, _dbPath);
+            }
+            
         }
     }
 }
