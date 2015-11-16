@@ -7,7 +7,8 @@
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
         mc:Ignorable="d"
-        Title="Update Existing Window" Height="240" Width="545">
+        Title="Update Existing Window" Height="300" Width="600">
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="170"/>
@@ -16,13 +17,13 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="90"/>
+            <RowDefinition Height="110"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
-        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="5,5,5,0">
+        
+        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="14">
             If the data provided by the Biodiversity Plugin was not sufficient, users can customize their data by 1.) Replacing the 
             existing organism with entirely 2.) Supplementing an existing organism with additional data or 3.) Add a new organism
             that does not yet exist in the current database. To perform any of these tasks, user must input two files. The first file 
@@ -30,7 +31,6 @@
 
         <TextBlock Grid.Column="0" Grid.Row="1" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="0" Grid.Row="2" Text="mzIdentML Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>
-        
         
         <TextBox Grid.Column="1" Grid.Row="1" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding BlibPath}" IsReadOnly="True"/>
         <Button Grid.Column="2" Grid.Row="1" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
@@ -42,9 +42,15 @@
             <Image Source="DataFiles/search-icon.png" />
         </Button>
 
-        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment ="Left" Width="130" Height="30" Margin="40,0,0,0" Content="Replace Organism" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButtonCommand}"/>
-        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Width="130" Height="30" Content="Supplement Organism" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButton2Command}"/>
-        <Button Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Width="130" Height="30" Margin="0,0,40,0" Content="Add New Organism" IsEnabled="False" Command="{Binding }"/>
+        <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3">
+            <Button Height="30" Width="60" Margin="10" IsEnabled="True" Command="{Binding }">
+                <Image Source="DataFiles/help.png"/>
+            </Button>
+            <Button Width="130" Height="30" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButtonCommand}"/>
+            <Button Width="130" Height="30" Content="Supplement Organism" Margin ="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButton2Command}"/>
+            <Button Width="130" Height="30" Content="Add New Organism" Margin="10" IsEnabled="False" Command="{Binding }"/>
+        </StackPanel>
+       
 
     </Grid>
 </Window>
