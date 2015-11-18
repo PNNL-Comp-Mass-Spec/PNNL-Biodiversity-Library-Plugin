@@ -4,18 +4,22 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using BiodiversityPlugin.Models;
+using BiodiversityPlugin.Views;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using MessageBox = System.Windows.MessageBox;
 
 namespace BiodiversityPlugin.ViewModels
 {
     public class UpdateExistingViewModel : ViewModelBase
     {
         private string _blibPath;
-        private string _msgfPath;
+        private List<string> _msgfPath;
         private bool _startEnable;
         private string _dbPath;
         private ObservableCollection<string> _filteredOrganisms;
@@ -37,7 +41,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public string MsgfPath
+        public List<string> MsgfPath
         {
             get { return _msgfPath; }
             set
@@ -64,6 +68,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectMsgfCommand { get; private set; }
         public RelayCommand SelectButtonCommand { get; private set; }
         public RelayCommand SelectButton2Command { get; private set; }
+        public RelayCommand HelpCommand { get; set; }
 
         public UpdateExistingViewModel(string dbpath, ObservableCollection<string> filteredOrganisms)
         {
@@ -73,13 +78,18 @@ namespace BiodiversityPlugin.ViewModels
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
             SelectButtonCommand = new RelayCommand(SelectButton);
             SelectButton2Command = new RelayCommand(SelectButton2);
+            HelpCommand = new RelayCommand(ClickHelp);
         }
 
-
+        private void ClickHelp()
+        {
+            var help = new HelpWindow();
+            help.Show();
+        }
 
         private void IsStartEnabled()
         {
-            if (!string.IsNullOrEmpty(BlibPath) && !string.IsNullOrEmpty(MsgfPath)) //&& !string.IsNullOrEmpty(OrgName)
+            if (!string.IsNullOrEmpty(BlibPath) && MsgfPath != null) 
             {
                 StartButtonEnabled = true;
                 RaisePropertyChanged();
@@ -94,20 +104,22 @@ namespace BiodiversityPlugin.ViewModels
         {
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "replace");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
-            selectOrg.Show();
+            selectOrg.ShowDialog();  
+            selectOrg.Close();        
         }
 
         private void SelectButton2()
         {
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "supplement");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
-            selectOrg.Show();
+            selectOrg.ShowDialog();
+            selectOrg.Close();
         }
 
         private void SelectBlib()
         {
             OpenFileDialog openFile = new OpenFileDialog();
-            openFile.Filter = "Blib files (*.blib)|*.blib"; //.blib
+            openFile.Filter = "Blib files (*.blib)|*.blib"; //.blib           
             var userClickedOK = openFile.ShowDialog();
             if (userClickedOK == DialogResult.OK)
             {
@@ -117,11 +129,12 @@ namespace BiodiversityPlugin.ViewModels
 
         private void SelectMsgf()
         {
-            FolderBrowserDialog openFolder = new FolderBrowserDialog();
+            OpenFileDialog openFolder = new OpenFileDialog();
+            openFolder.Multiselect = true;
             var userClickedOK = openFolder.ShowDialog();
             if (userClickedOK == DialogResult.OK)
             {
-                MsgfPath = openFolder.SelectedPath;
+                MsgfPath = (openFolder.FileNames).ToList();
             }
         }
     }

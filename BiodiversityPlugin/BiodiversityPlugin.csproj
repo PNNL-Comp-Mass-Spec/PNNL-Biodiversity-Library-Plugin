@@ -160,11 +160,16 @@
       <DependentUpon>UpdateExistingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ClickableErrorMessageBox.cs" />
+    <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SelectOrgViewModel.cs" />
+    <Compile Include="ViewModels\TypeOrgViewModel.cs" />
     <Compile Include="ViewModels\UpdateExistingViewModel.cs" />
     <Compile Include="Views\ClickableErrorMessageBoxView.xaml.cs">
       <DependentUpon>ClickableErrorMessageBoxView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HelpWindow.xaml.cs">
+      <DependentUpon>HelpWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -191,6 +196,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\ClickableErrorMessageBoxView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HelpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

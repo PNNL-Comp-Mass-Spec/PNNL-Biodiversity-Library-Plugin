@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Interop;
 using BiodiversityPlugin.ViewModels;
 using KeggParsesClassLibrary;
 
@@ -19,7 +20,7 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
-        public static void Supplement(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
+        public static void Supplement(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
         {
             //Do initial clean up of what was in the lists just to be safe
             _keggGenes.Clear();
@@ -96,6 +97,9 @@ namespace BiodiversityPlugin.Models
                         {
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
                                 Convert.ToString(reader["kegg_pathway_id"]));
+                            //Add the data for if it was observed or not
+                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved =
+                                Convert.ToInt32(reader["is_observed"]);
                         }
                     }
                 }
@@ -103,13 +107,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void SearchMsgfFiles(string msgfFolder)
+        private static void SearchMsgfFiles(List<string> msgfFolder)
         {
-            var dirs = Directory.GetDirectories(msgfFolder).ToList();
-            dirs.Add(msgfFolder);
             double cutoff = 0.0001;
 
-            foreach (var file in Directory.GetFiles(msgfFolder))
+            foreach (var file in msgfFolder)
             {
                 using (var reader = new StreamReader(file))
                 {
@@ -170,19 +172,31 @@ namespace BiodiversityPlugin.Models
         private static void DetermineObserved(string orgcode, string blibLoc, string orgName)
         {
             var observedCount = 0;
+            var alreadyObserved = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
+                if (keggGene.IsObserved == 1)
+                {
+                    //keggGene was already observed so keep track.
+                    alreadyObserved++;
+                }
                 foreach (var refseq in _refseqs)
                 {
                     if (refseq.Split('.').First() == keggGene.RefseqID)
                     {
-                        keggGene.IsObserved = 1;
-                        observedCount++;
-                        break;
+                        if (keggGene.IsObserved == 0)
+                        {
+                            keggGene.IsObserved = 1;
+                            observedCount++;
+                            break;
+                        }                     
                     }
                 }
             }
-            var result = MessageBox.Show("The new combined observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
+
+            var result = MessageBox.Show("The number of proteins that were already observed is " + alreadyObserved + ".\n" +
+                                         "The number of new proteins that were observed is " + observedCount +".\n" +
+                                         "The combined observed protein count is " + (alreadyObserved + observedCount) + ". Would you like to continue? ", "Search Complete",
                 MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {

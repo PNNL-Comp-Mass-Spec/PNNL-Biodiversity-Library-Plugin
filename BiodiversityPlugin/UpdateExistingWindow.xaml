@@ -7,7 +7,7 @@
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
         mc:Ignorable="d"
-        Title="Update Existing Window" Height="300" Width="600">
+        Title="Update Data for Biodiversity Library" Height="410" Width="600">
     
     <Grid>
         <Grid.ColumnDefinitions>
@@ -17,17 +17,21 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="110"/>
+            <RowDefinition Height="220"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="14">
-            If the data provided by the Biodiversity Plugin was not sufficient, users can customize their data by 1.) Replacing the 
-            existing organism with entirely 2.) Supplementing an existing organism with additional data or 3.) Add a new organism
-            that does not yet exist in the current database. To perform any of these tasks, user must input two files. The first file 
-            is the .blib file. The second is the mzIdentML PSM results file.   </TextBlock>
+            You can update the MS/MS data used by the Biodiversity Plugin for Skyline. This will allow you to browse your
+        data using the same pathway oriented interface and load your data directly into Skyline. <LineBreak/> <LineBreak/>
+            There are  three options for updating data. Use the appropriate button below. <LineBreak/>
+        1) Replace the existing organism entirely with custom data. <LineBreak/>
+        2) Supplement an existing organism with additional data. <LineBreak/>
+        3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/>
+        Users must have a Bibliospec formatted spectrum library (.blib) and mzIdentML formatted results.
+        See the help button for additional information.</TextBlock>
 
         <TextBlock Grid.Column="0" Grid.Row="1" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="0" Grid.Row="2" Text="mzIdentML Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>
@@ -43,7 +47,7 @@
         </Button>
 
         <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3">
-            <Button Height="30" Width="60" Margin="10" IsEnabled="True" Command="{Binding }">
+            <Button Height="30" Width="60" Margin="10" IsEnabled="True" Command="{Binding HelpCommand}">
                 <Image Source="DataFiles/help.png"/>
             </Button>
             <Button Width="130" Height="30" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButtonCommand}"/>

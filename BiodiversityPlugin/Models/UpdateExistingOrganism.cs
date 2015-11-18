@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
+using BiodiversityPlugin.ViewModels;
 using KeggParsesClassLibrary;
 using MessageBox = System.Windows.MessageBox;
 
@@ -20,7 +21,7 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
-        public static void UpdateExisting(string orgName, string blibLoc, string msgfFolderLoc, string databasePath)
+        public static void UpdateExisting(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
         {
             //Do initial clean up of what was in the lists just to be safe
             _keggGenes.Clear();
@@ -35,7 +36,6 @@ namespace BiodiversityPlugin.Models
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
             DetermineObserved(orgcode, blibLoc, orgName);
-            
         }
 
         private static string GetKeggOrgCode(string orgName)
@@ -107,13 +107,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void SearchMsgfFiles(string msgfFolder)
+        private static void SearchMsgfFiles(List<string> msgfFolder)
         {
-            var dirs = Directory.GetDirectories(msgfFolder).ToList();
-            dirs.Add(msgfFolder);
             double cutoff = 0.0001;
 
-            foreach (var file in Directory.GetFiles(msgfFolder))
+            foreach (var file in msgfFolder)
             {
                 using (var reader = new StreamReader(file))
                 {
@@ -260,6 +258,7 @@ namespace BiodiversityPlugin.Models
                 }
                 dbConnection.Close();
                 MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
+                
             } 
         }
     }

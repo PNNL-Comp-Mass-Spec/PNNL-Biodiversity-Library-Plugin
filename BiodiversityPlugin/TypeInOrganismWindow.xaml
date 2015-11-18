@@ -5,8 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BiodiversityPlugin"
         mc:Ignorable="d"
-        Title="TypeInOrganismWindow" Height="300" Width="300">
+        Title="Enter Organism " Height="200" Width="500">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            Please enter in the new organism information below.
+        </TextBlock>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text ="Organism" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBox Grid.Column="1" Grid.Row="1" BorderBrush="Black" Margin="5,5"/>
+        <TextBlock Grid.Column="0" Grid.Row="2" Text ="Kegg Org Code (optional)" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
         
     </Grid>
 </Window>

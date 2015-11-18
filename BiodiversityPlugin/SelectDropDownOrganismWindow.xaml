@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BiodiversityPlugin"
         mc:Ignorable="d"
-        Title="Select Drop Down OrganismWindow" Height="200" Width="500">
+        Title="Select Organism" Height="200" Width="500">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="170"/>
@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,10" Text="Please select the organism you wish to update." />
-        <TextBlock Grid.Column="0" Grid.Row="1" Text ="Organism" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text ="Organism" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <ComboBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Margin ="5,5" BorderThickness="1" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
                              FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="Visible"/>
         <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment ="Center" Width="130" Height="30" Content="Start" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding UpdateExistingClassCommand}"/>
