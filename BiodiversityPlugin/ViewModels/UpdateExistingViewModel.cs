@@ -120,7 +120,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void SelectNew()
         {
-            var SelectNewWindowVm = new TypeOrgViewModel();
+            var SelectNewWindowVm = new TypeOrgViewModel(_dbPath, _blibPath, _msgfPath);
             var selectNew = new TypeInOrganismWindow(SelectNewWindowVm);
             selectNew.ShowDialog();
         }
