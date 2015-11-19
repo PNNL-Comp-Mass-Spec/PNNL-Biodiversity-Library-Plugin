@@ -20,6 +20,7 @@ namespace BiodiversityPlugin.ViewModels
     {
         private string _blibPath;
         private List<string> _msgfPath;
+        private string showMsgfPaths;
         private bool _startEnable;
         private string _dbPath;
         private ObservableCollection<string> _filteredOrganisms;
@@ -52,7 +53,15 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-       
+        public string ShowMsgfPaths
+        {
+            get { return showMsgfPaths; }
+            set
+            {
+                showMsgfPaths = value; 
+                RaisePropertyChanged();
+            }
+        }
 
         public bool StartButtonEnabled
         {
@@ -143,6 +152,9 @@ namespace BiodiversityPlugin.ViewModels
             var userClickedOK = openFolder.ShowDialog();
             if (userClickedOK == DialogResult.OK)
             {
+                var separator = ", ";
+                var array = openFolder.FileNames;
+                ShowMsgfPaths = string.Join(separator, array);
                 MsgfPath = (openFolder.FileNames).ToList();
             }
         }
