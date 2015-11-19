@@ -19,8 +19,9 @@ namespace BiodiversityPlugin.Models
         private static string _orgClass;
         private static string _orgName;
 
-        public static void InsertNew(string orgName, string blibLoc, string msgfFolderLoc, string databasePath) //pass in an optional _keggOrgCode?
+        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string orgCode) //pass in an optional _keggOrgCode?
         {
+            _keggOrgCode = orgCode;
             FindOrgCode(orgName);
             DownloadKeggGenes(_keggOrgCode);
         }

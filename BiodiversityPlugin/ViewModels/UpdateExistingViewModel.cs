@@ -68,6 +68,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectMsgfCommand { get; private set; }
         public RelayCommand SelectButtonCommand { get; private set; }
         public RelayCommand SelectButton2Command { get; private set; }
+        public RelayCommand SelectNewCommand { get; private set; }
         public RelayCommand HelpCommand { get; set; }
 
         public UpdateExistingViewModel(string dbpath, ObservableCollection<string> filteredOrganisms)
@@ -78,6 +79,7 @@ namespace BiodiversityPlugin.ViewModels
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
             SelectButtonCommand = new RelayCommand(SelectButton);
             SelectButton2Command = new RelayCommand(SelectButton2);
+            SelectNewCommand = new RelayCommand(SelectNew);
             HelpCommand = new RelayCommand(ClickHelp);
         }
 
@@ -114,6 +116,13 @@ namespace BiodiversityPlugin.ViewModels
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
             selectOrg.ShowDialog();
             selectOrg.Close();
+        }
+
+        private void SelectNew()
+        {
+            var SelectNewWindowVm = new TypeOrgViewModel();
+            var selectNew = new TypeInOrganismWindow(SelectNewWindowVm);
+            selectNew.ShowDialog();
         }
 
         private void SelectBlib()

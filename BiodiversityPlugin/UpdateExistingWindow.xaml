@@ -52,7 +52,7 @@
             </Button>
             <Button Width="130" Height="30" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButtonCommand}"/>
             <Button Width="130" Height="30" Content="Supplement Organism" Margin ="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButton2Command}"/>
-            <Button Width="130" Height="30" Content="Add New Organism" Margin="10" IsEnabled="False" Command="{Binding }"/>
+            <Button Width="130" Height="30" Content="Add New Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectNewCommand}"/>
         </StackPanel>
        
 

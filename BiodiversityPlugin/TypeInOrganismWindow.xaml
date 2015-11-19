@@ -19,13 +19,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-            Please enter in the new organism information below.
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center">
+            Please enter in the new organism information below. Providing a Kegg organism code is encouraged 
+            as it will ensure optimal search results.
         </TextBlock>
         <TextBlock Grid.Column="0" Grid.Row="1" Text ="Organism" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <TextBox Grid.Column="1" Grid.Row="1" BorderBrush="Black" Margin="5,5"/>
         <TextBlock Grid.Column="0" Grid.Row="2" Text ="Kegg Org Code (optional)" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        
+        <TextBox Grid.Column="1" Grid.Row="2" BorderBrush="Black" Margin="5,5"/>
+        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Height="30" Width="130" HorizontalAlignment ="Center" Content="Start" IsEnabled="{Binding}" Command="{Binding}"/>
         
     </Grid>
 </Window>

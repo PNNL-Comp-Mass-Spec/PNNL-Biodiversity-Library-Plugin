@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using BiodiversityPlugin.ViewModels;
 
 namespace BiodiversityPlugin
 {
@@ -19,9 +20,10 @@ namespace BiodiversityPlugin
     /// </summary>
     public partial class TypeInOrganismWindow : Window
     {
-        public TypeInOrganismWindow()
+        public TypeInOrganismWindow(TypeOrgViewModel vm)
         {
             InitializeComponent();
+            this.DataContext = vm;
         }
     }
 }
