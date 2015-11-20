@@ -21,7 +21,7 @@ namespace BiodiversityPlugin.Models
         private static string _taxon;
         private static List<string> _refseqs = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
-        private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
+        private static Dictionary<string, Gene> _keggGenes = new Dictionary<string, Gene>();
         private static Dictionary<string, NcbiProtein> _ncbiProtiens = new Dictionary<string, NcbiProtein>();
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
@@ -112,7 +112,7 @@ namespace BiodiversityPlugin.Models
                     foreach (var line in lines)
                     {
                         var geneID = line.Split('\t')[0].Split(':')[1];
-                        _keggGenes.Add(geneID, new KeggGene(_keggOrgCode, geneID));
+                        _keggGenes.Add(geneID, new Gene(_keggOrgCode, geneID));
                     }
                 }
             }
@@ -289,7 +289,7 @@ namespace BiodiversityPlugin.Models
         }
     }
 
-    public class KeggGene
+    public class Gene
     {
         public string KeggOrgCode { get; set; }
         public string KeggGeneID { get; set; }
@@ -298,7 +298,7 @@ namespace BiodiversityPlugin.Models
         public int IsObserved { get; set; }
         public List<string> ConnectedPathways { get; set; }
 
-        public KeggGene(string OrgCode, string GeneID)
+        public Gene(string OrgCode, string GeneID)
         {
             KeggOrgCode = OrgCode;
             KeggGeneID = GeneID;
