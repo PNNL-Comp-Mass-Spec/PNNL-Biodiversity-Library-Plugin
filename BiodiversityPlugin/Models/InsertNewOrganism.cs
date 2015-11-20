@@ -19,11 +19,35 @@ namespace BiodiversityPlugin.Models
         private static string _orgClass;
         private static string _orgName;
 
-        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string orgCode) //pass in an optional _keggOrgCode?
+        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath) //pass in an optional _keggOrgCode?
         {
-            _keggOrgCode = orgCode;
             FindOrgCode(orgName);
+            //Get the kegg genes for this org
             DownloadKeggGenes(_keggOrgCode);
+        }
+
+        public static List<string> GetListOfKeggOrganisms()
+        {
+            var organisms = new List<string>();
+            var options = StringSplitOptions.RemoveEmptyEntries;
+            var eListUrl = WebRequest.Create("http://rest.kegg.jp/list/organism");
+            var listStream = eListUrl.GetResponse().GetResponseStream();
+            var lines = new List<string>();
+            using (var listReader = new StreamReader(listStream))
+            {
+                while (listReader.Peek() > -1)
+                {
+                    var wholeFile = listReader.ReadToEnd();
+                    char[] lineSplit = { '\n' };
+                    lines = wholeFile.Split(lineSplit, options).ToList();
+                    foreach (var line in lines)
+                    {
+                        organisms.Add((line.Split('\t')[2]).Split('(')[0]);
+                    }
+                    //Thread.Sleep(1);
+                }
+            }
+            return organisms;
         }
 
         private static void FindOrgCode(string orgName)

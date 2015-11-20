@@ -5,10 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BiodiversityPlugin"
         mc:Ignorable="d"
-        Title="Enter Organism " Height="200" Width="500">
+        Title="Enter Organism " Height="300" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -17,17 +16,21 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center">
-            Please enter in the new organism information below. Providing a Kegg organism code is encouraged 
-            as it will ensure optimal search results.
+            Please select the new organism you would like to insert.
         </TextBlock>
         <TextBlock Grid.Column="0" Grid.Row="1" Text ="Organism" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Grid.Column="1" Grid.Row="1" BorderBrush="Black" Margin="5,5" Text="{Binding OrganismName}"/>
-        <TextBlock Grid.Column="0" Grid.Row="2" Text ="Kegg Org Code (optional)" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBox Grid.Column="1" Grid.Row="2" BorderBrush="Black" Margin="5,5" Text="{Binding OrgCode}"/>
-        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Height="30" Width="130" HorizontalAlignment ="Center" Content="Start" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding InsertNewOrganismCommand}"/>
+        <TextBox Grid.Row="1" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+         FontSize="12" FontWeight="Normal" Margin="20,5,20,5">
+        </TextBox>
+        <Button Grid.Row="1" HorizontalAlignment="Right" Height="25" Width="25" Background="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Foreground="Red" Margin="0,0,25,0"  Command="{Binding ClearFilterCommand}">X</Button>
+        <ListBox Grid.Row="2" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+                             FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding OrganismName}" Visibility="{Binding FilterBoxVisible}" />
         
+        <Button Grid.Column="0" Grid.Row="4" Height="30" Width="130" HorizontalAlignment ="Center" Content="Start" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding InsertNewOrganismCommand}"/>
+
     </Grid>
 </Window>
