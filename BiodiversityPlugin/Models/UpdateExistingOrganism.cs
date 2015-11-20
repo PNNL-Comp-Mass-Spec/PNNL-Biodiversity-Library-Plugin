@@ -147,7 +147,7 @@ namespace BiodiversityPlugin.Models
                             if (Convert.ToDouble(pieces[qValIndex]) < cutoff && pieces[protInd].Split('|').Count() > 1)
                             {
                                 var peptide = pieces[pepInd].Split('.')[1];
-                                var prot = pieces[protInd].Split('|')[1].Split('.')[0];
+                                var prot = pieces[protInd].Split('|')[3].Split('.')[0];
                                 var charge = Convert.ToInt32(pieces[chargeIndex]);
                                 if (!_proteinPeptideMap.ContainsKey(prot))
                                 {
