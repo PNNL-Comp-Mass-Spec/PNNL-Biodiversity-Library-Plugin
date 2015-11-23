@@ -179,17 +179,15 @@ namespace BiodiversityPlugin.Models
                 {
                     //keggGene was already observed so keep track.
                     alreadyObserved++;
+                    continue;
                 }
                 foreach (var refseq in _refseqs)
                 {
                     if (refseq.Split('.').First() == keggGene.RefseqID)
                     {
-                        if (keggGene.IsObserved == 0)
-                        {
                             keggGene.IsObserved = 1;
                             observedCount++;
-                            break;
-                        }                     
+                            break;                 
                     }
                 }
             }
