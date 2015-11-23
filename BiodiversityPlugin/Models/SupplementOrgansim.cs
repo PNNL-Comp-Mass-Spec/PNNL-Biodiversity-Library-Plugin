@@ -63,7 +63,9 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_gene_id, refseq_id FROM kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    var getOrgText = " SELECT * from kegg_gene INNER JOIN observed_kegg_gene" +
+                                     " ON kegg_gene.kegg_gene_id = observed_kegg_gene.kegg_gene_id" +
+                                     " WHERE kegg_gene.kegg_org_code = \"" + keggOrgCode + "\" " + " GROUP BY kegg_gene.kegg_gene_id;";
                     cmd.CommandText = getOrgText;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())

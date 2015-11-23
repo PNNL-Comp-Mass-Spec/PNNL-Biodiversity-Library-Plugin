@@ -108,29 +108,6 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void GetKeggKos(string keggOrgCode)
-        {
-            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
-            {
-                dbConnection.Open();
-                using (var cmd = new SQLiteCommand(dbConnection))
-                {
-                    var getOrgText = " SELECT * FROM kegg_gene_ko_map WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
-                    cmd.CommandText = getOrgText;
-                    SQLiteDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        if (_keggGenes.ContainsKey(Convert.ToString(reader["kegg_gene_id"])))
-                        {
-                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].KeggKOID = (
-                                Convert.ToString(reader["kegg_ko_id"]));
-                        }
-                    }
-                }
-                dbConnection.Close();
-            }
-        }
-
         private static void SearchMsgfFiles(List<string> msgfFolder)
         {
             double cutoff = 0.0001;
@@ -199,10 +176,6 @@ namespace BiodiversityPlugin.Models
             foreach (var keggGene in _keggGenes.Values)
             {
                 keggGene.IsObserved = 0;
-                if (string.IsNullOrWhiteSpace(keggGene.KeggKOID))
-                {
-                    continue;
-                }
                 foreach (var refseq in _refseqs)
                 {
                     if (refseq.Split('.').First() == keggGene.RefseqID)
