@@ -31,7 +31,7 @@ namespace BiodiversityPlugin.Models
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
 
-        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath) //pass in an optional _keggOrgCode?
+        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath) 
         {
             _databasePath = databasePath;
             FindOrgCode(orgName);

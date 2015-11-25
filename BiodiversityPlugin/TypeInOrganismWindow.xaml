@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:BiodiversityPlugin"
         mc:Ignorable="d"
         Title="Enter Organism " Height="500" Width="400">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -31,6 +34,12 @@
                              FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding OrganismName}" Visibility="{Binding FilterBoxVisible}" />
         
         <Button Grid.Column="0" Grid.Row="4" Height="30" Width="130" HorizontalAlignment ="Center" Content="Start" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding InsertNewOrganismCommand}"/>
+
+        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Opacity=".8" BorderBrush="Black" BorderThickness="1" Background="DimGray" VerticalAlignment="Stretch" Visibility="{Binding IsQuerying, Converter={StaticResource BoolToVis}, UpdateSourceTrigger=PropertyChanged, IsAsync=True}">
+            <TextBlock VerticalAlignment="Center" Foreground="AntiqueWhite" FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                       Text="{Binding QueryString, IsAsync=True, UpdateSourceTrigger=PropertyChanged}"> 
+            </TextBlock>
+        </Border>
 
     </Grid>
 </Window>

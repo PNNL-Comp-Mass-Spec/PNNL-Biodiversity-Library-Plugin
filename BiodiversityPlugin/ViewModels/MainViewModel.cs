@@ -916,9 +916,16 @@ namespace BiodiversityPlugin.ViewModels
         {
             var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
-            updateWindow.Show();
+            updateWindow.ShowDialog();
+            Close();
         }
 
+        public Action CloseAction { get; set; }
+
+        private void Close()
+        {
+            this.CloseAction();
+        }
 
         /// <summary>
         /// Method to display the images for the pathways with whether we have data observed in MSMS space

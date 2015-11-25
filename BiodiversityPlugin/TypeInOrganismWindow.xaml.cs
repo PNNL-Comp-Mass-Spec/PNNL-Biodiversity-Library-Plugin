@@ -24,6 +24,7 @@ namespace BiodiversityPlugin
         {
             InitializeComponent();
             this.DataContext = vm;
+            vm.CloseAction = new Action(() => this.Close());
         }
     }
 }

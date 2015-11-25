@@ -13,6 +13,9 @@ using MessageBox = System.Windows.MessageBox;
 
 namespace BiodiversityPlugin.Models
 {
+    /// <summary>
+    /// Contains all methods needed to replace the current organism data with different PSM results.
+    /// </summary>
     public class UpdateExistingOrganism
     {
         private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
@@ -21,6 +24,14 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
+        /// <summary>
+        /// This method calls all other methods needed to replace organism data. Calling this method will collect, download and
+        /// finally update databases with the new information.
+        /// </summary>
+        /// <param name="orgName"> The name of the organism being updated</param>
+        /// <param name="blibLoc">The location of the blib file</param>
+        /// <param name="msgfFolderLoc">The location of the PSM results</param>
+        /// <param name="databasePath">The location of the current PBL database that contains all organism information</param>
         public static void UpdateExisting(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
         {
             //Do initial clean up of what was in the lists just to be safe
@@ -38,6 +49,11 @@ namespace BiodiversityPlugin.Models
             DetermineObserved(orgcode, blibLoc, orgName);
         }
 
+        /// <summary>
+        /// Uses the name of the organism to search the database and find the kegg org code that corresponds to this organism.
+        /// </summary>
+        /// <param name="orgName">Name of the organism being modified</param>
+        /// <returns> The kegg org code</returns>
         private static string GetKeggOrgCode(string orgName)
         {
             string orgCode = "";
@@ -46,7 +62,7 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;"; //add an OR kegg_org_name = "[orgname]" ? to make sure it covers all?
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;"; 
                     cmd.CommandText = getOrgText;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     if (reader.Read())
@@ -58,6 +74,11 @@ namespace BiodiversityPlugin.Models
             return orgCode;
         }
 
+        /// <summary>
+        /// This method will query the database to get a list of all the kegg genes which will be used throughout the function to
+        /// find and update other information.
+        /// </summary>
+        /// <param name="keggOrgCode">The kegg org code for this organism</param>
         private static void GetKeggGenesWithRefs(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -85,6 +106,10 @@ namespace BiodiversityPlugin.Models
             }                                   
         }
 
+        /// <summary>
+        /// Query the database to pull a list of connected pathways and its corresponding gene
+        /// </summary>
+        /// <param name="keggOrgCode"> The kegg org code for this organism</param>
         private static void GetConnectedPathways(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -108,6 +133,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// This method will search the PSM results file for this organism
+        /// </summary>
+        /// <param name="msgfFolder">Location of the PSM results</param>
         private static void SearchMsgfFiles(List<string> msgfFolder)
         {
             double cutoff = 0.0001;
@@ -170,6 +199,14 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// This method will determine which genes have been obeserved and set the IsOberseved value for that gene 
+        /// to "1" if it has been observed. It will then display how many proteins have been observed and give
+        /// you the option to continue updating or cancelling if the user decides not to proceed.
+        /// </summary>
+        /// <param name="orgcode">The kegg org code for this organism</param>
+        /// <param name="blibLoc">The blib file location for this organism</param>
+        /// <param name="orgName"> The name of the organism being updated </param>
         private static void DetermineObserved(string orgcode, string blibLoc, string orgName)
         {
             var observedCount = 0;
@@ -203,6 +240,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// This method will take the newly generated information from the DetermineObserved method and update the database with it
+        /// </summary>
+        /// <param name="keggOrgCode">The kegg org code for the organism being updated.</param>
         private static void UpdateObservedKeggGeneTable(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -238,6 +279,12 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// This method will update the blib location with the new blib provided so it is saved for 
+        /// future use if the user runs it again
+        /// </summary>
+        /// <param name="orgName">Name of the organism being updated</param>
+        /// <param name="fileLoc">Location of the blib file</param>
         private static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");

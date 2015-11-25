@@ -115,8 +115,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "replace");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
-            selectOrg.ShowDialog();  
-            selectOrg.Close();        
+            selectOrg.ShowDialog();         
         }
 
         private void SelectButton2()
@@ -124,7 +123,6 @@ namespace BiodiversityPlugin.ViewModels
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "supplement");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
             selectOrg.ShowDialog();
-            selectOrg.Close();
         }
 
         private void SelectNew()
@@ -132,6 +130,14 @@ namespace BiodiversityPlugin.ViewModels
             var SelectNewWindowVm = new TypeOrgViewModel(_dbPath, _blibPath, _msgfPath);
             var selectNew = new TypeInOrganismWindow(SelectNewWindowVm);
             selectNew.ShowDialog();
+            Close();
+        }
+
+        public Action CloseAction { get; set; }
+
+        private void Close()
+        {
+            this.CloseAction();
         }
 
         private void SelectBlib()
