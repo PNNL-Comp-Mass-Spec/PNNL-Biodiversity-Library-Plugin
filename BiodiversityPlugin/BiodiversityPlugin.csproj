@@ -254,6 +254,7 @@
     </Content>
     <Resource Include="DataFiles\search-icon.png" />
     <Resource Include="DataFiles\help.png" />
+    <Resource Include="DataFiles\Loading_icon.gif" />
     <Content Include="tool-inf\component.properties">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -917,14 +917,6 @@ namespace BiodiversityPlugin.ViewModels
             var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
             updateWindow.ShowDialog();
-            Close();
-        }
-
-        public Action CloseAction { get; set; }
-
-        private void Close()
-        {
-            this.CloseAction();
         }
 
         /// <summary>

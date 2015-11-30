@@ -31,21 +31,57 @@ namespace BiodiversityPlugin.Models
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
 
-        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath) 
+        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
         {
-            _databasePath = databasePath;
             FindOrgCode(orgName);
-            DownloadKeggGenes();
-            DownloadNcbiGeneIds();
-            DownloadNcbiGiNums();
-            DownloadConnectedPathways();
-            DownloadKeggKos();
-            GetFaaLocation();
-            GetGiRefDictionary();
-            DownloadRefseqs();
-            GetTaxonAndProduct();
-            SearchMsgfFiles(msgfFolderLoc);
-            DetermineObserved(blibLoc, orgName);
+            _databasePath = databasePath;
+            bool go = CheckIfOrgExists(orgName);
+            if (go)
+            {
+                MessageBox.Show("Now inserting organism. This will take a while. Please wait.", "Inserting Organism");
+                DownloadKeggGenes();
+                DownloadNcbiGeneIds();
+                DownloadNcbiGiNums();
+                DownloadConnectedPathways();
+                DownloadKeggKos();
+                GetFaaLocation();
+                GetGiRefDictionary();
+                DownloadRefseqs();
+                GetTaxonAndProduct();
+                SearchMsgfFiles(msgfFolderLoc);
+                DetermineObserved(blibLoc, orgName);
+            }
+            else
+            {
+                MessageBox.Show(
+                    "This organism was already found in the database. Try replacing this organism instead.",
+                    "Error Inserting Organism");
+            }    
+        }
+
+        public static bool CheckIfOrgExists(string orgName)
+        {
+            bool exists = false;
+            var orgCode = "";
+            using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;";
+                    cmd.CommandText = getOrgText;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                       orgCode = Convert.ToString(reader[0]);
+                    }
+                }
+            }
+            if (orgCode == _keggOrgCode)
+            {
+                exists = true;
+            }
+            return exists;
         }
 
         public static List<string> GetListOfKeggOrganisms()
@@ -356,7 +392,7 @@ namespace BiodiversityPlugin.Models
                             if (Convert.ToDouble(pieces[qValIndex]) < cutoff && pieces[protInd].Split('|').Count() > 1)
                             {
                                 var peptide = pieces[pepInd].Split('.')[1];
-                                var prot = pieces[protInd].Split('|')[3].Split('.')[0];
+                                var prot = pieces[protInd].Split('|')[3].Split('.')[0]; //This can change if the fasta being used is an old one. Could split on 1
                                 var charge = Convert.ToInt32(pieces[chargeIndex]);
                                 if (!_proteinPeptideMap.ContainsKey(prot))
                                 {
