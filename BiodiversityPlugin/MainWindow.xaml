@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
+        xmlns:calculations="clr-namespace:BiodiversityPlugin.Calculations"
+        xmlns:models1="clr-namespace:BiodiversityPlugin.Models"
         Icon="DataFiles/archaeaTree.jpg"
         Title="PNNL Biodiversity Library" Height="768" Width="1024" MinHeight="600" MinWidth="800">
     <Window.Resources>
@@ -22,6 +24,7 @@
 
         <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888" />
         <utilities:OrgCodeToColorConverter x:Key="OrgCodeToColor" />
+        <calculations:BoolToColorConverter x:Key="BoolToColor"/>
         <Style TargetType="{x:Type TabItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -191,8 +194,15 @@
                             <TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
                         No Organism Matches found
                             </TextBlock>
-                            <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="OrganismName" FontSize="12"
-                             FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
+                            <ListBox Grid.Row="1" Grid.RowSpan="2" FontSize="12" FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}"  
+                                     ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" >
+                                <!-- Foreground="{Binding FilteredOrganisms, Converter={StaticResource BoolToColor}}" DisplayMemberPath="OrganismName"  -->
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type models1:OrganismWithFlag}">
+                                        <TextBlock Text="{Binding OrganismName}" Foreground="{Binding Custom, Converter={StaticResource BoolToColor}}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Grid>
                         <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Left" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                         <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Right" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>

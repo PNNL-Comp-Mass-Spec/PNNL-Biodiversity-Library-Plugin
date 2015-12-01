@@ -19,13 +19,13 @@ namespace BiodiversityPlugin.ViewModels
     {
         private string _blibPath;
         private List<string> _msgfPath;
-        private string _orgName;
+        private OrganismWithFlag _orgName;
         private string _dbPath;
         private string _whichFunction;
         private bool _startEnable;
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
 
-        public string OrgName
+        public OrganismWithFlag OrgName
         {
             get { return _orgName; }
             set
@@ -48,7 +48,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void IsStartEnabled()
         {
-            if (!string.IsNullOrEmpty(OrgName)) 
+            if (!string.IsNullOrEmpty(OrgName.OrganismName)) 
             {
                 StartButtonEnabled = true;
                 RaisePropertyChanged();
@@ -83,7 +83,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             if (_whichFunction == "replace")
             {
-               UpdateExistingOrganism.UpdateExisting(_orgName, _blibPath, _msgfPath, _dbPath);
+               UpdateExistingOrganism.UpdateExisting(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
                 var windowArray = new System.Windows.Window[3];
                System.Windows.Application.Current.Windows.CopyTo(windowArray, 0);
                 foreach (var window in windowArray)
@@ -97,7 +97,7 @@ namespace BiodiversityPlugin.ViewModels
             }
             else if (_whichFunction == "supplement")
             {
-                SupplementOrgansim.Supplement(_orgName, _blibPath, _msgfPath, _dbPath);
+                SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
                 var windowArray = new System.Windows.Window[3];
                 System.Windows.Application.Current.Windows.CopyTo(windowArray, 0);
                 foreach (var window in windowArray)

@@ -2153,12 +2153,12 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     foreach (var org in filtered)
                     {
-                        var text = " SELECT custom FROM fileLocation WHERE orgName = \"" + org + "\"";
+                        var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org + "\"";
                         cmd.CommandText = text;
                         SQLiteDataReader reader = cmd.ExecuteReader();
                         if (reader.Read())
                         {
-                            orgCollection.Add(new OrganismWithFlag(org, Convert.ToBoolean(reader[0])));
+                            orgCollection.Add(new OrganismWithFlag(org, true));
                         }
                         else
                         {

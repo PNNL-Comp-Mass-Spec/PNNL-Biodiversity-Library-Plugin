@@ -145,6 +145,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Calculations\BoolToColorConverter.cs" />
     <Compile Include="Calculations\LevenshteinDistance.cs" />
     <Compile Include="Models\DownloadLocationEnum.cs" />
     <Compile Include="Models\ErrorTypeEnum.cs" />
