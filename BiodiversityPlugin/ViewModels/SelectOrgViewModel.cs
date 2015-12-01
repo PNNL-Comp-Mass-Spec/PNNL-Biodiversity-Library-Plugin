@@ -23,7 +23,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _dbPath;
         private string _whichFunction;
         private bool _startEnable;
-        private ObservableCollection<string> _filteredOrganisms;
+        private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
 
         public string OrgName
         {
@@ -59,7 +59,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public ObservableCollection<string> FilteredOrganisms
+        public ObservableCollection<OrganismWithFlag> FilteredOrganisms
         {
             get { return _filteredOrganisms; }
             set { _filteredOrganisms = value; }
@@ -68,7 +68,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand UpdateExistingClassCommand { get; private set; }
         //public RelayCommand<IClosable> CloseWindowCommand { get; private set; }
 
-        public SelectOrgViewModel(string dbpath, ObservableCollection<string> organisms, string blibPath, List<string> msgfPath, string whichFunction)
+        public SelectOrgViewModel(string dbpath, ObservableCollection<OrganismWithFlag> organisms, string blibPath, List<string> msgfPath, string whichFunction)
         {
             _dbPath = dbpath;
             _filteredOrganisms = organisms;

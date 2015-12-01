@@ -23,7 +23,7 @@ namespace BiodiversityPlugin.ViewModels
         private string showMsgfPaths;
         private bool _startEnable;
         private string _dbPath;
-        private ObservableCollection<string> _filteredOrganisms;
+        private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
 
         public string DbPath
         {
@@ -80,7 +80,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectNewCommand { get; private set; }
         public RelayCommand HelpCommand { get; set; }
 
-        public UpdateExistingViewModel(string dbpath, ObservableCollection<string> filteredOrganisms)
+        public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms)
         {
             _dbPath = dbpath;
             _filteredOrganisms = filteredOrganisms;

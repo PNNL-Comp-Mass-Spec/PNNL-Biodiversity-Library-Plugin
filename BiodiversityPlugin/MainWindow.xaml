@@ -191,7 +191,7 @@
                             <TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
                         No Organism Matches found
                             </TextBlock>
-                            <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12"
+                            <ListBox Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="OrganismName" FontSize="12"
                              FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}" />
                         </Grid>
                         <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Left" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>

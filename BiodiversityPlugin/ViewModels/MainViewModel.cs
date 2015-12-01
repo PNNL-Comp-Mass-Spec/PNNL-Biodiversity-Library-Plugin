@@ -58,7 +58,7 @@ namespace BiodiversityPlugin.ViewModels
         private bool _reviewTabEnabled;
 
         private ObservableCollection<Pathway> _selectedPathways;
-        private ObservableCollection<string> _filteredOrganisms;
+        private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
         private ObservableCollection<string> _listPathways;
         private ObservableCollection<OrganismPathwayProteinAssociation> _pathwayProteinAssociation;
         private ObservableCollection<ProteinInformation> _filteredProteins;
@@ -363,7 +363,8 @@ namespace BiodiversityPlugin.ViewModels
                                 where organism.Name.ToUpper().Contains(value.ToUpper())
                                 select organism.Name).ToList();
                 filtered.Sort();
-                FilteredOrganisms = new ObservableCollection<string>(filtered);
+                FilteredOrganisms = NeedsToBeFlaggedForCustom(filtered);
+                //TODO have something here (method?) that will check if it is custom and set the color to red
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
                 {
@@ -393,7 +394,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public ObservableCollection<String> FilteredOrganisms
+        public ObservableCollection<OrganismWithFlag> FilteredOrganisms
         {
             get { return _filteredOrganisms; }
             set
@@ -2138,7 +2139,37 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
             return needsBoth;
-        } 
+        }
+
+        private ObservableCollection<OrganismWithFlag> NeedsToBeFlaggedForCustom(List<string> filtered)
+        {
+            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+
+            ObservableCollection<OrganismWithFlag> orgCollection = new ObservableCollection<OrganismWithFlag>();
+            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    foreach (var org in filtered)
+                    {
+                        var text = " SELECT custom FROM fileLocation WHERE orgName = \"" + org + "\"";
+                        cmd.CommandText = text;
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            orgCollection.Add(new OrganismWithFlag(org, Convert.ToBoolean(reader[0])));
+                        }
+                        else
+                        {
+                            orgCollection.Add(new OrganismWithFlag(org, false));
+                        }
+                        reader.Close();
+                    }                   
+                }
+            }
+            return orgCollection;
+        }
 
         /// <summary>
         /// Update the database with a linking of organism name to file location.

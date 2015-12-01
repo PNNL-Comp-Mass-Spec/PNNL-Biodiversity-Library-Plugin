@@ -151,6 +151,7 @@
     <Compile Include="Models\FileLocContainer.cs" />
     <Compile Include="Models\InsertNewOrganism.cs" />
     <Compile Include="Models\Logger.cs" />
+    <Compile Include="Models\OrganismWithFlag.cs" />
     <Compile Include="Models\SupplementOrgansim.cs" />
     <Compile Include="Models\UpdateExistingOrganism.cs" />
     <Compile Include="SelectDropDownOrganismWindow.xaml.cs">
