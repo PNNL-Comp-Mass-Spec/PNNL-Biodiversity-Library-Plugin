@@ -138,6 +138,15 @@ namespace BiodiversityPlugin.Models
                     _orgPhylum = orgTaxon.Split(';')[2];
                     _orgClass = orgTaxon.Split(';')[3];
                     _orgName = line.Split('\t')[2];
+                    if (_orgDomain == "Prokaryotes" && _orgKingdom == "Bacteria")
+                    {
+                        _orgDomain = "Bacteria";
+                        _orgKingdom = "Eubacteria";
+                    }
+                    else if (_orgDomain == "Prokaryotes" && _orgKingdom == "Archaea")
+                    {
+                        _orgDomain = "Archaea";
+                    }
                     break;
                 }
             }
