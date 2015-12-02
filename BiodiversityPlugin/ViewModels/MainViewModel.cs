@@ -404,9 +404,8 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public string SelectedListOrg
+        public OrganismWithFlag SelectedListOrg
         {
-            get { return "Selected"; }
             set
             {
                 foreach (var domain in Organisms)
@@ -418,7 +417,7 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             foreach (var organism in orgClass.Organisms)
                             {
-                                if (organism.Name == value)
+                                if (organism.Name == value.OrganismName)
                                 {
                                     SelectedOrganismTreeItem = organism;
                                     // To refresh the Pathway tab's ability to be
