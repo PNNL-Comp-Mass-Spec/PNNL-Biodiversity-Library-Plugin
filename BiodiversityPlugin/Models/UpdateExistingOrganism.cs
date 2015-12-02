@@ -147,7 +147,6 @@ namespace BiodiversityPlugin.Models
                 {
                     // read the header in
                     var header = reader.ReadLine().Split('\t');
-                    int splitRef = 0;
                     int qValIndex = -1, chargeIndex = -1, pepInd = -1, protInd = -1;
                     for (int i = 0; i < header.Count(); i++)
                     {
