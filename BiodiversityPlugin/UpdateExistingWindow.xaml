@@ -50,9 +50,9 @@
             <Button Height="30" Width="60" Margin="10" IsEnabled="True" Command="{Binding HelpCommand}">
                 <Image Source="DataFiles/help.png"/>
             </Button>
-            <Button Width="130" Height="30" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButtonCommand}"/>
-            <Button Width="130" Height="30" Content="Supplement Organism" Margin ="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectButton2Command}"/>
-            <Button Width="130" Height="30" Content="Add New Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SelectNewCommand}"/>
+            <Button Width="130" Height="30" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding ReplaceButtonCommand}"/>
+            <Button Width="130" Height="30" Content="Supplement Organism" Margin ="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SupplementButtonCommand}"/>
+            <Button Width="130" Height="30" Content="Add New Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding InsertNewCommand}"/>
         </StackPanel>
        
 

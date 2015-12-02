@@ -75,9 +75,9 @@ namespace BiodiversityPlugin.ViewModels
         
         public RelayCommand SelectBlibCommand { get; private set; }
         public RelayCommand SelectMsgfCommand { get; private set; }
-        public RelayCommand SelectButtonCommand { get; private set; }
-        public RelayCommand SelectButton2Command { get; private set; }
-        public RelayCommand SelectNewCommand { get; private set; }
+        public RelayCommand ReplaceButtonCommand { get; private set; }
+        public RelayCommand SupplementButtonCommand { get; private set; }
+        public RelayCommand InsertNewCommand { get; private set; }
         public RelayCommand HelpCommand { get; set; }
 
         public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms)
@@ -86,9 +86,9 @@ namespace BiodiversityPlugin.ViewModels
             _filteredOrganisms = filteredOrganisms;
             SelectBlibCommand = new RelayCommand(SelectBlib);
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
-            SelectButtonCommand = new RelayCommand(SelectButton);
-            SelectButton2Command = new RelayCommand(SelectButton2);
-            SelectNewCommand = new RelayCommand(SelectNew);
+            ReplaceButtonCommand = new RelayCommand(ReplaceButton);
+            SupplementButtonCommand = new RelayCommand(SupplementButton);
+            InsertNewCommand = new RelayCommand(InsertNew);
             HelpCommand = new RelayCommand(ClickHelp);
         }
 
@@ -111,21 +111,23 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        private void SelectButton()
+        private void ReplaceButton()
         {
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "replace");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
-            selectOrg.ShowDialog();         
+            selectOrg.ShowDialog();   
+            Close();      
         }
 
-        private void SelectButton2()
+        private void SupplementButton()
         {
             var SelectOrgWindowVm = new SelectOrgViewModel(_dbPath, _filteredOrganisms, _blibPath, _msgfPath, "supplement");
             var selectOrg = new SelectDropDownOrganismWindow(SelectOrgWindowVm);
             selectOrg.ShowDialog();
+            Close();
         }
 
-        private void SelectNew()
+        private void InsertNew()
         {
             var SelectNewWindowVm = new TypeOrgViewModel(_dbPath, _blibPath, _msgfPath);
             var selectNew = new TypeInOrganismWindow(SelectNewWindowVm);
