@@ -65,6 +65,13 @@ namespace BiodiversityPlugin.ViewModels
             set { _filteredOrganisms = value; }
         }
 
+        public Action CloseAction { get; set; }
+
+        private void Close()
+        {
+            this.CloseAction();
+        }
+
         public RelayCommand UpdateExistingClassCommand { get; private set; }
         //public RelayCommand<IClosable> CloseWindowCommand { get; private set; }
 
@@ -84,30 +91,12 @@ namespace BiodiversityPlugin.ViewModels
             if (_whichFunction == "replace")
             {
                UpdateExistingOrganism.UpdateExisting(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
-                var windowArray = new System.Windows.Window[3];
-               System.Windows.Application.Current.Windows.CopyTo(windowArray, 0);
-                foreach (var window in windowArray)
-                {
-                    //Close all but the main window
-                    if (window.Title != "PNNL Biodiversity Library")
-                    {
-                        window.Close();
-                    }                  
-                }
+               Close();
             }
             else if (_whichFunction == "supplement")
             {
                 SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
-                var windowArray = new System.Windows.Window[3];
-                System.Windows.Application.Current.Windows.CopyTo(windowArray, 0);
-                foreach (var window in windowArray)
-                {
-                    //Close all but the main window
-                    if (window.Title != "PNNL Biodiversity Library")
-                    {
-                        window.Close();
-                    }
-                }
+                Close();
             }
             
         }
