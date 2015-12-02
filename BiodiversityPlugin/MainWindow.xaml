@@ -157,7 +157,7 @@
                             <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
                         Data in the Biodiversity Library is organized by the organism. To retrieve data, please select an organism of interest, either 
                         through the Phylogeny explorer or through the Organism search box. If you want to analyze data from multiple organisms,
-                        please export the data one organism at a time.
+                        please export the data one organism at a time. Organisms that have been customized are shown in red.
                             </TextBlock>
                         </StackPanel>
                         <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylogeny Explorer</TextBlock>

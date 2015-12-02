@@ -166,18 +166,6 @@ namespace BiodiversityPlugin.Models
                         if (header[i] == "Protein")
                         {
                             protInd = i;
-                            var line = reader.ReadLine();
-                            var pieces = line.Split('\t');
-                            try
-                            {
-                                var x = pieces[protInd].Split('|')[3].Split('.')[0];
-                                splitRef = 3;
-                            }
-                            catch (Exception)
-                            {
-                                var x = pieces[protInd].Split('|')[1].Split('.')[0];
-                                splitRef = 1;
-                            }
                         }
                     }
                     if (qValIndex != -1 && chargeIndex != -1 && pepInd != -1 && protInd != -1)
@@ -190,7 +178,21 @@ namespace BiodiversityPlugin.Models
                             if (Convert.ToDouble(pieces[qValIndex]) < cutoff && pieces[protInd].Split('|').Count() > 1)
                             {
                                 var peptide = pieces[pepInd].Split('.')[1];
-                                var prot = pieces[protInd].Split('|')[splitRef].Split('.')[0];
+
+                                var protPieces = pieces[protInd].Split('|');
+                                var prot = "";
+                                int num = 0;
+                                foreach (var piece in protPieces)
+                                {
+                                    if (piece == "ref")
+                                    {
+                                        num++;
+                                        prot = pieces[protInd].Split('|')[num].Split('.')[0];
+                                        break;
+                                    }
+                                    num++;
+                                }
+
                                 var charge = Convert.ToInt32(pieces[chargeIndex]);
                                 if (!_proteinPeptideMap.ContainsKey(prot))
                                 {
