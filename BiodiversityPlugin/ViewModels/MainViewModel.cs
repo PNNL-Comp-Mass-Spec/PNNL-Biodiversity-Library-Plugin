@@ -364,7 +364,6 @@ namespace BiodiversityPlugin.ViewModels
                                 select organism.Name).ToList();
                 filtered.Sort();
                 FilteredOrganisms = NeedsToBeFlaggedForCustom(filtered);
-                //TODO have something here (method?) that will check if it is custom and set the color to red
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
                 {
@@ -623,11 +622,12 @@ namespace BiodiversityPlugin.ViewModels
             
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
-            var organisms = orgData.LoadOrganisms(ref organismList);
+            var organisms = orgData.LoadOrganisms(ref organismList);           
             organismList.Sort();
             OrganismList = organismList;
             organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
-            Organisms = new ObservableCollection<OrgDomain>(organisms);
+            FlagForCustom(organisms);
+            Organisms = new ObservableCollection<OrgDomain>(organisms);                  
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
 
             FilteredProteins = new ObservableCollection<ProteinInformation>();
@@ -2168,6 +2168,31 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
             return orgCollection;
+        }
+
+        private void FlagForCustom(List<OrgDomain> organisms)
+        {
+            var list = (from domain in organisms from phylum in domain.OrgPhyla from orgClass in phylum.OrgClasses from organism in orgClass.Organisms select organism).ToList();
+
+            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    foreach (var org in list)
+                    {
+                        var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org.Name + "\"";
+                        cmd.CommandText = text;
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            org.Custom = true;
+                        }
+                        reader.Close();
+                    }
+                }
+            }           
         }
 
         /// <summary>

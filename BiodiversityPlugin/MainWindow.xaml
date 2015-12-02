@@ -162,7 +162,7 @@
                         </StackPanel>
                         <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylogeny Explorer</TextBlock>
                         <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
-                        <utilities:MvvmTreeView Grid.Column="0" Grid.Row="3" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}">
+                        <utilities:MvvmTreeView Grid.Column="0" Grid.Row="2" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}" Margin="0,30,0,10" Grid.RowSpan="2">
                             <utilities:MvvmTreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type models:OrgDomain}" ItemsSource="{Binding OrgPhyla}">
                                     <TextBlock Text="{Binding DomainName}" FontWeight="Bold" FontSize="16" />
@@ -174,7 +174,7 @@
                                     <TextBlock Text="{Binding ClassName}" FontWeight="Bold" FontSize="14"/>
                                 </HierarchicalDataTemplate>
                                 <HierarchicalDataTemplate DataType="{x:Type models:Organism}">
-                                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" />
+                                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="{Binding OrgCode, Converter={StaticResource OrgCodeToColor}}" Foreground="{Binding Custom, Converter={StaticResource BoolToColor}}" />
                                 </HierarchicalDataTemplate>
                             </utilities:MvvmTreeView.Resources>
                         </utilities:MvvmTreeView>
@@ -522,11 +522,11 @@
                     Perform correction
                 </Button>
                 <TextBlock Margin="0,100" FontSize="24" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IrtCorrectionMessage}" TextWrapping="Wrap">
-                    
+
                 </TextBlock>
             </StackPanel>
         </TabItem>
-        
+
         <TabItem Height="0" MinHeight="0" MaxHeight="0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -545,7 +545,7 @@
                     <TextBlock FontSize="17" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center"  TextWrapping="Wrap" Margin="15">
                         Your data has been successfully imported into Skyline. Peptide targets linked to the spectral library are waiting for you there.
                     </TextBlock>
-                    <Image Source="DataFiles/SkylineWithLibrary.png" HorizontalAlignment="Center" Width="700"> </Image>
+                    <Image Source="DataFiles/SkylineWithLibrary.png" HorizontalAlignment="Center" Width="700"></Image>
                 </StackPanel>
 
                 <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
@@ -553,7 +553,7 @@
                         <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
                     </StackPanel>
                 </Button>
-                
+
 
             </Grid>
         </TabItem>
@@ -576,19 +576,19 @@
                     <Image Source="DataFiles/archaeaTree.jpg" Width="300" Height="200" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     <TextBlock FontSize="24" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorMessage}" />
                     <TextBlock FontSize="18" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Text="{Binding ErrorDetail}" />
-                    
+
                     <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding SkylineSolution}">
                         Please go to
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://skyline.gs.washington.edu/labkey/project/home/software/Skyline/daily/register-form/begin.view?"> Skyline Daily's webpage </Hyperlink>
                         for the latest version.
                     </TextBlock>
-                    
+
                     <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding NcbiSolution}">
                         Please send an email directly to 
                         <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="info@ncbi.nlm.nih.gov"> info@ncbi.nlm.nih.gov </Hyperlink>
                         for further assistance with their FTP connection.
                     </TextBlock>
-                    
+
                     <TextBlock FontSize="16" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="15" Visibility="{Binding MassiveSolution}">
                         Please contact either <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="ccms-web@proteomics.ucsd.edu"> ccms-web@proteomics.ucsd.edu </Hyperlink>
                         or <LineBreak />
@@ -610,14 +610,14 @@
                            Margin="0,0,10,0"
                            VerticalAlignment="Center" HorizontalAlignment="Right">
                     Description of what <LineBreak /> 
-                    lead to the error  
+                    lead to the error
                 </TextBlock>
-                
+
                 <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5" Text="{Binding ErrorInputText}">
                 </TextBox>
-                
+
                 <Button Grid.Column="1" Grid.Row="3" Height="50" Width="150" FontSize="16" FontWeight="Bold" Command="{Binding SendLogCommand}">Send Error Log</Button>
-                
+
                 <Button Grid.Column="1" Grid.Row="4" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" >
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
@@ -626,5 +626,5 @@
             </Grid>
         </TabItem>
     </TabControl>
-    
+
 </Window>
