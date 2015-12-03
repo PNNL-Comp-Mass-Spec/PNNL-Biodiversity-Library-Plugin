@@ -7,7 +7,7 @@
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
         mc:Ignorable="d"
-        Title="Update Data for Biodiversity Library" Height="410" Width="600">
+        Title="Customize Data for Biodiversity Library" Height="450" Width="620">
     
     <Grid>
         <Grid.ColumnDefinitions>
@@ -17,21 +17,25 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="220"/>
+            <RowDefinition Height="250"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
-        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="14">
-            You can update the MS/MS data used by the Biodiversity Plugin for Skyline. This will allow you to browse your
-        data using the same pathway oriented interface and load your data directly into Skyline. <LineBreak/> <LineBreak/>
+
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Margin="5">
+            <TextBlock FontWeight="Bold" FontSize="16" Text="Customize Data"/>
+            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="14">
+            You can update the MS/MS data used by the Biodiversity Plugin for Skyline. By uploading your personal data into the plugin, 
+            you can use the same pathway oriented interface to load your data directly into Skyline. <LineBreak/> <LineBreak/>
             There are  three options for updating data. Use the appropriate button below. <LineBreak/>
         1) Replace the existing organism entirely with custom data. <LineBreak/>
         2) Supplement an existing organism with additional data. <LineBreak/>
         3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/>
         Users must have a Bibliospec formatted spectrum library (.blib) and mzIdentML formatted results.
         See the help button for additional information.</TextBlock>
+        </StackPanel>
+       
 
         <TextBlock Grid.Column="0" Grid.Row="1" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center"/>
         <TextBlock Grid.Column="0" Grid.Row="2" Text="mzIdentML Folder Location" FontWeight="Bold" HorizontalAlignment="Center"/>

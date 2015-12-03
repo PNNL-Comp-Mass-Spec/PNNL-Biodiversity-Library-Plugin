@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -64,6 +65,7 @@ namespace BiodiversityPlugin.Models
                 {
                     var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;"; 
                     cmd.CommandText = getOrgText;
+                    cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
@@ -90,6 +92,7 @@ namespace BiodiversityPlugin.Models
                                      " ON kegg_gene.kegg_gene_id = observed_kegg_gene.kegg_gene_id" +
                                      " WHERE kegg_gene.kegg_org_code = \"" + keggOrgCode + "\" " + " GROUP BY kegg_gene.kegg_gene_id;";
                     cmd.CommandText = getOrgText;
+                    cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
@@ -119,6 +122,7 @@ namespace BiodiversityPlugin.Models
                 {
                     var getOrgText = " SELECT * FROM observed_kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
                     cmd.CommandText = getOrgText;
+                    cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
