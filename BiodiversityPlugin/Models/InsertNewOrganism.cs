@@ -100,7 +100,7 @@ namespace BiodiversityPlugin.Models
                     lines = wholeFile.Split(lineSplit, options).ToList();
                     foreach (var line in lines)
                     {
-                        organisms.Add((line.Split('\t')[2]).Split('(')[0]);
+                        organisms.Add(line.Split('\t')[2]);
                     }
                     //Thread.Sleep(1);
                 }
