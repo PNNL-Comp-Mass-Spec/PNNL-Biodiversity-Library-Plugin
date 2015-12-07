@@ -70,6 +70,7 @@ namespace BiodiversityPlugin.ViewModels
         private string m_databaseVersion;
         private SkylineToolClient _toolClient;
 
+        private bool _acceptCorrectionEnabled;
         private Dictionary<string, string> _ncbiFastaDictionary;
         private List<string> _accessionsWithFastaErrors;
         private bool _ncbiDownloading;
@@ -92,7 +93,9 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _blibFiles = new List<string>();
         private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>();
         private  string _irtCorrectionMessage;
-
+        public List<Tuple<string, string>> listOfAllBlibs = new List<Tuple<string, string>>();
+        public bool dataImported;
+        
         #endregion
 
         #region Public Properties
@@ -108,6 +111,16 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _irtLibraries = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool AcceptCorrectionEnabled
+        {
+            get { return _acceptCorrectionEnabled; }
+            set
+            {
+                _acceptCorrectionEnabled = value;
                 RaisePropertyChanged();
             }
         }
@@ -528,6 +541,8 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SendLogCommand { get; private set; }
         public RelayCommand AlignToIrtCommand { get; private set; }
         public RelayCommand UpdateButtonCommand { get; private set; }
+        public RelayCommand ProceedWithoutCorrectionCommand { get; private set; }
+        public RelayCommand AcceptCorrectionCommand { get; private set; }
 
         #endregion
 
@@ -645,6 +660,8 @@ namespace BiodiversityPlugin.ViewModels
             SendLogCommand = new RelayCommand(SendLog);
             AlignToIrtCommand = new RelayCommand(AlignToIrt);
             UpdateButtonCommand = new RelayCommand(UpdateButton);
+            ProceedWithoutCorrectionCommand = new RelayCommand(ProceedWithoutCorrection);
+            AcceptCorrectionCommand = new RelayCommand(AcceptCorrection);
 
             _pathwayTabIndex = 0;
             _selectedTabIndex = 0;
@@ -681,7 +698,7 @@ namespace BiodiversityPlugin.ViewModels
                 ErrorDetail = TextVersionMessage;
                 SkylineSolution = Visibility.Visible;
                 _errorFound = true;
-                TopLevelWindow = 2;
+                TopLevelWindow = 3;
             }
             _irtLibraries.Add("No iRT Library");
             var files = Directory.GetFiles(Path.Combine(_dbPath.Replace("PBL.db", ""), "iRt_Libraries")).ToList();
@@ -708,15 +725,66 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     IrtCorrectionMessage += "Database " + Path.GetFileName(blibFile) +
                                             " has been aligned to selected iRT Library successfully\n";
-                    
+                    AcceptCorrectionEnabled = true;
                 }
                 else
                 {
 
                     IrtCorrectionMessage += "Database " + Path.GetFileName(blibFile) +
                                             " was not able to be aligned to selected iRT Library; No anchor peptides were found\n";
+                    AcceptCorrectionEnabled = false;
                 }
             }
+        }
+
+        private void ProceedWithoutCorrection()
+        {
+            //Add all the blibs in the accumulated blibs list gathered from ExportToSkyline
+            if (ToolClient != null)
+            {
+                foreach (var blib in listOfAllBlibs)
+                {
+                    ToolClient.AddSpectralLibrary(blib.Item1, blib.Item2);
+                }
+            }
+                
+            if (ToolClient != null && dataImported)
+            {
+                // Dispose of the client connection and move the user to the "Successful import view"
+                ToolClient.Dispose();
+                TopLevelWindow = 2; //Need to get to the close page
+            }
+            
+        }
+
+        private void AcceptCorrection()
+        {
+            foreach (var blibFile in _blibFiles)
+            {
+                var corrector = new RtDatabaseCorrector(Path.GetFullPath(SelectedIrt));
+                var listThing = new List<PeptideRetentionTime>();
+                corrector.ContainsAnchorPeptides(blibFile, out listThing);
+                corrector.UpdateBlib(blibFile, listThing);
+            }
+
+            //TODO correct the blibs. Or is it already working?
+
+            //Add all the blibs in the accumulated blibs list gathered from ExportToSkyline
+            if (ToolClient != null)
+            {
+                foreach (var blib in listOfAllBlibs)
+                {
+                    ToolClient.AddSpectralLibrary(blib.Item1, blib.Item2);
+                }
+            }              
+
+            if (ToolClient != null && dataImported)
+            {
+                // Dispose of the client connection and move the user to the "Successful import view"
+                ToolClient.Dispose();
+                TopLevelWindow = 2; //Need to get to the close page  
+            }
+                   
         }
 
         private void SendLog()
@@ -1148,7 +1216,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _ncbiDownloading = false;
                 _errorFound = true;
-                TopLevelWindow = 2;
+                TopLevelWindow = 3;
 
                 ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
                 Logger.ErrorType = ErrorTypeEnum.NcbiError;
@@ -1299,7 +1367,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _ncbiDownloading = false;
                 _errorFound = true;
-                TopLevelWindow = 2;
+                TopLevelWindow = 3;
 
                 ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
                 Logger.ErrorType = ErrorTypeEnum.NcbiError;
@@ -1551,8 +1619,6 @@ namespace BiodiversityPlugin.ViewModels
             PathwayTabIndex = 0;
         }
 
- 
-
         /// <summary>
         /// Gathers all the protein accessions from the associations that have been selected
         /// by the user and uses the NCBI web API to create a FASTA file based on these.
@@ -1700,7 +1766,7 @@ namespace BiodiversityPlugin.ViewModels
                         organismList.Add(association.Organism);
                     }
                 }
-                var dataImported = true;
+                dataImported = true;
                 Logger.AllOrgs = organismList;
                 //This is a loop to download the .blib files for each organism selected.
                 foreach (var org in organismList)
@@ -1740,7 +1806,7 @@ namespace BiodiversityPlugin.ViewModels
                                 if (ToolClient != null)
                                 {
                                     // If we're using the Skyline connection, push the downloaded .blib to Skyline
-                                    ToolClient.AddSpectralLibrary(org + " Spectral Library", file);
+                                    listOfAllBlibs.Add( new Tuple<string, string>(org + " Spectral Library", file));
                                 }
                             }
                             else
@@ -1768,7 +1834,7 @@ namespace BiodiversityPlugin.ViewModels
                                     if (ToolClient != null)
                                     {
                                         // If we're using the Skyline connection, push the downloaded .blib to Skyline
-                                        ToolClient.AddSpectralLibrary(org + " Spectral Library", file);
+                                        listOfAllBlibs.Add(new Tuple<string, string>(org + " Spectral Library", file));
                                     }
                                 }
                                 else
@@ -1869,9 +1935,7 @@ namespace BiodiversityPlugin.ViewModels
                                     _blibFiles.Add(spectralLibPath + "\\" + bestFile + ".blib");
                                     if (ToolClient != null)
                                     {
-
-                                        ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                            spectralLibPath + "\\" + bestFile + ".blib");
+                                        listOfAllBlibs.Add(new Tuple<string, string>(org + " Spectral Library", (spectralLibPath + "\\" + bestFile + ".blib")));
                                     }
                                 }
                             }
@@ -1953,9 +2017,7 @@ namespace BiodiversityPlugin.ViewModels
                                         _blibFiles.Add(spectralLibPath + "\\" + bestFile + ".blib");
                                         if (ToolClient != null)
                                         {
-
-                                            ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                                spectralLibPath + "\\" + bestFile + ".blib");
+                                            listOfAllBlibs.Add(new Tuple<string, string>(org + " Spectral Library", (spectralLibPath + "\\" + bestFile + ".blib")));
                                         }
                                         dlFailed = false;
                                     }
@@ -2037,15 +2099,13 @@ namespace BiodiversityPlugin.ViewModels
                                     _blibFiles.Add(spectralLibPath + "\\" + bestFile);
                                     if (ToolClient != null)
                                     {
-
-                                        ToolClient.AddSpectralLibrary(org + " Spectral Library",
-                                            spectralLibPath + "\\" + bestFile);
+                                        listOfAllBlibs.Add(new Tuple<string, string>(org + " Spectral Library", (spectralLibPath + "\\" + bestFile + ".blib")));
                                     }
                                 }
                             }
                             catch (Exception)
                             {
-                                TopLevelWindow = 2;
+                                TopLevelWindow = 3;
 
                                 MassiveSolution = Visibility.Visible;
                                 ErrorMessage = "MassIVE Server unreachable";
@@ -2075,15 +2135,9 @@ namespace BiodiversityPlugin.ViewModels
                 //QueryString = importingStrings[0];
                 //Task.Factory.StartNew(() => StartOverlay(importingStrings));
 
-                if (ToolClient != null && dataImported)
-                {
-                    // Dispose of the client connection and move the user to the "Successful import view"
-                    ToolClient.Dispose();
-                    TopLevelWindow = 1;
-
-                }
+                
                 IsQuerying = false;
-                //TopLevelWindow = 1;
+                TopLevelWindow = 1;             
             });
         }
         

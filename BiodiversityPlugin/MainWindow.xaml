@@ -515,15 +515,17 @@
                 <TextBlock Foreground="Black">
                         Please choose an iRT library to align to.
                 </TextBlock>
-                <ComboBox ItemsSource="{Binding IrtLibraries}" SelectedItem="{Binding SelectedIrt}">
-
-                </ComboBox>
+                <ComboBox ItemsSource="{Binding IrtLibraries}" SelectedItem="{Binding SelectedIrt}"/>
                 <Button Command="{Binding AlignToIrtCommand}">
                     Perform correction
                 </Button>
-                <TextBlock Margin="0,100" FontSize="24" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IrtCorrectionMessage}" TextWrapping="Wrap">
-
-                </TextBlock>
+                <TextBlock Margin="0,100" FontSize="24" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IrtCorrectionMessage}" TextWrapping="Wrap"/>
+                <Button Command ="{Binding ProceedWithoutCorrectionCommand}">
+                    Proceed Without Correction and Export to Skyline
+                </Button>
+                <Button Command="{Binding AcceptCorrectionCommand}" IsEnabled="{Binding AcceptCorrectionEnabled}">
+                    Accept Correction and Export to Skyline
+                </Button>
             </StackPanel>
         </TabItem>
 
@@ -540,7 +542,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical" Visibility="Visible"> <!-- {Binding WorkDone, Converter={StaticResource BoolToVis}} -->
                     <Image Source="DataFiles/archaeaTree.jpg" Width="200" Height="110" HorizontalAlignment="Center"></Image>
                     <TextBlock FontSize="17" FontWeight="Normal" Foreground="Black" Width="Auto" HorizontalAlignment="Center" TextAlignment="Center"  TextWrapping="Wrap" Margin="15">
                         Your data has been successfully imported into Skyline. Peptide targets linked to the spectral library are waiting for you there.
@@ -548,13 +550,11 @@
                     <Image Source="DataFiles/SkylineWithLibrary.png" HorizontalAlignment="Center" Width="700"></Image>
                 </StackPanel>
 
-                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" Visibility="{Binding WorkDone, Converter={StaticResource BoolToVis}}">
+                <Button Grid.Column="1" Grid.Row="3" Margin="0,20,0,10" Width="150" FontSize="16" Command="{Binding CloseAppCommand}" Visibility="Visible"> <!-- {Binding WorkDone, Converter={StaticResource BoolToVis}} -->
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontSize="16" VerticalAlignment="Center">Exit</TextBlock>
                     </StackPanel>
                 </Button>
-
-
             </Grid>
         </TabItem>
 
