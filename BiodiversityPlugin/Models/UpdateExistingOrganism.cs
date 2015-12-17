@@ -63,7 +63,7 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;"; 
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE taxon_name = \"" + orgName + "\" ;"; 
                     cmd.CommandText = getOrgText;
                     cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
@@ -101,8 +101,8 @@ namespace BiodiversityPlugin.Models
                             new KeggGene(keggOrgCode, Convert.ToString(reader["kegg_gene_id"])));
 
                         //Pull the refseqs for that organism
-                        _keggGenes[Convert.ToString(reader["kegg_gene_id"])].RefseqID =
-                            Convert.ToString(reader["refseq_id"]);
+                        _keggGenes[Convert.ToString(reader["kegg_gene_id"])].UniprotAcc =
+                            Convert.ToString(reader["uniprot"]);
                     }
                 }
                 dbConnection.Close();

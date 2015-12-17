@@ -1238,7 +1238,7 @@ namespace BiodiversityPlugin.ViewModels
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var selection = " SELECT ncbi_org_location FROM orgFaaLocation WHERE kegg_org_code = \"" + orgCode + "\"; ";
+                    var selection = " SELECT org_faa_location FROM orgFaaLocation WHERE kegg_org_code = \"" + orgCode + "\"; ";
                     cmd.CommandText = selection;
                     var reader = cmd.ExecuteReader();
 
