@@ -100,7 +100,7 @@ namespace BiodiversityPlugin.Models
                         _keggGenes.Add(Convert.ToString(reader["kegg_gene_id"]),
                             new KeggGene(keggOrgCode, Convert.ToString(reader["kegg_gene_id"])));
 
-                        //Pull the refseqs for that organism
+                        //Pull the uniprots for that organism
                         _keggGenes[Convert.ToString(reader["kegg_gene_id"])].UniprotAcc =
                             Convert.ToString(reader["uniprot"]);
                     }

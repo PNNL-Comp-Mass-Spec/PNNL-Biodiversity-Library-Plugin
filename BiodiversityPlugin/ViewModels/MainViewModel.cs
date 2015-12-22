@@ -1394,7 +1394,7 @@ namespace BiodiversityPlugin.ViewModels
         }
 
         /// <summary>
-        /// Method to parse a fasta file, linking the fasta information to refSeq accessions
+        /// Method to parse a fasta file, linking the fasta information to uniprot accessions
         /// </summary>
         /// <param name="faaFileLocation">File location for the .faa or .fa.gz file</param>
         private void ParseFaaFile(string faaFileLocation)

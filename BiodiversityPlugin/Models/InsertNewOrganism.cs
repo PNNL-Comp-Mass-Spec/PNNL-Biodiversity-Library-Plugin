@@ -64,7 +64,7 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE ncbi_taxon_name = \"" + orgName + "\" ;";
+                    var getOrgText = " SELECT kegg_org_code FROM organism WHERE taxon_name = \"" + orgName + "\" ;";
                     cmd.CommandText = getOrgText;
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     if (reader.Read())
@@ -165,11 +165,17 @@ namespace BiodiversityPlugin.Models
                     foreach (var line in lines)
                     {
                         var geneID = line.Split('\t')[0].Split(':')[1];
-                        _keggGenes.Add(geneID, new Gene(_keggOrgCode, geneID));
+                        if (!_keggGenes.ContainsKey(geneID))
+                        {
+                            _keggGenes.Add(geneID, new Gene(_keggOrgCode, geneID));
+                        }
+                        
                         var koWithPrefix = line.Split('\t')[1];
                         var koID = koWithPrefix.Split(':')[1];
+
                         //Assign the ko value to that gene
                         _keggGenes[geneID].KeggKOID = koID;
+
                         //Add the ko to the kegg gene ko map
                         if (!_keggGeneKoMap.ContainsKey(geneID))
                         {
@@ -187,7 +193,7 @@ namespace BiodiversityPlugin.Models
             char[] lineSplit = { '\n' };
             var lines = new List<string>();
 
-            var uniprotListUrl = WebRequest.Create("http://http://rest.kegg.jp/conv/" + _keggOrgCode + "/uniprot");
+            var uniprotListUrl = WebRequest.Create("http://rest.kegg.jp/conv/" + _keggOrgCode + "/uniprot");
             var uniprotListStream = uniprotListUrl.GetResponse().GetResponseStream();
             using (var reader = new StreamReader(uniprotListStream))
             {
@@ -243,7 +249,7 @@ namespace BiodiversityPlugin.Models
             char[] lineSplit = { '\n' };
             var lines = new List<string>();
 
-            var taxonUrl = WebRequest.Create("http://http://www.kegg.jp/kegg-bin/show_organism?org=" + _keggOrgCode);
+            var taxonUrl = WebRequest.Create("http://www.kegg.jp/kegg-bin/show_organism?org=" + _keggOrgCode);
             var taxonStream = taxonUrl.GetResponse().GetResponseStream();
             using (var reader = new StreamReader(taxonStream))
             {
@@ -269,7 +275,7 @@ namespace BiodiversityPlugin.Models
             char[] lineSplit = { '\n' };
             var lines = new List<string>();
 
-            var GeneListUrl = WebRequest.Create("http://rest.kegg.jp/link/pathway/" + _keggOrgCode);
+            var GeneListUrl = WebRequest.Create("http://rest.kegg.jp/list/" + _keggOrgCode);
             var GeneListStream = GeneListUrl.GetResponse().GetResponseStream();
             using (var geneReader = new StreamReader(GeneListStream))
             {
@@ -281,7 +287,10 @@ namespace BiodiversityPlugin.Models
                     {
                         var geneID = line.Split('\t')[0].Split(':')[1];
                         var product = line.Split('\t')[1];
-                        _keggGenes[geneID].product = product;
+                        if (_keggGenes.ContainsKey(geneID))
+                        {
+                            _keggGenes[geneID].product = product;
+                        }                     
                     }
                 }
             }
@@ -321,7 +330,6 @@ namespace BiodiversityPlugin.Models
                         while (reader.Peek() > -1)
                         {
                             var line = reader.ReadLine();
-                            var delimiter = '\t';
                             var pieces = line.Split('\t');
                             // qValue (cut off) is in column r (pieces[17])
                             if (Convert.ToDouble(pieces[qValIndex]) < cutoff && !string.IsNullOrEmpty(pieces[protInd]))
@@ -424,8 +432,6 @@ namespace BiodiversityPlugin.Models
                     //cmd.CommandText = geneInsertion;
                     foreach (var keggGene in _keggGenes.Values)
                     {
-                        if (!string.IsNullOrEmpty(keggGene.KeggKOID))
-                        {
                             string insertion;
                             if (!string.IsNullOrEmpty(keggGene.UniprotAcc))
                             {
@@ -435,7 +441,7 @@ namespace BiodiversityPlugin.Models
                             }
                             else
                             {
-                                //Missing refseq so do not enter into the database.
+                                //Missing identifier so do not enter into the database.
                                 continue;
                             }
                             cmd.CommandText = insertion;
@@ -445,8 +451,7 @@ namespace BiodiversityPlugin.Models
                             {
                                 transaction.Commit();
                                 transaction = dbConnection.BeginTransaction();
-                            }
-                        }
+                            }                        
                     }
 
                     const string obsGeneInsertion = " INSERT INTO observed_kegg_gene ";
