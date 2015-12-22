@@ -21,7 +21,7 @@ namespace BiodiversityPlugin.Models
     {
         private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
-        private static List<string> _refseqs = new List<string>();
+        private static List<string> _uniprots = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
@@ -38,7 +38,7 @@ namespace BiodiversityPlugin.Models
             //Do initial clean up of what was in the lists just to be safe
             _keggGenes.Clear();
             _proteinPeptideMap.Clear();
-            _refseqs.Clear();
+            _uniprots.Clear();
             _peptides.Clear();
 
             //Call all the methods here that will update the existing organism
@@ -178,29 +178,17 @@ namespace BiodiversityPlugin.Models
                             var line = reader.ReadLine();
                             var pieces = line.Split('\t');
                             // qValue (cut off) is in column r (pieces[17])
-                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && pieces[protInd].Split('|').Count() > 1)
+                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && !string.IsNullOrEmpty(pieces[protInd]))
                             {
                                 var peptide = pieces[pepInd].Split('.')[1];
 
-                                var protPieces = pieces[protInd].Split('|');
-                                var prot = "";
-                                int num = 0;
-                                foreach (var piece in protPieces)
-                                {
-                                    if (piece == "ref")
-                                    {
-                                        num++;
-                                        prot = pieces[protInd].Split('|')[num].Split('.')[0];
-                                        break;
-                                    }
-                                    num++;
-                                }
+                                var prot = pieces[protInd];
 
                                 var charge = Convert.ToInt32(pieces[chargeIndex]);
                                 if (!_proteinPeptideMap.ContainsKey(prot))
                                 {
                                     _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-                                    _refseqs.Add(prot);
+                                    _uniprots.Add(prot);
                                 }
                                 if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
                                 {
@@ -231,9 +219,9 @@ namespace BiodiversityPlugin.Models
             foreach (var keggGene in _keggGenes.Values)
             {
                 keggGene.IsObserved = 0;
-                foreach (var refseq in _refseqs)
+                foreach (var uniprot in _uniprots)
                 {
-                    if (refseq.Split('.').First() == keggGene.RefseqID)
+                    if (uniprot == keggGene.UniprotAcc)
                     {
                         keggGene.IsObserved = 1;
                         observedCount++;
@@ -253,7 +241,7 @@ namespace BiodiversityPlugin.Models
                 //Clear variable here so they can go back and choose a differnet file
                 _keggGenes.Clear();
                 _proteinPeptideMap.Clear();
-                _refseqs.Clear();
+                _uniprots.Clear();
                 _peptides.Clear();
             }
         }

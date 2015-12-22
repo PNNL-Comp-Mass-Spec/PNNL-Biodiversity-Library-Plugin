@@ -24,9 +24,8 @@ namespace BiodiversityPlugin.Models
         private static string _taxon;
         private static string _databasePath;
         private static string _faaLink;
-        private static List<string> _refseqs = new List<string>();
+        private static List<string> _uniprots = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
-        private static Dictionary<string, string> giRefs = new Dictionary<string, string>();
         private static Dictionary<string, Gene> _keggGenes = new Dictionary<string, Gene>();
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
@@ -39,15 +38,12 @@ namespace BiodiversityPlugin.Models
             if (!go)
             {
                 MessageBox.Show("Now inserting organism. This will take a while. Please wait.", "Inserting Organism");
-                DownloadKeggGenes();
-                DownloadNcbiGeneIds();
-                DownloadNcbiGiNums();
+                DownloadKeggGenesAndKos();
+                DownloadUniprotIdentifiers();
                 DownloadConnectedPathways();
-                DownloadKeggKos();
+                GetTaxon();
                 GetFaaLocation();
-                GetGiRefDictionary();
-                DownloadRefseqs();
-                GetTaxonAndProduct();
+                GetProduct();
                 SearchMsgfFiles(msgfFolderLoc);
                 DetermineObserved(blibLoc, orgName);
             }
@@ -152,12 +148,12 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void DownloadKeggGenes()
+        private static void DownloadKeggGenesAndKos()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
             char[] lineSplit = { '\n' };
 
-            var keggGeneUrl = WebRequest.Create("http://rest.kegg.jp/list/" + _keggOrgCode);
+            var keggGeneUrl = WebRequest.Create("http://rest.kegg.jp/link/ko/" + _keggOrgCode);
             var keggGeneStream = keggGeneUrl.GetResponse().GetResponseStream();
             var lines = new List<string>();
             using (var geneReader = new StreamReader(keggGeneStream))
@@ -170,52 +166,43 @@ namespace BiodiversityPlugin.Models
                     {
                         var geneID = line.Split('\t')[0].Split(':')[1];
                         _keggGenes.Add(geneID, new Gene(_keggOrgCode, geneID));
+                        var koWithPrefix = line.Split('\t')[1];
+                        var koID = koWithPrefix.Split(':')[1];
+                        //Assign the ko value to that gene
+                        _keggGenes[geneID].KeggKOID = koID;
+                        //Add the ko to the kegg gene ko map
+                        if (!_keggGeneKoMap.ContainsKey(geneID))
+                        {
+                            _keggGeneKoMap.Add(geneID, new List<string>());
+                        }
+                        _keggGeneKoMap[geneID].Add(koID);
                     }
                 }
             }
         }
 
-        private static void DownloadNcbiGeneIds()
+        private static void DownloadUniprotIdentifiers()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
             char[] lineSplit = { '\n' };
             var lines = new List<string>();
 
-            var ncbiGeneIdUrl = WebRequest.Create("http://rest.kegg.jp/conv/ncbi-geneid/" + _keggOrgCode);
-            var ncbiGeneIdStream = ncbiGeneIdUrl.GetResponse().GetResponseStream();
-            using (var geneReader = new StreamReader(ncbiGeneIdStream))
+            var uniprotListUrl = WebRequest.Create("http://http://rest.kegg.jp/conv/" + _keggOrgCode + "/uniprot");
+            var uniprotListStream = uniprotListUrl.GetResponse().GetResponseStream();
+            using (var reader = new StreamReader(uniprotListStream))
             {
-                while (geneReader.Peek() > -1)
+                while (reader.Peek() > -1)
                 {
-                    var wholeFile = geneReader.ReadToEnd();
+                    var wholeFile = reader.ReadToEnd();
                     lines = wholeFile.Split(lineSplit, options).ToList();
                     foreach (var line in lines)
                     {
-                        var geneID = line.Split('\t')[0].Split(':')[1];
-                        _keggGenes[geneID].NcbiGeneID = Convert.ToInt32(line.Split('\t')[1].Split(':')[1]);
-                    }
-                }
-            }
-        }
-
-        private static void DownloadNcbiGiNums()
-        {
-            var options = StringSplitOptions.RemoveEmptyEntries;
-            char[] lineSplit = { '\n' };
-            var lines = new List<string>();
-
-            var ncbiGiNumUrl = WebRequest.Create("http://rest.kegg.jp/conv/ncbi-gi/" + _keggOrgCode);
-            var ncbiGiNumStream = ncbiGiNumUrl.GetResponse().GetResponseStream();
-            using (var geneReader = new StreamReader(ncbiGiNumStream))
-            {
-                while (geneReader.Peek() > -1)
-                {
-                    var wholeFile = geneReader.ReadToEnd();
-                    lines = wholeFile.Split(lineSplit, options).ToList();
-                    foreach (var line in lines)
-                    {
-                        var geneID = line.Split('\t')[0].Split(':')[1];
-                        _keggGenes[geneID].NcbiGINum = line.Split('\t')[1].Split(':')[1];
+                        var gene = line.Split('\t')[1].Split(':')[1];
+                        var uniprot = line.Split('\t')[0].Split(':')[1];
+                        if (_keggGenes.ContainsKey(gene))
+                        {
+                            _keggGenes[gene].UniprotAcc = uniprot;
+                        }
                     }
                 }
             }
@@ -245,117 +232,56 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void DownloadKeggKos()
-        {
-            var keggKoLinkUrl = WebRequest.Create("http://rest.kegg.jp/link/ko/" + _keggOrgCode);
-            var keggKoLinkStream = keggKoLinkUrl.GetResponse().GetResponseStream();
-            using (var koReader = new StreamReader(keggKoLinkStream))
-            {
-                while (koReader.Peek() > -1)
-                {
-                    var line = koReader.ReadLine();
-                    var gene = line.Split('\t')[0].Split(':')[1];
-                    var ko = line.Split('\t')[1].Split(':')[1];
-                    if (!_keggGeneKoMap.ContainsKey(gene))
-                    {
-                        _keggGeneKoMap.Add(gene, new List<string>());
-                    }
-                    _keggGeneKoMap[gene].Add(ko);
-                    _keggGenes[gene].KeggKOID = ko;
-                    Thread.Sleep(1);
-                }
-            }
-        }
-
         private static void GetFaaLocation()
         {
-            _faaLink = MismatchedRefseqFinder.ParseAndGetOneLink(_keggOrgCode);
+            _faaLink = KeggInteraction.GetFaaLocation(_taxon);
         }
 
-        private static void GetGiRefDictionary()
+        private static void GetTaxon()
         {
-            FastaDownloaderNCBI.Program.Main(new string[] { _faaLink });
-            foreach (var file in Directory.GetFiles(@"."))
-            {
-                if (file.EndsWith(".fasta"))
-                {
-                    using (var reader = new StreamReader(file))
-                    {
-                        while (reader.Peek() > -1)
-                        {
-                            var line = reader.ReadLine();
-                            if (line.StartsWith(">"))
-                            {
-                                var gi = line.Split('|')[2].Split(')')[0];
-                                var refseq = line.Split('|')[1].Split(' ')[0];
-                                try
-                                {
-                                    //If the gi and refseq have not been seen yet, add to dictionary
-                                    giRefs.Add(gi, refseq);
+            var options = StringSplitOptions.RemoveEmptyEntries;
+            char[] lineSplit = { '\n' };
+            var lines = new List<string>();
 
-                                }
-                                catch (Exception)
-                                {
-                                    //Let user know that the gi has already been seen, skip over and don't add
-                                    Console.WriteLine("Already seen this gi: " + gi + " ref: " + refseq);
-                                    Console.WriteLine("Dictionary contains " + giRefs[gi] + " at above gi num");
-                                }
-                            }
+            var taxonUrl = WebRequest.Create("http://http://www.kegg.jp/kegg-bin/show_organism?org=" + _keggOrgCode);
+            var taxonStream = taxonUrl.GetResponse().GetResponseStream();
+            using (var reader = new StreamReader(taxonStream))
+            {
+                while (reader.Peek() > -1)
+                {
+                    var wholeFile = reader.ReadToEnd();
+                    lines = wholeFile.Split(lineSplit, options).ToList();
+
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains("TAX:"))
+                        {
+                            _taxon = line.Split('>')[7].Split('<')[0];
                         }
                     }
-                    File.Delete(file);
                 }
             }
         }
 
-        private static void DownloadRefseqs()
+        private static void GetProduct()
         {
-            foreach (var keggGene in _keggGenes.Values)
+            var options = StringSplitOptions.RemoveEmptyEntries;
+            char[] lineSplit = { '\n' };
+            var lines = new List<string>();
+
+            var GeneListUrl = WebRequest.Create("http://rest.kegg.jp/link/pathway/" + _keggOrgCode);
+            var GeneListStream = GeneListUrl.GetResponse().GetResponseStream();
+            using (var geneReader = new StreamReader(GeneListStream))
             {
-                if (giRefs.ContainsKey(keggGene.NcbiGINum))
+                while (geneReader.Peek() > -1)
                 {
-                    keggGene.RefSeqIDVersioned = giRefs[keggGene.NcbiGINum];
-                    keggGene.RefseqID = keggGene.RefSeqIDVersioned.Split('.').First();
-                }
-            }
-        }
-
-        private static void GetTaxonAndProduct()
-        {
-            int giIndex = 0;
-            var ncbiSettings = new XmlReaderSettings();
-            ncbiSettings.DtdProcessing = DtdProcessing.Ignore;
-
-            foreach (var gene in _keggGenes.Values)
-            {
-                var xmlString = string.Format(
-                    "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id={0}&retmode=xml",
-                    gene.NcbiGeneID);
-                var ncbiReader =
-                    XmlReader.Create(xmlString, ncbiSettings);
-                while (ncbiReader.ReadToFollowing("Gene-track_geneid"))
-                {
-                    //Pull taxon
-                    ncbiReader.ReadToFollowing("Org-ref_db");
-                    ncbiReader.ReadToDescendant("Dbtag_db");
-                    // While what ever is in ^^ is not "taxon", keep looking for the next dbtag_db element.
-                    while (ncbiReader.ReadElementContentAsString() != "taxon")
+                    var wholeFile = geneReader.ReadToEnd();
+                    lines = wholeFile.Split(lineSplit, options).ToList();
+                    foreach (var line in lines)
                     {
-                        ncbiReader.ReadToFollowing("Dbtag_db");
-                    }
-                    ncbiReader.ReadToFollowing("Object-id_id");
-                    string taxon = ncbiReader.ReadElementContentAsString();
-                    _taxon = taxon;
-
-                    //Pull product
-                    try
-                    {
-                        ncbiReader.ReadToFollowing("Prot-ref_name_E");
-                        gene.product = ncbiReader.ReadElementContentAsString();
-                    }
-                    catch (Exception ex)
-                    {
-                        gene.product = "";
+                        var geneID = line.Split('\t')[0].Split(':')[1];
+                        var product = line.Split('\t')[1];
+                        _keggGenes[geneID].product = product;
                     }
                 }
             }
@@ -398,29 +324,18 @@ namespace BiodiversityPlugin.Models
                             var delimiter = '\t';
                             var pieces = line.Split('\t');
                             // qValue (cut off) is in column r (pieces[17])
-                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && pieces[protInd].Split('|').Count() > 1)
+                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && !string.IsNullOrEmpty(pieces[protInd]))
                             {
                                 var peptide = pieces[pepInd].Split('.')[1];
 
-                                var protPieces = pieces[protInd].Split('|');
-                                var prot = "";
-                                int num = 0;
-                                foreach (var piece in protPieces)
-                                {
-                                    if (piece == "ref")
-                                    {
-                                        num++;
-                                        prot = pieces[protInd].Split('|')[num].Split('.')[0];
-                                        break;
-                                    }
-                                    num++;
-                                }
+                                var prot = pieces[protInd]; //Getting the uniprot identifier
 
                                 var charge = Convert.ToInt32(pieces[chargeIndex]);
+
                                 if (!_proteinPeptideMap.ContainsKey(prot))
                                 {
                                     _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-                                    _refseqs.Add(prot);
+                                    _uniprots.Add(prot);
                                 }
                                 if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
                                 {
@@ -445,9 +360,9 @@ namespace BiodiversityPlugin.Models
                 keggGene.IsObserved = 0;
                 if (!string.IsNullOrWhiteSpace(keggGene.KeggKOID) && keggGene.ConnectedPathways.Count > 0)
                 {
-                    foreach (var refseq in _refseqs)
+                    foreach (var uniprot in _uniprots)
                     {
-                        if (refseq.Split('.').First() == keggGene.RefseqID)
+                        if (uniprot == keggGene.UniprotAcc)
                         {
                             keggGene.IsObserved = 1;
                             observedCount++;
@@ -468,7 +383,7 @@ namespace BiodiversityPlugin.Models
                 //Clear variable here so they can go back and choose a differnet file
                 _keggGenes.Clear();
                 _proteinPeptideMap.Clear();
-                _refseqs.Clear();
+                _uniprots.Clear();
                 _peptides.Clear();
             }
         }
@@ -492,31 +407,31 @@ namespace BiodiversityPlugin.Models
 
                     orgInsertion =
                         string.Format(
-                            " INSERT INTO organism_taxonomy (ncbi_taxon_id, og_domain, og_kingdom, og_phylum, og_class, og_species) VALUES ( {0}{1}{0},{0}{2}{0},{0}{3}{0},{0}{4}{0},{0}{5}{0},{0}{6}{0} ); ",
+                            " INSERT INTO organism_taxonomy (taxon_id, og_domain, og_kingdom, og_phylum, og_class, og_species) VALUES ( {0}{1}{0},{0}{2}{0},{0}{3}{0},{0}{4}{0},{0}{5}{0},{0}{6}{0} ); ",
                             '\"', _taxon, _orgDomain, _orgKingdom, _orgPhylum, _orgClass, _orgName);
                     cmd.CommandText = orgInsertion;
                     cmd.ExecuteNonQuery();
                     queryCount++;
 
                     string faaLocationInsertion =
-                        string.Format(" INSERT INTO orgFaaLocation (kegg_org_code, ncbi_org_location) " +
+                        string.Format(" INSERT INTO orgFaaLocation (kegg_org_code, org_faa_location) " +
                                       "VALUES ({0}{1}{0}, {0}{2}{0});", '\"', _keggOrgCode, _faaLink);
                     cmd.CommandText = faaLocationInsertion;
                     cmd.ExecuteNonQuery();
                     queryCount++;
 
-                    const string geneInsertion = " INSERT INTO kegg_gene ";
+                    const string geneInsertion = " INSERT INTO kegg_gene (kegg_org_code, kegg_gene_id, uniprot, product) ";
                     //cmd.CommandText = geneInsertion;
                     foreach (var keggGene in _keggGenes.Values)
                     {
                         if (!string.IsNullOrEmpty(keggGene.KeggKOID))
                         {
                             string insertion;
-                            if (!string.IsNullOrEmpty(keggGene.RefseqID))
+                            if (!string.IsNullOrEmpty(keggGene.UniprotAcc))
                             {
                                 insertion = geneInsertion +
-                                    string.Format(" VALUES ( {0}{1}{0},{0}{2}{0},{0}{3}{0},{0}{4}{0},{0}{5}{0},{0}{6}{0} ); ", '\"', _keggOrgCode,
-                                        keggGene.KeggGeneID, keggGene.RefseqID, keggGene.RefSeqIDVersioned, keggGene.UniprotAcc, keggGene.product);
+                                    string.Format(" VALUES ( {0}{1}{0},{0}{2}{0},{0}{3}{0},{0}{4}{0} ); ", '\"', _keggOrgCode,
+                                        keggGene.KeggGeneID, keggGene.UniprotAcc, keggGene.product);
                             }
                             else
                             {
@@ -608,13 +523,8 @@ namespace BiodiversityPlugin.Models
     {
         public string KeggOrgCode { get; set; }
         public string KeggGeneID { get; set; }
-        public int NcbiGeneID { get; set; }
-        public string NcbiGINum { get; set; }
-        public string RefseqID { get; set; }
-        public string RefSeqIDVersioned { get; set; }
         public string UniprotAcc { get; set; }
         public string KeggKOID { get; set; }
-        public string KeggDesc { get; set; }
         public string product { get; set; }
         public List<string> ConnectedPathways { get; set; }
         public int IsObserved { get; set; }
@@ -630,14 +540,9 @@ namespace BiodiversityPlugin.Models
             KeggGeneID = GeneID;
             ConnectedPathways = new List<string>();
             IsObserved = 0;
-            NcbiGeneID = 0;
-            NcbiGINum = "";
-            RefseqID = "";
             UniprotAcc = "";
             KeggKOID = "";
-            KeggDesc = "";
             product = "";
-            RefSeqIDVersioned = "";
         }
     }
 }
