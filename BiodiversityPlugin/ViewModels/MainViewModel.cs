@@ -1196,20 +1196,20 @@ namespace BiodiversityPlugin.ViewModels
                 var ftpLoc = GetFtpLocationFromDb(currentOrg.OrgCode);
 
                 // Connect to ftp site at above location to get all the .faa files
-                var filesForOrg = GetFtpFileList(ftpLoc);
+                //var filesForOrg = GetFtpFileList(ftpLoc);
 
                 // For each .faa and .fa.gz file...
 
-                foreach (var file in filesForOrg)
-                {
-                    if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
-                    {
+                //foreach (var file in filesForOrg)
+                //{
+                    //if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
+                    //{
                         // Download the file and parse it
-                        var tempFileLoc = DownloadFaaFile(Path.Combine(ftpLoc, file));
-                        ParseFaaFile(tempFileLoc);
-                        _parsedFiles.Add(file);
-                    }
-                }
+                        //var tempFileLoc = DownloadFaaFile(ftpLoc);
+                        ParseUniprotFasta(ftpLoc);
+                        _parsedFiles.Add(ftpLoc);
+                    //}
+                //}
                 _ncbiDownloading = false;
             }
             catch (Exception)
@@ -1218,7 +1218,7 @@ namespace BiodiversityPlugin.ViewModels
                 _errorFound = true;
                 TopLevelWindow = 3;
 
-                ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
+                ErrorMessage = "ERROR: Unable to establish connection to Uniprot to acquire FASTA for your organisms.";
                 Logger.ErrorType = ErrorTypeEnum.NcbiError;
                 
                 NcbiSolution = Visibility.Visible;
@@ -1307,115 +1307,15 @@ namespace BiodiversityPlugin.ViewModels
             return tempFileLoc;
         }
 
-        /// <summary>
-        /// Method to return a list of all files at an NCBI ftp location
-        /// that user is interested in
-        /// </summary>
-        /// <param name="url">Top level location of files at URL</param>
-        /// <returns>List of all file names in the folder of interest (not full paths)</returns>
-        private List<string> GetFtpFileList(string url)
+        private void ParseUniprotFasta(string faaFileLocation)
         {
-            var downloadFiles = new List<string>();
-            var result = new System.Text.StringBuilder();
-            const string nihUserName = "anonymous";
-            const string nihPassword = "michael.degan@pnnl.gov";
-
-            try
-            {
-                Console.WriteLine("Examining " + url);
-
-                var reqFtp = (FtpWebRequest)WebRequest.Create(new Uri(url));
-                reqFtp.UseBinary = true;
-                reqFtp.Credentials = new NetworkCredential(nihUserName, nihPassword);
-                reqFtp.Method = "LIST";
-                reqFtp.Proxy = null;
-                reqFtp.KeepAlive = true;
-                reqFtp.UsePassive = true;
-                reqFtp.Timeout = 15000;
-                using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
-                {
-                    var response = webResponse.GetResponseStream();
-                    if (response == null)
-                    {
-                        Console.WriteLine("No files found for {0}", url);
-                        return downloadFiles;
-                    }
-
-                    using (var responseReader = new StreamReader(response))
-                    {
-                        while (responseReader.Peek() > -1)
-                        {
-                            var line = responseReader.ReadLine();
-                            if (string.IsNullOrWhiteSpace(line))
-                                continue;
-
-                            result.Append(line.Split(' ').Last());
-                            result.Append("\n");
-                        }
-                    }
-                }
-
-                var lastLinefeed = result.ToString().LastIndexOf('\n');
-
-                if (lastLinefeed > 0)
-                    result.Remove(lastLinefeed, 1);
-
-                downloadFiles = result.ToString().Split('\n').ToList();
-
-            }
-            catch (WebException wEx)
-            {
-                _ncbiDownloading = false;
-                _errorFound = true;
-                TopLevelWindow = 3;
-
-                ErrorMessage = "ERROR: Unable to establish connection to NCBI to acquire FASTA for your organisms.";
-                Logger.ErrorType = ErrorTypeEnum.NcbiError;
-
-                NcbiSolution = Visibility.Visible;
-                if (wEx.Message.Contains("(450)"))
-                {
-                    // Folder not found
-                    Console.WriteLine("Folder not found {0}", url);
-                }
-                else
-                {
-                    Console.WriteLine(wEx.Message);
-                    Console.WriteLine("No files found for {0}", url);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("No files found for {0}", url);
-            }
-
-            return downloadFiles;
-        }
-
-        /// <summary>
-        /// Method to parse a fasta file, linking the fasta information to uniprot accessions
-        /// </summary>
-        /// <param name="faaFileLocation">File location for the .faa or .fa.gz file</param>
-        private void ParseFaaFile(string faaFileLocation)
-        {
-            // If file is gzipped, file needs to unzip and update the file location
-            if (faaFileLocation.EndsWith(".gz"))
-            {
-                var success = UnGzipFile(faaFileLocation);
-                if (success)
-                {
-                    File.Delete(faaFileLocation);
-                    faaFileLocation = faaFileLocation.Substring(0, faaFileLocation.Length - 3);
-                }
-            }
-
             var accKey = "";
-            
-            
-            using (var reader = new StreamReader(new FileStream(faaFileLocation, FileMode.Open, FileAccess.Read, FileShare.Read)))
+
+            var url = WebRequest.Create(faaFileLocation);
+            var stream = url.GetResponse().GetResponseStream();
+            using (var reader = new StreamReader(stream))
             {
-                while (reader.Peek() > -1)
+                while (!reader.EndOfStream)
                 {
                     var readLine = reader.ReadLine();
 
@@ -1430,56 +1330,18 @@ namespace BiodiversityPlugin.ViewModels
                         // Only piece we desire is the portion with the accession
                         // We do not care about the version of the accession due to data returned
                         // from the database, so we strip of that portion.
-                        char[] separators = {'>', '|', '[', ']'};
+                        char[] separators = { '>', '|', '[', ']' };
                         var linePieces = readLine.Split(separators);
-                        accKey = linePieces[4].Split('.')[0];
+                        accKey = linePieces[2];
                         if (!_ncbiFastaDictionary.ContainsKey(accKey))
                         {
                             _ncbiFastaDictionary.Add(accKey, "");
                         }
                     }
-                    //Add the line to the accession we are currently working on
+
                     _ncbiFastaDictionary[accKey] += readLine + '\n';
                 }
             }
-            // Clean up temporary file as it's no longer necessary
-            File.Delete(faaFileLocation);
-        }
-
-        /// <summary>
-        /// Method to unzip a file, used for if the file is a .fa.gz
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns>True if the file was successfully unzipped, false otherwise</returns>
-        private static bool UnGzipFile(string filePath)
-        {
-            var fiFile = new FileInfo(filePath);
-            if (fiFile.DirectoryName == null)
-            {
-                Console.WriteLine("Folder info not available for " + filePath);
-                return false;
-            }
-
-            if (fiFile.Extension.ToLower() != ".gz")
-            {
-                Console.WriteLine("Not a GZipped file; must have extension .gz: " + fiFile.FullName);
-                return false;
-            }
-
-            var fileName = fiFile.Name;
-            var decompressedFilePath = Path.Combine(fiFile.DirectoryName, fileName.Remove(fileName.Length - fiFile.Extension.Length));
-
-            using (FileStream inFile = fiFile.OpenRead())
-            using (GZipStream gzStream = new GZipStream(inFile, CompressionMode.Decompress))
-            {
-                // Create the decompressed file.
-                using (FileStream outFile = File.Create(decompressedFilePath))
-                {
-                    gzStream.CopyTo(outFile);
-                }
-            }
-
-            return true;
         }
 
         /// <summary>
@@ -1621,7 +1483,7 @@ namespace BiodiversityPlugin.ViewModels
 
         /// <summary>
         /// Gathers all the protein accessions from the associations that have been selected
-        /// by the user and uses the NCBI web API to create a FASTA file based on these.
+        /// by the user and uses the Uniprot web API to create a FASTA file based on these.
         /// If there are no accessions, a message comes back saying so.
         /// </summary>
         private void ExportToSkyline()
@@ -1728,7 +1590,7 @@ namespace BiodiversityPlugin.ViewModels
                     // Display to the user the errors that occurred during fasta construction
                     if (!string.IsNullOrEmpty(errors))
                     {
-                        using (var errorWriter = new StreamWriter(@"C:\Temp\BioDiversityPluginNCBIErrors.txt"))
+                        using (var errorWriter = new StreamWriter(@"C:\Temp\BioDiversityPluginUniprotErrors.txt"))
                         {
                             errorWriter.WriteLine(errors);
                         }
@@ -1736,15 +1598,15 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             errors = string.Join("\n", _accessionsWithFastaErrors.GetRange(0, 20)) + "\n...\n";
                         }
-                        MessageBox.Show("NCBI server unreachable for the following accessions:\n" + errors + "\nFull list saved to: C:\\Temp\\BioDiversityPluginNCBIErrors.txt",
-                                "NCBI Server Unreachable",
+                        MessageBox.Show("Uniprot server unreachable for the following accessions:\n" + errors + "\nFull list saved to: C:\\Temp\\BioDiversityPluginUniprotErrors.txt",
+                                "Uniprot Server Unreachable",
                                 MessageBoxButton.OK);
 
                     }
                 }
                 else
                 {
-                    var confirmationMessage = "No NCBI accessions given, no FASTA file created.";
+                    var confirmationMessage = "No Uniprot accessions given, no FASTA file created.";
 
                     MessageBox.Show(confirmationMessage, "FASTA unable to be created", MessageBoxButton.OK,
                         MessageBoxImage.Exclamation);
