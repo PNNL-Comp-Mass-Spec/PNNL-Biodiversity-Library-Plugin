@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Data.SQLite;
 using System.IO;
 using System.IO.Compression;
@@ -9,6 +10,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Media;
 using BiodiversityPlugin.Calculations;
@@ -58,10 +60,10 @@ namespace BiodiversityPlugin.ViewModels
         private bool _reviewTabEnabled;
 
         private ObservableCollection<Pathway> _selectedPathways;
-        private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
         private ObservableCollection<string> _listPathways;
         private ObservableCollection<OrganismPathwayProteinAssociation> _pathwayProteinAssociation;
         private ObservableCollection<ProteinInformation> _filteredProteins;
+        private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
 
         private bool _isQuerying;
         private string _queryString;
@@ -92,10 +94,10 @@ namespace BiodiversityPlugin.ViewModels
 
         private List<string> _blibFiles = new List<string>();
         private ObservableCollection<string> _irtLibraries = new ObservableCollection<string>();
-        private  string _irtCorrectionMessage;
+        private string _irtCorrectionMessage;
         public List<Tuple<string, string>> listOfAllBlibs = new List<Tuple<string, string>>();
         public bool dataImported;
-        
+
         #endregion
 
         #region Public Properties
@@ -236,6 +238,16 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _selectedPathways = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public ObservableCollection<OrganismWithFlag> FilteredOrganisms
+        {
+            get { return _filteredOrganisms; }
+            set
+            {
+                _filteredOrganisms = value;
                 RaisePropertyChanged();
             }
         }
@@ -406,15 +418,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public ObservableCollection<OrganismWithFlag> FilteredOrganisms
-        {
-            get { return _filteredOrganisms; }
-            set
-            {
-                _filteredOrganisms = value;
-                RaisePropertyChanged();
-            }
-        }
+
 
         public OrganismWithFlag SelectedListOrg
         {
@@ -463,7 +467,7 @@ namespace BiodiversityPlugin.ViewModels
             set
             {
                 _listPathwaySelectedItem = value;
-                
+
                 ListPathwaySelected = ListPathways.Contains(value);
                 RaisePropertyChanged();
             }
@@ -626,7 +630,7 @@ namespace BiodiversityPlugin.ViewModels
 
             ToolClient = toolClient;
             Logger.ContainsToolClient = ToolClient != null;
-            
+
             var dataAccess = new DatabaseDataLoader(_dbPath);
             string version, date;
             dataAccess.LoadDbMetaData(out version, out date);
@@ -634,15 +638,15 @@ namespace BiodiversityPlugin.ViewModels
             DatabaseDate = date;
             Logger.DatabaseVersion = version;
             Logger.DatabaseCreationDate = date;
-            
+
             Messenger.Default.Register<PropertyChangedMessage<bool>>(this, PathwaysSelectedChanged);
             var organismList = new List<string>();
-            var organisms = orgData.LoadOrganisms(ref organismList);           
+            var organisms = orgData.LoadOrganisms(ref organismList);
             organismList.Sort();
             OrganismList = organismList;
             organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
             FlagForCustom(organisms);
-            Organisms = new ObservableCollection<OrgDomain>(organisms);                  
+            Organisms = new ObservableCollection<OrgDomain>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
 
             FilteredProteins = new ObservableCollection<ProteinInformation>();
@@ -747,14 +751,14 @@ namespace BiodiversityPlugin.ViewModels
                     ToolClient.AddSpectralLibrary(blib.Item1, blib.Item2);
                 }
             }
-                
+
             if (ToolClient != null && dataImported)
             {
                 // Dispose of the client connection and move the user to the "Successful import view"
                 ToolClient.Dispose();
                 TopLevelWindow = 2; //Need to get to the close page
             }
-            
+
         }
 
         private void AcceptCorrection()
@@ -776,7 +780,7 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     ToolClient.AddSpectralLibrary(blib.Item1, blib.Item2);
                 }
-            }              
+            }
 
             if (ToolClient != null && dataImported)
             {
@@ -784,7 +788,7 @@ namespace BiodiversityPlugin.ViewModels
                 ToolClient.Dispose();
                 TopLevelWindow = 2; //Need to get to the close page  
             }
-                   
+
         }
 
         private void SendLog()
@@ -839,22 +843,23 @@ namespace BiodiversityPlugin.ViewModels
             {
                 var dataAccess = new DatabaseDataLoader(_dbPath);
 
-                var pathList = (from catagory in Pathways 
-                                from @group in catagory.PathwayGroups 
-                                where @group.GroupName != "Chemical structure transformation maps" 
-                                from path in @group.Pathways select path).ToList();
-                
+                var pathList = (from catagory in Pathways
+                                from @group in catagory.PathwayGroups
+                                where @group.GroupName != "Chemical structure transformation maps"
+                                from path in @group.Pathways
+                                select path).ToList();
+
                 foreach (var path in pathList)
                 {
                     if (SelectedTabIndex == 2 && path.PercentCover <= -1)
                     {
-                        var pathAsList = new List<Pathway> {path};
+                        var pathAsList = new List<Pathway> { path };
                         dataAccess.LoadPathwayCoverage(SelectedOrganism, ref pathAsList, coordPrefix);
                         foreach (var pathway in from catagory in Pathways
-                            from @group in catagory.PathwayGroups
-                            from pathway in @group.Pathways
-                            where pathway.KeggId == pathAsList[0].KeggId
-                            select pathway)
+                                                from @group in catagory.PathwayGroups
+                                                from pathway in @group.Pathways
+                                                where pathway.KeggId == pathAsList[0].KeggId
+                                                select pathway)
                         {
                             pathway.PercentCover = path.PercentCover;
                         }
@@ -985,6 +990,12 @@ namespace BiodiversityPlugin.ViewModels
             var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
             updateWindow.ShowDialog();
+            var db = new DatabaseDataLoader(_dbPath);
+            var list = new List<string>();
+            db.LoadOrganisms(ref list);
+            list.Sort();
+            OrganismList = list;
+            FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
         }
 
         /// <summary>
@@ -996,12 +1007,12 @@ namespace BiodiversityPlugin.ViewModels
             SelectedTabIndex = 3;
 
             string[] queryingStrings =
-			    {
-				    "Generating Pathway Images   \nPlease Wait",
-				    "Generating Pathway Images.  \nPlease Wait",
-				    "Generating Pathway Images.. \nPlease Wait",
-				    "Generating Pathway Images...\nPlease Wait"
-			    };
+                {
+                    "Generating Pathway Images   \nPlease Wait",
+                    "Generating Pathway Images.  \nPlease Wait",
+                    "Generating Pathway Images.. \nPlease Wait",
+                    "Generating Pathway Images...\nPlease Wait"
+                };
             QueryString = queryingStrings[0];
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
@@ -1177,7 +1188,7 @@ namespace BiodiversityPlugin.ViewModels
                 PathwayTabIndex = 0;
             }));
         }
-        
+
         /// <summary>
         /// Method to begin the download of FASTA file for an organism
         /// </summary>
@@ -1202,13 +1213,13 @@ namespace BiodiversityPlugin.ViewModels
 
                 //foreach (var file in filesForOrg)
                 //{
-                    //if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
-                    //{
-                        // Download the file and parse it
-                        //var tempFileLoc = DownloadFaaFile(ftpLoc);
-                        ParseUniprotFasta(ftpLoc);
-                        _parsedFiles.Add(ftpLoc);
-                    //}
+                //if ((file.EndsWith(".faa") || file.EndsWith(".fa.gz")) && !_parsedFiles.Contains(file))
+                //{
+                // Download the file and parse it
+                //var tempFileLoc = DownloadFaaFile(ftpLoc);
+                ParseUniprotFasta(ftpLoc);
+                _parsedFiles.Add(ftpLoc);
+                //}
                 //}
                 _ncbiDownloading = false;
             }
@@ -1220,7 +1231,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 ErrorMessage = "ERROR: Unable to establish connection to Uniprot to acquire FASTA for your organisms.";
                 Logger.ErrorType = ErrorTypeEnum.NcbiError;
-                
+
                 NcbiSolution = Visibility.Visible;
             }
         }
@@ -1290,7 +1301,7 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     outputFilePath += ".gz";
                 }
-                tempFileLoc = outputFilePath ;
+                tempFileLoc = outputFilePath;
                 using (var outFile = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                 {
 
@@ -1353,14 +1364,14 @@ namespace BiodiversityPlugin.ViewModels
         {
             SelectedTabIndex = 4;
             string[] queryingStrings =
-			    {
-				    "Acquiring Genes   \nPlease Wait",
-				    "Acquiring Genes.  \nPlease Wait",
-				    "Acquiring Genes.. \nPlease Wait",
-				    "Acquiring Genes...\nPlease Wait"
-			    };
+                {
+                    "Acquiring Genes   \nPlease Wait",
+                    "Acquiring Genes.  \nPlease Wait",
+                    "Acquiring Genes.. \nPlease Wait",
+                    "Acquiring Genes...\nPlease Wait"
+                };
             QueryString = queryingStrings[0];
-            
+
             var dataAccess = new DatabaseDataLoader(_dbPath);
 
             Task.Factory.StartNew(() =>
@@ -1375,7 +1386,7 @@ namespace BiodiversityPlugin.ViewModels
                     {
                         // Current flow is that exporting
                         // accessions requires a list of pathways
-                        var temp = new List<Pathway> { pathway }; 
+                        var temp = new List<Pathway> { pathway };
                         var pathwayAcc = dataAccess.ExportAccessions(temp, SelectedOrganism);
 
                         var association = new OrganismPathwayProteinAssociation
@@ -1511,14 +1522,14 @@ namespace BiodiversityPlugin.ViewModels
 
             SelectedTabIndex = 4;
             string[] queryingStrings =
-			    {
-				    "Generating Fasta   \nPlease Wait",
-				    "Generating Fasta.  \nPlease Wait",
-				    "Generating Fasta.. \nPlease Wait",
-				    "Generating Fasta...\nPlease Wait"
-			    };
+                {
+                    "Generating Fasta   \nPlease Wait",
+                    "Generating Fasta.  \nPlease Wait",
+                    "Generating Fasta.. \nPlease Wait",
+                    "Generating Fasta...\nPlease Wait"
+                };
             QueryString = queryingStrings[0];
-            
+
             Task.Factory.StartNew(() => StartOverlay(queryingStrings));
 
             Task.Factory.StartNew(() =>
@@ -1562,7 +1573,7 @@ namespace BiodiversityPlugin.ViewModels
                     continue;
                 }
 
-                
+
                 // Need to see if there are any NCBI accessions to pull and use this to 
                 // create the FASTA file for skyline.
                 if (!string.IsNullOrWhiteSpace(accessionString))
@@ -1634,11 +1645,11 @@ namespace BiodiversityPlugin.ViewModels
                 foreach (var org in organismList)
                 {
                     string[] downloadingStrings = {
-				    "Downloading Spectral Library   \nPlease Wait",
-				    "Downloading Spectral Library.  \nPlease Wait",
-				    "Downloading Spectral Library.. \nPlease Wait",
-				    "Downloading Spectral Library...\nPlease Wait"
-			        };
+                    "Downloading Spectral Library   \nPlease Wait",
+                    "Downloading Spectral Library.  \nPlease Wait",
+                    "Downloading Spectral Library.. \nPlease Wait",
+                    "Downloading Spectral Library...\nPlease Wait"
+                    };
                     QueryString = downloadingStrings[0];
                     Task.Factory.StartNew(() => StartOverlay(downloadingStrings));
                     var fileFound = false;
@@ -1659,7 +1670,7 @@ namespace BiodiversityPlugin.ViewModels
                                     file = thing.FileLocation;
                                 }
                             }
-                            
+
                             if (File.Exists(file))
                             {
                                 _blibFiles.Add(file);
@@ -1668,7 +1679,7 @@ namespace BiodiversityPlugin.ViewModels
                                 if (ToolClient != null)
                                 {
                                     // If we're using the Skyline connection, push the downloaded .blib to Skyline
-                                    listOfAllBlibs.Add( new Tuple<string, string>(org + " Spectral Library", file));
+                                    listOfAllBlibs.Add(new Tuple<string, string>(org + " Spectral Library", file));
                                 }
                             }
                             else
@@ -1689,7 +1700,7 @@ namespace BiodiversityPlugin.ViewModels
                                     if (item.IsCustom == false)
                                     {
                                         fileFound = true;
-                                    }    
+                                    }
                                     _blibFiles.Add(file);
                                     //Show where the file was already found at
                                     MessageBox.Show("Spectral Library was already found saved to " + file);
@@ -1741,7 +1752,7 @@ namespace BiodiversityPlugin.ViewModels
 
                                 var files = new List<string>();
 
-                                using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                                using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
                                 {
                                     var response = webResponse.GetResponseStream();
                                     if (response == null)
@@ -1812,7 +1823,7 @@ namespace BiodiversityPlugin.ViewModels
                                 {
                                     Logger.DownloadLocation = DownloadLocationEnum.MASSIVE_PRIVATE;
                                     var reqFtp =
-                                        (FtpWebRequest) WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
+                                        (FtpWebRequest)WebRequest.Create(new Uri("ftp://massive.ucsd.edu/library/"));
                                     reqFtp.UseBinary = true;
                                     reqFtp.Credentials = new NetworkCredential("MSV000079053", "a");
                                     reqFtp.Method = "LIST";
@@ -1823,7 +1834,7 @@ namespace BiodiversityPlugin.ViewModels
 
                                     var files = new List<string>();
 
-                                    using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                                    using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
                                     {
                                         var response = webResponse.GetResponseStream();
                                         if (response == null)
@@ -1909,7 +1920,7 @@ namespace BiodiversityPlugin.ViewModels
 
                                 var files = new List<string>();
 
-                                using (var webResponse = (FtpWebResponse) reqFtp.GetResponse())
+                                using (var webResponse = (FtpWebResponse)reqFtp.GetResponse())
                                 {
                                     var response = webResponse.GetResponseStream();
                                     if (response == null)
@@ -1923,7 +1934,7 @@ namespace BiodiversityPlugin.ViewModels
                                         {
                                             var line = responseReader.ReadLine();
                                             var opts = StringSplitOptions.RemoveEmptyEntries;
-                                            var delims = new string[] {" "};
+                                            var delims = new string[] { " " };
                                             var pieces = line.Split(delims, opts);
                                             if (string.IsNullOrWhiteSpace(line))
                                                 continue;
@@ -1997,12 +2008,12 @@ namespace BiodiversityPlugin.ViewModels
                 //QueryString = importingStrings[0];
                 //Task.Factory.StartNew(() => StartOverlay(importingStrings));
 
-                
+
                 IsQuerying = false;
-                TopLevelWindow = 1;             
+                TopLevelWindow = 1;
             });
         }
-        
+
         /// <summary>
         /// Short database script to check if the organism has downloaded a blib before
         /// </summary>
@@ -2080,7 +2091,7 @@ namespace BiodiversityPlugin.ViewModels
                             orgCollection.Add(new OrganismWithFlag(org, false));
                         }
                         reader.Close();
-                    }                   
+                    }
                 }
             }
             return orgCollection;
@@ -2108,7 +2119,32 @@ namespace BiodiversityPlugin.ViewModels
                         reader.Close();
                     }
                 }
-            }           
+            }
+        }
+
+        private void FlagForCustomAfterUpdate(ObservableCollection<OrganismWithFlag> FilteredOrganisms)
+        {
+            var list = FilteredOrganisms.ToList();
+
+             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+            {
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
+                {
+                    foreach (var org in list)
+                    {
+                        var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org.OrganismName + "\"";
+                        cmd.CommandText = text;
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            org.Custom = true;
+                        }
+                        reader.Close();
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -2126,12 +2162,12 @@ namespace BiodiversityPlugin.ViewModels
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var deletionText = " DELETE FROM fileLocation WHERE orgName = \"" + orgName + "\" and custom = \"false\""; 
+                    var deletionText = " DELETE FROM fileLocation WHERE orgName = \"" + orgName + "\" and custom = \"false\"";
                     cmd.CommandText = deletionText;
                     cmd.ExecuteNonQuery();
 
                     var insertionText = " INSERT or REPLACE INTO fileLocation (orgName, fileLocation, custom) ";
-                    insertionText += string.Format("VALUES ({0}{1}{0},{0}{2}{0},{0}{3}{0}); ", "\"", orgName, fileLoc, false); 
+                    insertionText += string.Format("VALUES ({0}{1}{0},{0}{2}{0},{0}{3}{0}); ", "\"", orgName, fileLoc, false);
                     cmd.CommandText = insertionText;
                     cmd.ExecuteNonQuery();
                 }
@@ -2180,9 +2216,13 @@ namespace BiodiversityPlugin.ViewModels
         public Visibility MassiveSolution { get { return _massiveSolution; } set { _massiveSolution = value; RaisePropertyChanged(); } }
 
 
-        public string IrtCorrectionMessage { get { return _irtCorrectionMessage; } set
+        public string IrtCorrectionMessage
         {
-            _irtCorrectionMessage = value; RaisePropertyChanged();
-        } }
+            get { return _irtCorrectionMessage; }
+            set
+            {
+                _irtCorrectionMessage = value; RaisePropertyChanged();
+            }
+        }      
     }
 }

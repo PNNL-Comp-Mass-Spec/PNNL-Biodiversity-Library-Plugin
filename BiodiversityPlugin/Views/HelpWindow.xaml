@@ -1,0 +1,41 @@
+﻿<Window x:Class="BiodiversityPlugin.Views.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BiodiversityPlugin.Views"
+        mc:Ignorable="d"
+        Title="Help" Height="250" Width="520" MinHeight="350" MinWidth="550">
+    <Grid>
+
+        <StackPanel Margin="5">
+            <TextBlock FontWeight="Bold" FontSize="16" Text="Blib - Spectrum Library"/>
+            <TextBlock TextWrapping="Wrap" FontSize="14">
+                Skyline accepts spectrum libraries in the <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.ncbi.nlm.nih.gov/pubmed/18428681"> Bibliospec format. </Hyperlink>
+                Please consult the   
+                <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://skyline.gs.washington.edu/labkey/wiki/home/software/BiblioSpec/page.view?name=BlibBuild"> online documentation </Hyperlink>
+                for details about building a bibliospec library.
+            </TextBlock>
+            <TextBlock TextWrapping="Wrap" FontSize="14">
+                To build a library from mzIdentML resuls, an example command line is: <LineBreak/>
+                ~> BlibBuild.exe -c 0.9999 E:\path\to\PSM_results.mzid E:\path\to\Library.blib <LineBreak/><LineBreak/>
+                It is necessary that the Blib file contain ONE and only one PSM per peptide. Therefore, you must filter 
+                the above library file, for example <LineBreak/>
+                ~> BlibFilter.exe -b 1 E:\path\to\Library.blib E:\path\to\FilteredLibrary.blib <LineBreak/>
+            </TextBlock>
+            <TextBlock FontWeight="Bold" FontSize="16" Text="MzIdentML Files"/>
+            <TextBlock TextWrapping="Wrap" FontSize="14">
+                PSM results must be formated according to the <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.ncbi.nlm.nih.gov/pubmed/22375074"> mzIdentML format. </Hyperlink> 
+                The fasta used with the PSM results must have uniprots as identifiers.<LineBreak/>
+            </TextBlock>
+            <TextBlock FontWeight="Bold" FontSize="16" Text="Contact Information"/>
+            <TextBlock TextWrapping="Wrap" FontSize="14" >
+                For further assistance, please contact either 
+                <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov">Sam Payne</Hyperlink>
+                 or 
+                <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="lillian.ryadinskiy@pnnl.gov">Lillian Ryadinskiy</Hyperlink>
+            </TextBlock>
+        </StackPanel>
+        
+    </Grid>
+</Window>

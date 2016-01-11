@@ -194,7 +194,7 @@
                             <TextBlock Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="24" Foreground="Black" Margin="50">
                         No Organism Matches found
                             </TextBlock>
-                            <ListBox Grid.Row="1" Grid.RowSpan="2" FontSize="12" FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}"  
+                            <ListBox Name="FilteredOrgsListBox"  Grid.Row="1" Grid.RowSpan="2" FontSize="12" FontWeight="Normal" Margin="20,0,20,0" SelectedItem="{Binding SelectedListOrg}" Visibility="{Binding FilterBoxVisible}"  
                                      ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" >
                                 <!-- Foreground="{Binding FilteredOrganisms, Converter={StaticResource BoolToColor}}" DisplayMemberPath="OrganismName"  -->
                                 <ListBox.ItemTemplate>
