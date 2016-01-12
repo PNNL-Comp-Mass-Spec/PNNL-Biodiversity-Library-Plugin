@@ -987,11 +987,17 @@ namespace BiodiversityPlugin.ViewModels
 
         private void UpdateButton()
         {
+            var db = new DatabaseDataLoader(_dbPath);
+            var list = new List<string>();
+            db.LoadOrganisms(ref list);
+            list.Sort();
+            OrganismList = list;
+            FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
+
             var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
             updateWindow.ShowDialog();
-            var db = new DatabaseDataLoader(_dbPath);
-            var list = new List<string>();
+            
             db.LoadOrganisms(ref list);
             list.Sort();
             OrganismList = list;
@@ -2110,31 +2116,6 @@ namespace BiodiversityPlugin.ViewModels
                     foreach (var org in list)
                     {
                         var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org.Name + "\"";
-                        cmd.CommandText = text;
-                        SQLiteDataReader reader = cmd.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            org.Custom = true;
-                        }
-                        reader.Close();
-                    }
-                }
-            }
-        }
-
-        private void FlagForCustomAfterUpdate(ObservableCollection<OrganismWithFlag> FilteredOrganisms)
-        {
-            var list = FilteredOrganisms.ToList();
-
-             var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
-            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
-            {
-                dbConnection.Open();
-                using (var cmd = new SQLiteCommand(dbConnection))
-                {
-                    foreach (var org in list)
-                    {
-                        var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org.OrganismName + "\"";
                         cmd.CommandText = text;
                         SQLiteDataReader reader = cmd.ExecuteReader();
                         if (reader.Read())
