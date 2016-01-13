@@ -422,8 +422,18 @@ namespace BiodiversityPlugin.ViewModels
 
         public OrganismWithFlag SelectedListOrg
         {
+
             set
             {
+                var orgData = new DatabaseDataLoader(_dbPath);
+                var organismList = new List<string>();
+                var organisms = orgData.LoadOrganisms(ref organismList);
+                organismList.Sort();
+                OrganismList = organismList;
+                organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
+                FlagForCustom(organisms);
+                Organisms = new ObservableCollection<OrgDomain>(organisms);
+
                 foreach (var domain in Organisms)
                 {
 
@@ -433,14 +443,17 @@ namespace BiodiversityPlugin.ViewModels
                         {
                             foreach (var organism in orgClass.Organisms)
                             {
-                                if (organism.Name == value.OrganismName)
+                                if (value != null)
                                 {
-                                    SelectedOrganismTreeItem = organism;
-                                    // To refresh the Pathway tab's ability to be
-                                    // clicked by the user to advance the app.
-                                    SelectedTabIndex = SelectedTabIndex;
-                                    return;
-                                }
+                                    if (organism.Name == value.OrganismName)
+                                    {
+                                        SelectedOrganismTreeItem = organism;
+                                        // To refresh the Pathway tab's ability to be
+                                        // clicked by the user to advance the app.
+                                        SelectedTabIndex = SelectedTabIndex;
+                                        return;
+                                    }
+                                }                               
                             }
                         }
                     }
@@ -987,20 +1000,16 @@ namespace BiodiversityPlugin.ViewModels
 
         private void UpdateButton()
         {
+            var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
+            var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
+            updateWindow.ShowDialog();
+
             var db = new DatabaseDataLoader(_dbPath);
             var list = new List<string>();
             db.LoadOrganisms(ref list);
             list.Sort();
             OrganismList = list;
-            FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
-
-            var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
-            var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
-            updateWindow.ShowDialog();
-            
-            db.LoadOrganisms(ref list);
-            list.Sort();
-            OrganismList = list;
+            FilteredOrganisms.Clear();
             FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
         }
 

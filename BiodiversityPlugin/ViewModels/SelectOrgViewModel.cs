@@ -32,7 +32,10 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _orgName = value;
                 RaisePropertyChanged();
-                IsStartEnabled();
+                if (_orgName != null)
+                {
+                    IsStartEnabled();
+                }               
             }
         }
 
@@ -48,7 +51,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void IsStartEnabled()
         {
-            if (!string.IsNullOrEmpty(OrgName.OrganismName)) 
+            if (!string.IsNullOrEmpty(OrgName.OrganismName))
             {
                 StartButtonEnabled = true;
                 RaisePropertyChanged();
@@ -97,8 +100,7 @@ namespace BiodiversityPlugin.ViewModels
             {
                 SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
                 Close();
-            }
-            
+            }            
         }
     }
 }
