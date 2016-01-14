@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -37,7 +38,6 @@ namespace BiodiversityPlugin.Models
             bool go = CheckIfOrgExists(orgName);
             if (!go)
             {
-                MessageBox.Show("Now inserting organism. This will take a while. Please wait.", "Inserting Organism");
                 DownloadKeggGenesAndKos();
                 DownloadUniprotIdentifiers();
                 DownloadConnectedPathways();
@@ -80,9 +80,9 @@ namespace BiodiversityPlugin.Models
             return exists;
         }
 
-        public static List<string> GetListOfKeggOrganisms()
+        public static ObservableCollection<OrganismWithFlag> GetListOfKeggOrganisms()
         {
-            var organisms = new List<string>();
+            var organisms = new ObservableCollection<OrganismWithFlag>();
             var options = StringSplitOptions.RemoveEmptyEntries;
             var eListUrl = WebRequest.Create("http://rest.kegg.jp/list/organism");
             var listStream = eListUrl.GetResponse().GetResponseStream();
@@ -96,7 +96,8 @@ namespace BiodiversityPlugin.Models
                     lines = wholeFile.Split(lineSplit, options).ToList();
                     foreach (var line in lines)
                     {
-                        organisms.Add(line.Split('\t')[2]);
+                        //Setting custom setting to false since these orgs come from kegg
+                        organisms.Add(new OrganismWithFlag(line.Split('\t')[2], false));
                     }
                     //Thread.Sleep(1);
                 }

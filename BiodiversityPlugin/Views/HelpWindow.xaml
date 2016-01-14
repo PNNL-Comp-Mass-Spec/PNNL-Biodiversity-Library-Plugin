@@ -25,7 +25,7 @@
             </TextBlock>
             <TextBlock FontWeight="Bold" FontSize="16" Text="MzIdentML Files"/>
             <TextBlock TextWrapping="Wrap" FontSize="14">
-                PSM results must be formated according to the <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.ncbi.nlm.nih.gov/pubmed/22375074"> mzIdentML format. </Hyperlink> 
+                PSM results must be formatted according to the <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.ncbi.nlm.nih.gov/pubmed/22375074"> mzIdentML format. </Hyperlink> 
                 The fasta used with the PSM results must have uniprots as identifiers.<LineBreak/>
             </TextBlock>
             <TextBlock FontWeight="Bold" FontSize="16" Text="Contact Information"/>

@@ -22,7 +22,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _blibPath;
         private string _selectedValue;
         private List<string> _msgfPath;
-        private List<string> _allKeggOrgs;
+        private ObservableCollection<OrganismWithFlag> _allKeggOrgs;
         private ObservableCollection<string> _filteredOrganisms;        
         private Visibility _filterVisibility;
         private Visibility _loadingVisible;
@@ -61,7 +61,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public List<string> AllKeggOrgs
+        public ObservableCollection<OrganismWithFlag> AllKeggOrgs
         {
             get { return _allKeggOrgs; }
             set { _allKeggOrgs = value; }
@@ -100,9 +100,10 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     foreach (var org in _allKeggOrgs)
                     {
-                        if (org.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
+                        var name = org.OrganismName;
+                        if (name.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            filtered.Add(org);
+                            filtered.Add(name);
                         }
                     }
                 }

@@ -6,9 +6,13 @@
         xmlns:local="clr-namespace:BiodiversityPlugin"
         xmlns:utilities="clr-namespace:KeggDataLibrary.Utilities;assembly=KeggDataLibrary"
         xmlns:models="clr-namespace:KeggDataLibrary.Models;assembly=KeggDataLibrary"
+        xmlns:models1="clr-namespace:BiodiversityPlugin.Models"
+        xmlns:calculations="clr-namespace:BiodiversityPlugin.Calculations"
         mc:Ignorable="d"
         Title="Customize Data for Biodiversity Library" Height="600" Width="900">
     <Window.Resources>
+        <calculations:BoolToColorConverter x:Key="BoolToColor"/>
+        
         <SolidColorBrush x:Key="SolidBorderBrush" Color="#FFFFFF" />
 
         <SolidColorBrush x:Key="WhiteBrush" Color="White" />
@@ -56,59 +60,48 @@
         </Style>
     </Window.Resources>
     <Grid>
-    <TabControl TabStripPlacement="Left">
+        <TabControl TabStripPlacement="Left" SelectedIndex="{Binding SelectedTabIndex}">
 
-        <TabItem Header="Welcome" Width="200" Height="100" FontSize="20" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White">
-            <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="170"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="75"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="250"/>
-                            <RowDefinition Height="75"/>
-                            <RowDefinition Height="75"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="3" Margin="5">
-                            <TextBlock FontWeight="Bold" FontSize="20" Text="Welcome!" Foreground="Black"/>
+            <TabItem Header="Welcome" Width="200" Height="100" FontSize="20" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White" IsEnabled="{Binding WelcomeTabEnabled}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height ="50"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock FontWeight="Bold" FontSize="20" Text="Welcome!" Foreground="Black" Margin="10,10"/>
                     <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="14" Foreground="Black" Height="355" Margin="12,0">
-                        <LineBreak/> <LineBreak/>
             You can update the MS/MS data used by the Biodiversity Plugin for Skyline. By uploading your personal data into the plugin, 
             you can use the same pathway oriented interface to load your data directly into Skyline. <LineBreak/> <LineBreak/>
-            There are  three options for updating data. Use the appropriate button below. <LineBreak/>
+            There are  three options for updating data.  <LineBreak/>
         1) Replace the existing organism entirely with custom data. <LineBreak/>
         2) Supplement an existing organism with additional data. <LineBreak/>
         3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/>
         Users must have a Bibliospec formatted spectrum library (.blib) and mzIdentML formatted results.
         See the help button for additional information.</TextBlock>
+                    <Button Grid.Row="1" Width="150" Height="40"  Margin="450,0,0,0" FontSize="16" Command="{Binding NextTabCommand}" >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
                         </StackPanel>
+                    </Button>
+                </Grid>
+            </TabItem>
 
-
-                        
-
-                        
-                    </Grid>
-
-                </TabItem>
-        <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
-            <TabItem.Header>
-                <TextBlock Width="200" Height="100" TextAlignment="Center"
+            <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding InputTabEnabled}">
+                <TabItem.Header>
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
                         Input Mass
                         <LineBreak/>Spec Data
-                </TextBlock>
-            </TabItem.Header>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="75"/>
-                    <RowDefinition Height="75" />
-                    <RowDefinition Height="75"/>
+                    </TextBlock>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="75"/>
+                        <RowDefinition Height="75" />
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="75"/>
                         <RowDefinition Height="75" />
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
@@ -117,69 +110,121 @@
                         <ColumnDefinition Width="400" />
                         <ColumnDefinition Width="75"/>
                     </Grid.ColumnDefinitions>
-                
+
                     <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="20" Text="1. Input Mass Spec Data" Foreground="Black"/>
 
+                    <TextBlock Grid.ColumnSpan="3" Grid.Row="1" FontSize="16" Foreground="Black" Margin="10">
+                        The spectrum library accepts libraries in the Bibliospec format. See the help button <LineBreak/>
+                        for more information.
+                    </TextBlock>
+
                     <TextBlock Grid.Column="0" Grid.Row="2" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black"/>
-                    <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black">
+                    <TextBlock Grid.Column="0" Grid.Row="5" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black">
                             mzIdentML Results <LineBreak />
                             Location
                     </TextBlock>
 
-                    <TextBox Grid.Column="1" Grid.Row="2" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding BlibPath}" IsReadOnly="True"/>
+                    <TextBlock Grid.ColumnSpan="3" Grid.Row="4" FontSize="16" Foreground="Black" Margin="10">
+                        The PSM results must be formatted according to the mzIdentML format. See the help <LineBreak/>
+                        button for more information.
+                    </TextBlock>
+
+                    <TextBox Grid.Column="1" Grid.Row="2" Margin ="15,15" BorderThickness="1" BorderBrush="Black" Text="{Binding BlibPath}" IsReadOnly="True"/>
                     <Button Grid.Column="2" Grid.Row="2" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
                         <Image Source="DataFiles/search-icon.png"/>
                     </Button>
 
-                    <TextBox Grid.Column="1" Grid.Row="4" Margin ="5,5" BorderThickness="1" BorderBrush="Black" Text="{Binding ShowMsgfPaths}" IsReadOnly="True"/>
-                    <Button Grid.Column="2" Grid.Row="4" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectMsgfCommand}">
+                    <TextBox Grid.Column="1" Grid.Row="5" Margin ="15,15" BorderThickness="1" BorderBrush="Black" Text="{Binding ShowMsgfPaths}" IsReadOnly="True"/>
+                    <Button Grid.Column="2" Grid.Row="5" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectMsgfCommand}">
                         <Image Source="DataFiles/search-icon.png" />
                     </Button>
-            </Grid>
-            
-        </TabItem>
-        <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
-            <TabItem.Header>
-                <TextBlock Width="200" Height="100" TextAlignment="Center"
+
+                    <Button Grid.Row="6" Grid.ColumnSpan="3" Width="150" Height="40"  HorizontalAlignment="Right" Margin="0,110,40,0" FontSize="16" 
+                            IsEnabled="{Binding NextButtonEnabled}" Command="{Binding NextTabCommand}" >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+            </TabItem>
+            <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding CustomizeTabEnabled}">
+                <TabItem.Header>
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
                         Customizing
                         <LineBreak/>Options
-                </TextBlock>
-            </TabItem.Header>
-            <Grid>
+                    </TextBlock>
+                </TabItem.Header>
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="75"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="185"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="54"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="350" />
                         <ColumnDefinition Width="75"/>
                     </Grid.ColumnDefinitions>
-                
-                    <StackPanel Orientation="Vertical"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
-                        <Button Width="230" Height="40" Content="Replace Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding ReplaceButtonCommand}"/>
-                        <Button Width="230" Height="40" Content="Supplement Organism" Margin ="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding SupplementButtonCommand}"/>
-                        <Button Width="230" Height="40" Content="Add New Organism" Margin="10" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding InsertNewCommand}"/>
+                    <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="20" Text="2. Set customizing options" Foreground="Black"/>
+                    <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Grid.Column="0" Grid.Row="1" Width="250">
+                        <Button Width="230" Height="40" Content="Replace Organism" Margin="10"  Command="{Binding ReplaceSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Width="230" Height="40" Content="Supplement Organism" Margin ="10" Command="{Binding SupplementSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Width="230" Height="40" Content="Add New Organism" Margin="10" Command="{Binding AddNewSelected, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
+                    <Button Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Width="150"  HorizontalAlignment="Right" 
+                            FontSize="16" Margin="0,10,40,5" IsEnabled="{Binding StartButtonEnabled}" Command="{Binding StartCommand}" >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" VerticalAlignment="Center">Start</TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <TextBox VerticalAlignment="Top" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            FontSize="12" FontWeight="Normal" Height="36" Margin="10,0,10,0">
+                    </TextBox>
+                    <ListBox VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12" Height="210"
+                             FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="{Binding FilterBoxVisible}" Margin="10,0,10,0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models1:OrganismWithFlag}">
+                                <TextBlock Text="{Binding OrganismName}" Foreground="{Binding Custom, Converter={StaticResource BoolToColor}}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Grid.Row="2" Grid.Column="2" Background="White" HorizontalAlignment="Right" Height="26" Width="26" Margin="0,0,15,210"
+                        	FontSize="14" BorderBrush="White" Foreground="Red" Command="{Binding ClearFilterCommand}" Content="X" />
                 </Grid>
-                
+
             </TabItem>
-        <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5">
-            <TabItem.Header>
-                <TextBlock Width="200" Height="100" TextAlignment="Center"
+            <TabItem Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding ReviewTabEnabled}">
+                <TabItem.Header>
+                    <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
                         Review and
                         <LineBreak/>Confirm
-                </TextBlock>
-            </TabItem.Header>
-        </TabItem>
+                    </TextBlock>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="75"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="20" Text="3. Review and Confirm Data" Foreground="Black"/>
+                    <TextBlock Grid.Row="1" FontSize="16" Foreground="Black" Margin="10">
+                        Now customizing data. Please wait, this could take a few minutes.
+                    </TextBlock>
+                    
+                </Grid>
+            </TabItem>
         </TabControl>
-    <Button Height="30" Width="60" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5" IsEnabled="True" Command="{Binding HelpCommand}">
-        <Image Source="DataFiles/help.png"/>
-    </Button>
+        <Button Height="30" Width="60" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5,0,0,5" IsEnabled="True" Command="{Binding HelpCommand}">
+            <Image Source="DataFiles/help.png"/>
+        </Button>
     </Grid>
 </Window>
