@@ -64,6 +64,7 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<OrganismPathwayProteinAssociation> _pathwayProteinAssociation;
         private ObservableCollection<ProteinInformation> _filteredProteins;
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
+        private ObservableCollection<OrgDomain> _organisms;
 
         private bool _isQuerying;
         private string _queryString;
@@ -204,7 +205,15 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public ObservableCollection<OrgDomain> Organisms { get; private set; }
+        public ObservableCollection<OrgDomain> Organisms
+        {
+            get { return _organisms; }
+            set
+            {
+                _organisms = value;
+                RaisePropertyChanged();
+            }
+        }
         public ObservableCollection<PathwayCatagory> Pathways { get; private set; }
 
         public Organism SelectedOrganism { get; private set; }
@@ -835,8 +844,8 @@ namespace BiodiversityPlugin.ViewModels
             if (SelectedTabIndex == 1 && SelectedOrganism == null) return;
             SelectedTabIndex = 2;
 
-            if (_pathwayCoverageOrg != SelectedOrganism.Name)
-            {
+            //if (_pathwayCoverageOrg != SelectedOrganism.Name)
+            //{
                 _pathwayCoverageOrg = SelectedOrganism.Name;
                 foreach (var catagory in Pathways)
                 {
@@ -848,7 +857,7 @@ namespace BiodiversityPlugin.ViewModels
                         }
                     }
                 }
-            }
+            //}
 
             var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
 
