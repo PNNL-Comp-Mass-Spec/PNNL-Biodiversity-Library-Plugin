@@ -395,18 +395,21 @@ namespace BiodiversityPlugin.ViewModels
 
         public void SetReplace()
         {
+            ClearFilter();
             FilteredOrganisms = _pblOrganisms;
             TaskSelection = "Replace Organism";
         }
 
         public void SetSupplement()
         {
+            ClearFilter();
             FilteredOrganisms = _pblOrganisms;
             TaskSelection = "Supplement Organism";
         }
 
         public void SetAddNew()
         {
+            ClearFilter();
             FilteredOrganisms = _allKeggOrgs;
             TaskSelection = "Add New Organism";
         }

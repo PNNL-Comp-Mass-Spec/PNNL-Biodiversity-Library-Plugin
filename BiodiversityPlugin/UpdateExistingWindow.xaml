@@ -215,13 +215,13 @@
                     </Button>
                     <Button Grid.Row="4" Grid.Column="0" FontSize="16" Margin="40,10,0,4" Height="40" Width="150" HorizontalAlignment="Left" 
                             Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
-                    <TextBox VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding SelectedValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             FontSize="12" FontWeight="Normal" Height="36" Margin="10,0,10,0">
                     </TextBox>
                     <Button Grid.Row="2" Grid.Column="2" Background="White" 
                             HorizontalAlignment="Right" 
-                            Height="25" Width="25" VerticalAlignment="Top"
-                            Margin="15,10"
+                            Height="25" Width="25" VerticalAlignment="Bottom"
+                            Margin="5,5,15,5"
                         	FontSize="14" BorderBrush="White" Foreground="Red" Command="{Binding ClearFilterCommand}" Content="X"/>
                     <ListBox VerticalAlignment="Stretch" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12" 
                              FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="{Binding FilterBoxVisible}" Margin="10,0,10,0">
@@ -254,7 +254,7 @@
                         <RowDefinition Height="75"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" FontWeight="Bold" FontSize="24" Text="3. Review and Confirm Data" Foreground="Black"/>
-                    <TextBlock Grid.Row="2" Foreground="Black" FontSize="16" Margin="10" FontWeight="Normal" TextWrapping="Wrap" Text="{Binding DisplayMessage}"></TextBlock>
+                    <TextBlock Grid.Row="1" Foreground="Black" FontSize="16" Margin="10" FontWeight="Normal" TextWrapping="Wrap" Text="{Binding DisplayMessage}"></TextBlock>
                     <Button Grid.Row="2" Grid.Column="0" FontSize="16" Margin="40,30,0,4" Height="40" Width="150" HorizontalAlignment="Left" 
                             IsEnabled="{Binding PreviousButtonEnabled}" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                     <Button Grid.Column="0" Grid.Row="2" Width="150" Height="40" HorizontalAlignment="Right" 
