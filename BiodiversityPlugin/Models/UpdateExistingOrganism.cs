@@ -33,8 +33,11 @@ namespace BiodiversityPlugin.Models
         /// <param name="blibLoc">The location of the blib file</param>
         /// <param name="msgfFolderLoc">The location of the PSM results</param>
         /// <param name="databasePath">The location of the current PBL database that contains all organism information</param>
-        public static void UpdateExisting(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
+        /// <param name="keggOrgCode">The kegg organism code for the organism being updated</param>
+        public static string UpdateExisting(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string keggOrgCode)
         {
+            var reviewResults = "";
+
             //Do initial clean up of what was in the lists just to be safe
             _keggGenes.Clear();
             _proteinPeptideMap.Clear();
@@ -43,11 +46,13 @@ namespace BiodiversityPlugin.Models
 
             //Call all the methods here that will update the existing organism
             _databasePath = databasePath;
-            string orgcode = GetKeggOrgCode(orgName);
+            string orgcode = keggOrgCode;
             GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
-            DetermineObserved(orgcode, blibLoc, orgName);
+            reviewResults = DetermineObserved();
+
+            return reviewResults;
         }
 
         /// <summary>
@@ -55,8 +60,9 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         /// <param name="orgName">Name of the organism being modified</param>
         /// <returns> The kegg org code</returns>
-        private static string GetKeggOrgCode(string orgName)
+        public static string GetKeggOrgCode(string orgName, string _databasePath)
         {
+
             string orgCode = "";
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
@@ -213,8 +219,10 @@ namespace BiodiversityPlugin.Models
         /// <param name="orgcode">The kegg org code for this organism</param>
         /// <param name="blibLoc">The blib file location for this organism</param>
         /// <param name="orgName"> The name of the organism being updated </param>
-        private static void DetermineObserved(string orgcode, string blibLoc, string orgName)
+        private static string DetermineObserved()
         {
+            var reviewResults = "";
+
             var observedCount = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
@@ -229,28 +237,15 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            var result = MessageBox.Show("The observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
-                MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                UpdateObservedKeggGeneTable(orgcode);
-                UpdateBlibLocation(orgName, blibLoc);
-            }
-            if (result == MessageBoxResult.No)
-            {
-                //Clear variable here so they can go back and choose a differnet file
-                _keggGenes.Clear();
-                _proteinPeptideMap.Clear();
-                _uniprots.Clear();
-                _peptides.Clear();
-            }
+            reviewResults = "The observed protein count is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            return reviewResults;
         }
 
         /// <summary>
         /// This method will take the newly generated information from the DetermineObserved method and update the database with it
         /// </summary>
         /// <param name="keggOrgCode">The kegg org code for the organism being updated.</param>
-        private static void UpdateObservedKeggGeneTable(string keggOrgCode)
+        public static void UpdateObservedKeggGeneTable(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
@@ -291,7 +286,7 @@ namespace BiodiversityPlugin.Models
         /// </summary>
         /// <param name="orgName">Name of the organism being updated</param>
         /// <param name="fileLoc">Location of the blib file</param>
-        private static void UpdateBlibLocation(string orgName, string fileLoc)
+        public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
 
@@ -311,8 +306,6 @@ namespace BiodiversityPlugin.Models
                     cmd.ExecuteNonQuery();
                 }
                 dbConnection.Close();
-                MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
-                
             } 
         }
     }

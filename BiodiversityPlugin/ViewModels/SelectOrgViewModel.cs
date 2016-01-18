@@ -93,12 +93,12 @@ namespace BiodiversityPlugin.ViewModels
         {
             if (_whichFunction == "replace")
             {
-               UpdateExistingOrganism.UpdateExisting(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
+               //UpdateExistingOrganism.UpdateExisting(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
                Close();
             }
             else if (_whichFunction == "supplement")
             {
-                SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
+                //SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
                 Close();
             }            
         }

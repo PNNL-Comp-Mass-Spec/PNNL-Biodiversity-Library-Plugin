@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,10 +24,13 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _msgfPath;
         private string showMsgfPaths;
         private bool _nextEnable;
+        private bool _previousEnable;
         private bool _startEnable;
+        private bool _finishEnable;
+        private bool _cancelEnable;
         private string _dbPath;
         private int _selectedTabIndex;
-        private int _taskSelection; //0 is replace, 1 is supplement, 2 is insert new
+        private string _taskSelection; //0 is replace, 1 is supplement, 2 is insert new
         private string _selectedValue;
         private OrganismWithFlag _orgName;
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
@@ -37,7 +41,19 @@ namespace BiodiversityPlugin.ViewModels
         private bool _inputTabEnabled;
         private bool _customizeTabEnabled;
         private bool _reviewTabEnabled;
+        private string _displayMessage;
+        private string _orgCode;
 
+
+        public string DisplayMessage
+        {
+            get { return _displayMessage; }
+            set
+            {
+                _displayMessage = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public bool WelcomeTabEnabled
         {
@@ -159,7 +175,7 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
-        public int TaskSelection
+        public string TaskSelection
         {
             get { return _taskSelection; }
             set
@@ -217,12 +233,42 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        public bool PreviousButtonEnabled
+        {
+            get { return _previousEnable; }
+            set
+            {
+                _previousEnable = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public bool StartButtonEnabled
         {
             get { return _startEnable; }
             set
             {
                 _startEnable = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool FinishButtonEnabled
+        {
+            get { return _finishEnable; }
+            set
+            {
+                _finishEnable = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool CancelButtonEnabled
+        {
+            get { return _cancelEnable; }
+            set
+            {
+                _cancelEnable = value;
                 RaisePropertyChanged();
             }
         }
@@ -257,12 +303,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 if (SelectedTabIndex == 3)
                 {
-                    ReviewTabEnabled = true;
-
-                    //Set all tabs to false while the process is running
-                    WelcomeTabEnabled = false;
-                    InputTabEnabled = false;
-                    CustomizeTabEnabled = false;
+                    ReviewTabEnabled = true;                 
                 }
             }
         }
@@ -271,26 +312,33 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand SelectMsgfCommand { get; private set; }
         public RelayCommand HelpCommand { get; set; }
         public RelayCommand NextTabCommand { get; private set; }
+        public RelayCommand PreviousTabCommand { get; private set; }
         public RelayCommand ReplaceSelected { get; private set; }
         public RelayCommand SupplementSelected { get; private set; }
         public RelayCommand AddNewSelected { get; private set; }
         public RelayCommand StartCommand { get; private set; }
+        public RelayCommand FinishCommand { get; private set; }
+        public RelayCommand CancelCommand { get; private set; }
         public RelayCommand ClearFilterCommand { get; private set; }
 
         public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms)
         {
             _dbPath = dbpath;
             _pblOrganisms = filteredOrganisms;
+            FinishButtonEnabled = false;
             AllKeggOrgs = InsertNewOrganism.GetListOfKeggOrganisms();
             SelectBlibCommand = new RelayCommand(SelectBlib);
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
             HelpCommand = new RelayCommand(ClickHelp);
             NextTabCommand = new RelayCommand(NextTab);
+            PreviousTabCommand = new RelayCommand(PreviousTab);
             _selectedTabIndex = 0;
             ReplaceSelected = new RelayCommand(SetReplace);
             SupplementSelected = new RelayCommand(SetSupplement);
             AddNewSelected = new RelayCommand(SetAddNew);
             StartCommand = new RelayCommand(Start);
+            FinishCommand = new RelayCommand(Finish);
+            CancelCommand = new RelayCommand(Cancel);
             ClearFilterCommand = new RelayCommand(ClearFilter);
 
             WelcomeTabEnabled = true;
@@ -302,7 +350,7 @@ namespace BiodiversityPlugin.ViewModels
         private void ClearFilter()
         {
             SelectedValue = "";
-            if (TaskSelection == 2)
+            if (TaskSelection == "Add New Organism")
             {
                 FilteredOrganisms = _allKeggOrgs;
             }
@@ -324,6 +372,14 @@ namespace BiodiversityPlugin.ViewModels
             help.Show();
         }
 
+        private void PreviousTab()
+        {
+            if (SelectedTabIndex > 0)
+            {
+                SelectedTabIndex--;
+            }
+        }
+
         private void IsNextEnabled()
         {
             if (!string.IsNullOrEmpty(BlibPath) && MsgfPath != null) 
@@ -340,19 +396,19 @@ namespace BiodiversityPlugin.ViewModels
         public void SetReplace()
         {
             FilteredOrganisms = _pblOrganisms;
-            TaskSelection = 0;
+            TaskSelection = "Replace Organism";
         }
 
         public void SetSupplement()
         {
             FilteredOrganisms = _pblOrganisms;
-            TaskSelection = 1;
+            TaskSelection = "Supplement Organism";
         }
 
         public void SetAddNew()
         {
             FilteredOrganisms = _allKeggOrgs;
-            TaskSelection = 2;
+            TaskSelection = "Add New Organism";
         }
 
         private void Start()
@@ -362,19 +418,79 @@ namespace BiodiversityPlugin.ViewModels
 
             Task.Factory.StartNew(() =>
             {
-                if (_taskSelection == 0)
+                //Set all tabs to false while the process is running
+                WelcomeTabEnabled = false;
+                InputTabEnabled = false;
+                CustomizeTabEnabled = false;
+                PreviousButtonEnabled = false;
+                CancelButtonEnabled = false;
+                DisplayMessage = "Collecting results. Please wait, this could take a few minutes.";
+
+                if (_taskSelection == "Replace Organism")
                 {
-                    UpdateExistingOrganism.UpdateExisting(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
+                    
+                    _orgCode = UpdateExistingOrganism.GetKeggOrgCode(OrgName.OrganismName, DbPath);
+                    DisplayMessage = UpdateExistingOrganism.UpdateExisting(OrgName.OrganismName, BlibPath, MsgfPath, DbPath, _orgCode);
+                    PreviousButtonEnabled = true;
+                    FinishButtonEnabled = true;
+                    CancelButtonEnabled = true;
                 }
-                else if (_taskSelection == 1)
+                else if (_taskSelection == "Supplement Organism")
                 {
-                    SupplementOrgansim.Supplement(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
+                    
+                    _orgCode = SupplementOrgansim.GetKeggOrgCode(OrgName.OrganismName, DbPath);
+                    DisplayMessage = SupplementOrgansim.Supplement(OrgName.OrganismName, BlibPath, MsgfPath, DbPath, _orgCode);
+                    PreviousButtonEnabled = true;
+                    FinishButtonEnabled = true;
+                    CancelButtonEnabled = true;
                 }
-                else if (_taskSelection == 2)
+                else if (_taskSelection == "Add New Organism")
                 {
-                    InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath);
+                    
+                    bool alreadyAdded;
+                    DisplayMessage = InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath, out alreadyAdded);
+                    if (alreadyAdded == false)
+                    {
+                        PreviousButtonEnabled = true;
+                        FinishButtonEnabled = true;
+                        CancelButtonEnabled = true;
+                    }
+                    else
+                    {
+                        PreviousButtonEnabled = true;
+                        CancelButtonEnabled = true;
+                    }
                 }
+                //Set all tabs back to enabled so the user can modify data
+                WelcomeTabEnabled = true;
+                InputTabEnabled = true;
+                CustomizeTabEnabled = true;
             });
+        }
+
+        private void Cancel()
+        {
+            this.CloseAction();
+        }
+
+        private void Finish()
+        {
+            if (TaskSelection == "Add New Organism")
+            {
+                InsertNewOrganism.InsertIntoDb();
+                InsertNewOrganism.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
+            }
+            else if (TaskSelection == "Supplement Organism")
+            {
+                SupplementOrgansim.UpdateObservedKeggGeneTable(_orgCode);
+                SupplementOrgansim.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
+            }
+            else if (TaskSelection == "Replace Organism")
+            {
+                UpdateExistingOrganism.UpdateObservedKeggGeneTable(_orgCode);
+                UpdateExistingOrganism.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
+            }
+            this.CloseAction();
         }
 
         public Action CloseAction { get; set; }

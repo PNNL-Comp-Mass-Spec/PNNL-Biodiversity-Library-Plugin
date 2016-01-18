@@ -139,8 +139,9 @@ namespace BiodiversityPlugin.ViewModels
         }
 
         private void InsertNewOrg()
-        {            
-            InsertNewOrganism.InsertNew(_organismName, _blibPath, _msgfPath, _dbPath);
+        {
+            bool alreadyAdded;       
+            InsertNewOrganism.InsertNew(_organismName, _blibPath, _msgfPath, _dbPath, out alreadyAdded);
             Close();
         }
 

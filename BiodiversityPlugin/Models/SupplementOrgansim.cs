@@ -21,8 +21,10 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
 
-        public static void Supplement(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
+        public static string Supplement(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string keggOrgCode)
         {
+            var reviewResults = "";
+
             //Do initial clean up of what was in the lists just to be safe
             _keggGenes.Clear();
             _proteinPeptideMap.Clear();
@@ -30,14 +32,16 @@ namespace BiodiversityPlugin.Models
             _peptides.Clear();
 
             _databasePath = databasePath;
-            string orgcode = GetKeggOrgCode(orgName);
+            string orgcode = keggOrgCode;
             GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
-            DetermineObserved(orgcode, blibLoc, orgName);
+            reviewResults = DetermineObserved();
+
+            return reviewResults;
         }
 
-        private static string GetKeggOrgCode(string orgName)
+        public static string GetKeggOrgCode(string orgName, string _databasePath)
         {
             string orgCode = "";
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -177,8 +181,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void DetermineObserved(string orgcode, string blibLoc, string orgName)
+        private static string DetermineObserved()
         {
+            var reviewResults = "";
+
             var observedCount = 0;
             var alreadyObserved = 0;
             foreach (var keggGene in _keggGenes.Values)
@@ -200,26 +206,14 @@ namespace BiodiversityPlugin.Models
                 }
             }
 
-            var result = MessageBox.Show("The number of proteins that were already observed is " + alreadyObserved + ".\n" +
-                                         "The number of new proteins that were observed is " + observedCount +".\n" +
-                                         "The combined observed protein count is " + (alreadyObserved + observedCount) + ". Would you like to continue? ", "Search Complete",
-                MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                UpdateObservedKeggGeneTable(orgcode);
-                UpdateBlibLocation(orgName, blibLoc);
-            }
-            if (result == MessageBoxResult.No)
-            {
-                //Clear variable here so they can go back and choose a differnet file
-                _keggGenes.Clear();
-                _proteinPeptideMap.Clear();
-                _uniprots.Clear();
-                _peptides.Clear();
-            }
+            reviewResults = "The number of proteins that were already observed is " + alreadyObserved + ". " +
+                                "The number of new proteins that were observed is " + observedCount + ". " +
+                                "The combined observed protein count is " + (alreadyObserved + observedCount) +
+                                ". To confirm these changes, press Finish. To cancel, press Cancel. ";
+            return reviewResults;
         }
 
-        private static void UpdateObservedKeggGeneTable(string keggOrgCode)
+        public static void UpdateObservedKeggGeneTable(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
@@ -276,7 +270,6 @@ namespace BiodiversityPlugin.Models
                     cmd.ExecuteNonQuery();
                 }
                 dbConnection.Close();
-                MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
             }
         }
     }

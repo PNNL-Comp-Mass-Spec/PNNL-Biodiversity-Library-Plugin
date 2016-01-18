@@ -31,13 +31,22 @@ namespace BiodiversityPlugin.Models
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
 
-        public static void InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath)
+        public static string InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, out bool alreadyAdded)
         {
+            var reviewResults = "";
+
+            //Initialize by clearing everything out first
+            _keggGenes.Clear();
+            _proteinPeptideMap.Clear();
+            _uniprots.Clear();
+            _peptides.Clear();
+
             FindOrgCode(orgName);
             _databasePath = databasePath;
             bool go = CheckIfOrgExists(orgName);
             if (!go)
             {
+                alreadyAdded = false;
                 DownloadKeggGenesAndKos();
                 DownloadUniprotIdentifiers();
                 DownloadConnectedPathways();
@@ -45,14 +54,15 @@ namespace BiodiversityPlugin.Models
                 GetFaaLocation();
                 GetProduct();
                 SearchMsgfFiles(msgfFolderLoc);
-                DetermineObserved(blibLoc, orgName);
+                reviewResults = DetermineObserved();
             }
             else
             {
-                MessageBox.Show(
-                    "This organism was already found in the database. Try replacing this organism instead.",
-                    "Error Inserting Organism");
-            }    
+                reviewResults = 
+                    "This organism was already found in the database. Try replacing this organism instead.";
+                alreadyAdded = true;
+            }
+            return reviewResults;
         }
 
         public static bool CheckIfOrgExists(string orgName)
@@ -361,8 +371,9 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void DetermineObserved(string blibLoc, string orgName)
+        private static string DetermineObserved()
         {
+            var reviewResults = "";
             var observedCount = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
@@ -380,24 +391,12 @@ namespace BiodiversityPlugin.Models
                     }
                 }               
             }
-            var result = MessageBox.Show("The observed protein count is " + observedCount + ". Would you like to continue? ", "Search Complete",
-                MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                InsertIntoDb();
-                UpdateBlibLocation(orgName, blibLoc);
-            }
-            if (result == MessageBoxResult.No)
-            {
-                //Clear variable here so they can go back and choose a differnet file
-                _keggGenes.Clear();
-                _proteinPeptideMap.Clear();
-                _uniprots.Clear();
-                _peptides.Clear();
-            }
+
+            reviewResults = "The observed protein count is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            return reviewResults;
         }
 
-        private static void InsertIntoDb()
+        public static void InsertIntoDb()
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
             {
@@ -499,7 +498,7 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void UpdateBlibLocation(string orgName, string fileLoc)
+        public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
 
@@ -519,8 +518,6 @@ namespace BiodiversityPlugin.Models
                     cmd.ExecuteNonQuery();
                 }
                 dbConnection.Close();
-                MessageBox.Show("Organism and blib file location have been updated successfully.", "Finished!");
-
             }
         }
     }
