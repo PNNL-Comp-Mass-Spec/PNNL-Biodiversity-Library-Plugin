@@ -441,6 +441,7 @@ namespace BiodiversityPlugin.ViewModels
                 OrganismList = organismList;
                 organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
                 FlagForCustom(organisms);
+                Organisms.Clear();
                 Organisms = new ObservableCollection<OrgDomain>(organisms);
 
                 foreach (var domain in Organisms)
@@ -1020,6 +1021,16 @@ namespace BiodiversityPlugin.ViewModels
             OrganismList = list;
             FilteredOrganisms.Clear();
             FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
+
+            var orgData = new DatabaseDataLoader(_dbPath);
+            var organismList = new List<string>();
+            var organisms = orgData.LoadOrganisms(ref organismList);
+            organismList.Sort();
+            OrganismList = organismList;
+            organisms.Sort((x, y) => x.DomainName.CompareTo(y.DomainName));
+            FlagForCustom(organisms);
+            Organisms.Clear();
+            Organisms = new ObservableCollection<OrgDomain>(organisms);
         }
 
         /// <summary>
