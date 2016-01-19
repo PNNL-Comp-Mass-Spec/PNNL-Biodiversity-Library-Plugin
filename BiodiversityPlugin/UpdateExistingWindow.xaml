@@ -223,7 +223,8 @@
                             Height="25" Width="25" VerticalAlignment="Bottom"
                             Margin="5,5,15,5"
                         	FontSize="14" BorderBrush="White" Foreground="Red" Command="{Binding ClearFilterCommand}" Content="X"/>
-                    <ListBox VerticalAlignment="Stretch" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12" 
+                    <ListBox VerticalAlignment="Stretch" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" 
+                             ItemsSource="{Binding FilteredOrganisms, UpdateSourceTrigger=PropertyChanged}" FontSize="12" 
                              FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="{Binding FilterBoxVisible}" Margin="10,0,10,0">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models1:OrganismWithFlag}">

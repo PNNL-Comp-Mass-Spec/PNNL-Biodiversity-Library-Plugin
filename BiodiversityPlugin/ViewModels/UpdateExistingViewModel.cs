@@ -35,7 +35,7 @@ namespace BiodiversityPlugin.ViewModels
         private OrganismWithFlag _orgName;
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
         private ObservableCollection<OrganismWithFlag> _allKeggOrgs;
-        private ObservableCollection<OrganismWithFlag> _pblOrganisms;
+        private ObservableCollection<OrganismWithFlag> _PBLOrganisms;
         private Visibility _filterVisibility;
         private bool _welcomeTabEnabled;
         private bool _inputTabEnabled;
@@ -113,13 +113,25 @@ namespace BiodiversityPlugin.ViewModels
                 _selectedValue = value;
                 RaisePropertyChanged();
 
+                if (TaskSelection != null)
+                {
+                    if (TaskSelection == "Add New Organism")
+                    {
+                        FilteredOrganisms = _allKeggOrgs;
+                    }
+                    else
+                    {
+                        FilteredOrganisms = _PBLOrganisms;
+                    }
+                }
+                
                 var filtered = new List<string>();
                 if (FilteredOrganisms != null)
                 {
                     foreach (var org in FilteredOrganisms)
                     {
                         var name = org.OrganismName;
-                        if (name.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (name.ToUpper().Contains(value.ToUpper()))
                         {
                             filtered.Add(name);
                         }
@@ -132,7 +144,7 @@ namespace BiodiversityPlugin.ViewModels
                     //Since its from kegg, all values will be false for custom
                     FilteredOrganisms.Add(new OrganismWithFlag(org, false));
                 }
-                
+
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
                 {
@@ -150,6 +162,16 @@ namespace BiodiversityPlugin.ViewModels
                 RaisePropertyChanged();
             }
         }
+
+        public ObservableCollection<OrganismWithFlag> PBLOrganisms
+        {
+            get { return _PBLOrganisms;  }
+            set
+            {
+                _PBLOrganisms = value;
+                RaisePropertyChanged();
+            }
+        } 
 
         public ObservableCollection<OrganismWithFlag> AllKeggOrgs
         {
@@ -324,7 +346,7 @@ namespace BiodiversityPlugin.ViewModels
         public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms)
         {
             _dbPath = dbpath;
-            _pblOrganisms = filteredOrganisms;
+            _PBLOrganisms = filteredOrganisms;
             FinishButtonEnabled = false;
             AllKeggOrgs = InsertNewOrganism.GetListOfKeggOrganisms();
             SelectBlibCommand = new RelayCommand(SelectBlib);
@@ -356,7 +378,7 @@ namespace BiodiversityPlugin.ViewModels
             }
             else
             {
-                FilteredOrganisms = _pblOrganisms;
+                FilteredOrganisms = _PBLOrganisms;
             }
             FilterBoxVisible = Visibility.Visible;
         }
@@ -396,14 +418,14 @@ namespace BiodiversityPlugin.ViewModels
         public void SetReplace()
         {
             ClearFilter();
-            FilteredOrganisms = _pblOrganisms;
+            FilteredOrganisms = _PBLOrganisms;
             TaskSelection = "Replace Organism";
         }
 
         public void SetSupplement()
         {
             ClearFilter();
-            FilteredOrganisms = _pblOrganisms;
+            FilteredOrganisms = _PBLOrganisms;
             TaskSelection = "Supplement Organism";
         }
 
