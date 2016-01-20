@@ -24,6 +24,7 @@ namespace BiodiversityPlugin.Models
         private static List<string> _uniprots = new List<string>();
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
+        private static string _orgName;
 
         /// <summary>
         /// This method calls all other methods needed to replace organism data. Calling this method will collect, download and
@@ -45,6 +46,7 @@ namespace BiodiversityPlugin.Models
             _peptides.Clear();
 
             //Call all the methods here that will update the existing organism
+            _orgName = orgName;
             _databasePath = databasePath;
             string orgcode = keggOrgCode;
             GetKeggGenesWithRefs(orgcode);
@@ -237,7 +239,7 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            reviewResults = "The observed protein count is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            reviewResults = "The observed protein count for " + _orgName  + " is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
             return reviewResults;
         }
 

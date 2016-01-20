@@ -59,7 +59,7 @@ namespace BiodiversityPlugin.Models
             else
             {
                 reviewResults = 
-                    "This organism was already found in the database. Try replacing this organism instead.";
+                    orgName + " was already found in the database. Try replacing this organism instead.";
                 alreadyAdded = true;
             }
             return reviewResults;
@@ -392,7 +392,7 @@ namespace BiodiversityPlugin.Models
                 }               
             }
 
-            reviewResults = "The observed protein count is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            reviewResults = "The observed protein count for " + _orgName + " is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
             return reviewResults;
         }
 
