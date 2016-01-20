@@ -239,7 +239,7 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            reviewResults = "The observed protein count for " + _orgName  + " is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            reviewResults = "The observed protein count for " + _orgName  + " is " + observedCount + ".";
             return reviewResults;
         }
 

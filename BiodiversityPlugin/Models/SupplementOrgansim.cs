@@ -210,8 +210,7 @@ namespace BiodiversityPlugin.Models
 
             reviewResults = "The number of proteins that were already observed for " + _orgName + " is " + alreadyObserved + ". " +
                                 "The number of new proteins that were observed is " + observedCount + ". " +
-                                "The combined observed protein count is " + (alreadyObserved + observedCount) +
-                                ". To confirm these changes, press Finish. To cancel, press Cancel. ";
+                                "The combined observed protein count is " + (alreadyObserved + observedCount) + ".";
             return reviewResults;
         }
 

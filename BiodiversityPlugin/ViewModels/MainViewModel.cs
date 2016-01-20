@@ -42,6 +42,7 @@ namespace BiodiversityPlugin.ViewModels
         private string _selectedOrganismText;
         private string _listPathwaySelectedItem;
         private string _selectedValue;
+        private List<string> _allKeggOrgs; 
 
         private int _selectedTabIndex;
         private int _pathwayTabIndex;
@@ -671,7 +672,11 @@ namespace BiodiversityPlugin.ViewModels
             FlagForCustom(organisms);
             Organisms = new ObservableCollection<OrgDomain>(organisms);
             Pathways = new ObservableCollection<PathwayCatagory>(pathData.LoadPathways());
-
+            if (_allKeggOrgs == null)
+            {
+                _allKeggOrgs = GetListOfKeggOrgs.GetListOfKeggOrganisms();
+            }
+            
             FilteredProteins = new ObservableCollection<ProteinInformation>();
             PreviousTabCommand = new RelayCommand(PreviousTab);
             NextTabCommand = new RelayCommand(NextTab);
@@ -1010,7 +1015,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void UpdateButton()
         {
-            var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms);
+            var UpdateWindowVm = new UpdateExistingViewModel(_dbPath, FilteredOrganisms, _allKeggOrgs);
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
             updateWindow.ShowDialog();
 

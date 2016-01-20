@@ -355,12 +355,16 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand CancelCommand { get; private set; }
         public RelayCommand ClearFilterCommand { get; private set; }
 
-        public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms)
+        public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms, List<string> allKeggOrgs )
         {
             _dbPath = dbpath;
             _PBLOrganisms = filteredOrganisms;
             FinishButtonEnabled = false;
-            AllKeggOrgs = InsertNewOrganism.GetListOfKeggOrganisms();
+            foreach (var org in allKeggOrgs)
+            {
+                AllKeggOrgs = new ObservableCollection<OrganismWithFlag>();
+                AllKeggOrgs.Add(new OrganismWithFlag(org, false));
+            }
             SelectBlibCommand = new RelayCommand(SelectBlib);
             SelectMsgfCommand = new RelayCommand(SelectMsgf);
             HelpCommand = new RelayCommand(ClickHelp);
@@ -471,6 +475,8 @@ namespace BiodiversityPlugin.ViewModels
                 CancelButtonEnabled = false;
                 DisplayMessage = "Collecting results. Please wait, this could take a few minutes.";
 
+                bool added = false;
+
                 if (_taskSelection == 0)
                 {
                     
@@ -491,9 +497,9 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 else if (_taskSelection == 2)
                 {
-                    
-                    bool alreadyAdded;
+                    bool alreadyAdded;                                    
                     DisplayMessage = InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath, out alreadyAdded);
+                    added = alreadyAdded;
                     if (alreadyAdded == false)
                     {
                         PreviousButtonEnabled = true;
@@ -506,10 +512,18 @@ namespace BiodiversityPlugin.ViewModels
                         CancelButtonEnabled = true;
                     }
                 }
-                //Set all tabs back to enabled so the user can modify data
-                //WelcomeTabEnabled = true;
-                //InputTabEnabled = true;
-                //CustomizeTabEnabled = true;
+                //If statement to handle if a user adds an organism and it already exists. 
+                //Default of added is false since user might not even add an organism
+                if (added == false)
+                {
+                    DisplayMessage += "\n\n\nTo go back and make changes to the customizing options, click the Previous button." +
+                                  " To confirm these changes, click the Finish button. To cancel, click the Cancel button.";
+                }
+                else
+                {
+                    DisplayMessage += "\n\n\nTo go back and make changes to the customizing options, click the Previous button." +
+                                  " To cancel, click the Cancel button.";
+                }
             });
         }
 

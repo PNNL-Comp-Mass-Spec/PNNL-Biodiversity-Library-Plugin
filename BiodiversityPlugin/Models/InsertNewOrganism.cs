@@ -90,31 +90,6 @@ namespace BiodiversityPlugin.Models
             return exists;
         }
 
-        public static ObservableCollection<OrganismWithFlag> GetListOfKeggOrganisms()
-        {
-            var organisms = new ObservableCollection<OrganismWithFlag>();
-            var options = StringSplitOptions.RemoveEmptyEntries;
-            var eListUrl = WebRequest.Create("http://rest.kegg.jp/list/organism");
-            var listStream = eListUrl.GetResponse().GetResponseStream();
-            var lines = new List<string>();
-            using (var listReader = new StreamReader(listStream))
-            {
-                while (listReader.Peek() > -1)
-                {
-                    var wholeFile = listReader.ReadToEnd();
-                    char[] lineSplit = { '\n' };
-                    lines = wholeFile.Split(lineSplit, options).ToList();
-                    foreach (var line in lines)
-                    {
-                        //Setting custom setting to false since these orgs come from kegg
-                        organisms.Add(new OrganismWithFlag(line.Split('\t')[2], false));
-                    }
-                    //Thread.Sleep(1);
-                }
-            }
-            return organisms;
-        }
-
         private static void FindOrgCode(string orgName)
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -392,7 +367,7 @@ namespace BiodiversityPlugin.Models
                 }               
             }
 
-            reviewResults = "The observed protein count for " + _orgName + " is " + observedCount + ". To confirm these changes, press Finish. To cancel, press Cancel.";
+            reviewResults = "The observed protein count for " + _orgName + " is " + observedCount + ".";
             return reviewResults;
         }
 
