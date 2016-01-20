@@ -330,8 +330,11 @@ namespace BiodiversityPlugin.ViewModels
                     ReviewTabEnabled = false;
                 }
                 if (SelectedTabIndex == 3)
-                {                 
+                {
                     ReviewTabEnabled = true;
+                }
+                if (SelectedTabIndex == 4)
+                {
                     CustomizeTabEnabled = false;
                     InputTabEnabled = false;
                     WelcomeTabEnabled = false;
@@ -412,6 +415,9 @@ namespace BiodiversityPlugin.ViewModels
                 {
                     OrgName = null;
                     StartButtonEnabled = false;
+                    WelcomeTabEnabled = true;
+                    InputTabEnabled = true;
+                    CustomizeTabEnabled = true;
                 }
             }
         }
@@ -501,9 +507,9 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
                 //Set all tabs back to enabled so the user can modify data
-                WelcomeTabEnabled = true;
-                InputTabEnabled = true;
-                CustomizeTabEnabled = true;
+                //WelcomeTabEnabled = true;
+                //InputTabEnabled = true;
+                //CustomizeTabEnabled = true;
             });
         }
 
