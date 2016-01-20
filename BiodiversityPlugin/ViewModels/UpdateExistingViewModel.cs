@@ -360,9 +360,9 @@ namespace BiodiversityPlugin.ViewModels
             _dbPath = dbpath;
             _PBLOrganisms = filteredOrganisms;
             FinishButtonEnabled = false;
+            AllKeggOrgs = new ObservableCollection<OrganismWithFlag>();
             foreach (var org in allKeggOrgs)
-            {
-                AllKeggOrgs = new ObservableCollection<OrganismWithFlag>();
+            {             
                 AllKeggOrgs.Add(new OrganismWithFlag(org, false));
             }
             SelectBlibCommand = new RelayCommand(SelectBlib);
