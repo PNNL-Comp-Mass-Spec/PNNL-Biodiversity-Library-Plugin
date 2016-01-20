@@ -201,7 +201,7 @@
                            Replace an existing organism's data entirely with custom data.
                         </TextBlock>
                         <TextBlock Height="25" Margin="0,10,0,25" Foreground="Black" FontSize="14" FontWeight="Normal">
-                            Supplement an existing organism with additional data.
+                            Supplement an existing organism with custom data.
                         </TextBlock>
                         <TextBlock Height="25" Margin="0,10,0,10" Foreground="Black" FontSize="14" FontWeight="Normal">
                             Add a new organism that does not yet exist in the current database.
