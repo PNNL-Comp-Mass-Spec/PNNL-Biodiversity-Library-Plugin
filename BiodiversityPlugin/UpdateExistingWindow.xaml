@@ -71,12 +71,12 @@
                     <TextBlock FontWeight="Bold" FontSize="24" Text="Welcome!" Foreground="Black" Margin="10,10"/>
                     <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" Foreground="Black" Height="355" Margin="12,0" FontWeight="Normal">
             You can update the MS/MS data used by the Biodiversity Plugin for Skyline. By uploading your personal data into the plugin, 
-            you can use the same pathway oriented interface to load your data directly into Skyline. Users must have a Bibliospec formatted spectrum library (.blib) and mzIdentML formatted results.
-        See the help button for additional information. <LineBreak/> <LineBreak/>
-            There are  three options for updating data.   <LineBreak/>
+            you can use the same pathway oriented interface to load your data directly into Skyline. Data must be properly formatted
+            before input. Follow through the steps in the wizard and see the help button for additional information. <LineBreak/> <LineBreak/>
+            <!-- There are  three options for updating data.   <LineBreak/>
         1) Replace an existing organism entirely with custom data. <LineBreak/>
         2) Supplement an existing organism with custom data. <LineBreak/>
-        3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/>
+        3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/> -->
         </TextBlock>
                     <Button Grid.Row="1" Width="150" Height="40"  Margin="450,0,0,0" FontSize="16" Command="{Binding NextTabCommand}" >
                         <StackPanel Orientation="Horizontal">
@@ -91,8 +91,8 @@
                     <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
-                        Input Mass
-                        <LineBreak/>Spec Data
+                        Input MS/MS
+                        <LineBreak/>Data
                     </TextBlock>
                 </TabItem.Header>
                 <Grid>
@@ -112,14 +112,14 @@
                         <ColumnDefinition Width="75"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="24" Text="1. Input Mass Spec Data" Foreground="Black"/>
+                    <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="24" Text="1. Input Mass Spectrometry Data" Foreground="Black"/>
                     
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
-                        To load data omtp the plugin, we require the annotated spectrum (in a spectrum library) and the
-                        peptide-to-protein mapping (in PSM results).
+                        To load data into the plugin, we require the annotated spectrum (in a spectrum library) and the
+                        peptide-to-protein mapping (gleaned from PSM results).
                     </TextBlock>
 
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" FontSize="14" Foreground="Black" Margin="10,10,10,0" FontWeight="Normal" TextWrapping="Wrap">
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" FontSize="16" Foreground="Black" Margin="10,10,10,0" FontWeight="Normal" TextWrapping="Wrap">
                         Libraries must be in the Bibliospec (.blib) format. Details and assistance on generating a blib
                         can be found under the the help button.
                     </TextBlock>
@@ -130,8 +130,8 @@
                             Location
                     </TextBlock>
 
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="14" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
-                        The PSM results must be formatted according to the mzIdentML format. Details and assistance on generation mzIdentML results 
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
+                        The PSM results must be formatted according to the mzIdentML format. Details and assistance on generating mzIdentML results 
                         can be found under the help button.
                     </TextBlock>
 
@@ -198,7 +198,7 @@
 
                     <StackPanel Orientation="Vertical"  HorizontalAlignment="Left" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
                         <TextBlock Height="25" Margin="0,20,0,25" Foreground="Black" FontSize="14" FontWeight="Normal">
-                           Replace an existing organism's data entirely with custom data.
+                           Replace an organism's data entirely with custom data.
                         </TextBlock>
                         <TextBlock Height="25" Margin="0,10,0,25" Foreground="Black" FontSize="14" FontWeight="Normal">
                             Supplement an existing organism with custom data.
