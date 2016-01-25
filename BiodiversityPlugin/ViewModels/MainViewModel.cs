@@ -398,7 +398,7 @@ namespace BiodiversityPlugin.ViewModels
                                 where organism.Name.ToUpper().Contains(value.ToUpper())
                                 select organism.Name).ToList();
                 filtered.Sort();
-                FilteredOrganisms = NeedsToBeFlaggedForCustom(filtered);
+                FilteredOrganisms = OrganismWithFlag.ConvertToFlaggedList(filtered, this._dbPath); // NeedsToBeFlaggedForCustom(filtered);
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
                 {
@@ -1025,7 +1025,7 @@ namespace BiodiversityPlugin.ViewModels
             list.Sort();
             OrganismList = list;
             FilteredOrganisms.Clear();
-            FilteredOrganisms = NeedsToBeFlaggedForCustom(OrganismList);
+            FilteredOrganisms = OrganismWithFlag.ConvertToFlaggedList(OrganismList, this._dbPath); // NeedsToBeFlaggedForCustom(OrganismList);
 
             var orgData = new DatabaseDataLoader(_dbPath);
             var organismList = new List<string>();
@@ -1357,6 +1357,36 @@ namespace BiodiversityPlugin.ViewModels
             }
             return tempFileLoc;
         }
+
+        //public ObservableCollection<OrganismWithFlag> NeedsToBeFlaggedForCustom(List<string> filtered)
+        //{
+        //    var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+
+        //    ObservableCollection<OrganismWithFlag> orgCollection = new ObservableCollection<OrganismWithFlag>();
+        //    using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
+        //    {
+        //        dbConnection.Open();
+        //        using (var cmd = new SQLiteCommand(dbConnection))
+        //        {
+        //            foreach (var org in filtered)
+        //            {
+        //                var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org + "\"";
+        //                cmd.CommandText = text;
+        //                SQLiteDataReader reader = cmd.ExecuteReader();
+        //                if (reader.Read())
+        //                {
+        //                    orgCollection.Add(new OrganismWithFlag(org, true));
+        //                }
+        //                else
+        //                {
+        //                    orgCollection.Add(new OrganismWithFlag(org, false));
+        //                }
+        //                reader.Close();
+        //            }
+        //        }
+        //    }
+        //    return orgCollection;
+        //}
 
         private void ParseUniprotFasta(string faaFileLocation)
         {
@@ -2105,36 +2135,6 @@ namespace BiodiversityPlugin.ViewModels
                 }
             }
             return needsBoth;
-        }
-
-        private ObservableCollection<OrganismWithFlag> NeedsToBeFlaggedForCustom(List<string> filtered)
-        {
-            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
-
-            ObservableCollection<OrganismWithFlag> orgCollection = new ObservableCollection<OrganismWithFlag>();
-            using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
-            {
-                dbConnection.Open();
-                using (var cmd = new SQLiteCommand(dbConnection))
-                {
-                    foreach (var org in filtered)
-                    {
-                        var text = " SELECT * FROM customOrganisms WHERE orgName = \"" + org + "\"";
-                        cmd.CommandText = text;
-                        SQLiteDataReader reader = cmd.ExecuteReader();
-                        if (reader.Read())
-                        {
-                            orgCollection.Add(new OrganismWithFlag(org, true));
-                        }
-                        else
-                        {
-                            orgCollection.Add(new OrganismWithFlag(org, false));
-                        }
-                        reader.Close();
-                    }
-                }
-            }
-            return orgCollection;
         }
 
         private void FlagForCustom(List<OrgDomain> organisms)

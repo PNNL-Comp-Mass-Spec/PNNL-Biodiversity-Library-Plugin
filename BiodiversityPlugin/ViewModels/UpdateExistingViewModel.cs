@@ -105,6 +105,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property for the filter in the organism text box
+        /// Whatever the filter is, this property will filter the list of organisms
+        /// to fit the given criteria for the search filter
+        /// </summary>
         public string SelectedValue
         {
             get { return _selectedValue; }
@@ -113,6 +118,8 @@ namespace BiodiversityPlugin.ViewModels
                 _selectedValue = value;
                 RaisePropertyChanged();
 
+                //If task selection is already made, set the organism list that will be displayed
+                //depending on which task they want to perform (different tasks have different lists of orgs)
                 if (TaskSelection != null)
                 {
                     if (TaskSelection == 2)
@@ -125,6 +132,7 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
                 
+                //Create a new simple list to add the orgs that match that criteria to
                 var filtered = new List<string>();
                 if (FilteredOrganisms != null)
                 {
@@ -138,12 +146,9 @@ namespace BiodiversityPlugin.ViewModels
                     }
                 }
                 filtered.Sort();
+                //Convert the filtered list to a collection with the flags
                 FilteredOrganisms = new ObservableCollection<OrganismWithFlag>();
-                foreach (var org in filtered)
-                {
-                    //Since its from kegg, all values will be false for custom
-                    FilteredOrganisms.Add(new OrganismWithFlag(org, false));
-                }
+                FilteredOrganisms = OrganismWithFlag.ConvertToFlaggedList(filtered, _dbPath);
 
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
@@ -153,6 +158,12 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to set the list of filtered organisms if the user is searching for
+        /// and organism using the filter. And more letters are typed in
+        /// the filter org list will get smaller and updates whenever new 
+        /// criteria is added to the search box or when the clear filter button is pressed
+        /// </summary>
         public ObservableCollection<OrganismWithFlag> FilteredOrganisms
         {
             get { return _filteredOrganisms; }
@@ -163,6 +174,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to set the collection of all the organisms in the
+        /// PNNL biodiversity library. to be used with the replace and 
+        /// supplement task selections
+        /// </summary>
         public ObservableCollection<OrganismWithFlag> PBLOrganisms
         {
             get { return _PBLOrganisms;  }
@@ -173,6 +189,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         } 
 
+        /// <summary>
+        /// Property to set the collection of all the 
+        /// organisms from kegg. To be used if the add new task is selected
+        /// </summary>
         public ObservableCollection<OrganismWithFlag> AllKeggOrgs
         {
             get { return _allKeggOrgs; }
@@ -183,6 +203,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to set the selected organism name 
+        /// to perform customization on
+        /// </summary>
         public OrganismWithFlag OrgName
         {
             get { return _orgName; }
@@ -194,6 +218,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to hold the current task selection
+        /// options are replace = 0, supplement = 1 and add new = 2
+        /// </summary>
         public int TaskSelection
         {
             get { return _taskSelection; }
@@ -208,8 +236,14 @@ namespace BiodiversityPlugin.ViewModels
         {
             get { return _dbPath; }
             set { _dbPath = value; }
-        }      
+        }
 
+        /// <summary>
+        /// Property to get and set the blib location
+        /// Have it check if next is enabled if they made a selection
+        /// If both blib and msgf files are selected, regardless of order
+        /// the next tab will be enabled
+        /// </summary>
         public string BlibPath
         {
             get { return _blibPath; }
@@ -221,6 +255,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to get and set the msgf path.
+        /// Have it check if next is enabled if they made a selection
+        /// </summary>
         public List<string> MsgfPath
         {
             get { return _msgfPath; }
@@ -232,6 +270,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property that aids in the process of showing all the 
+        /// pathways that are selected if there are more than one. Without this,
+        /// it will not display correctly. (Combines all the names into one string.)
+        /// </summary>
         public string ShowMsgfPaths
         {
             get { return showMsgfPaths; }
@@ -292,6 +335,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to check if the next button to start collecting the results at the end is enabled
+        /// Requires the organism name to be selected and not null before continuing.
+        /// </summary>
         private void IsStartEnabled()
         {
             if (OrgName != null)
@@ -312,6 +359,11 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property for the currently selected tab index.
+        /// Constantly refreshes what tabs are allowed to be enabled
+        /// and which ones are not for tab control navigation
+        /// </summary>
         public int SelectedTabIndex
         {
             get { return _selectedTabIndex; }
