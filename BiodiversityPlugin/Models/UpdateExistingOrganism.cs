@@ -25,6 +25,7 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
         private static string _orgName;
+        private static List<string> _msgfPaths = new List<string>(); 
 
         /// <summary>
         /// This method calls all other methods needed to replace organism data. Calling this method will collect, download and
@@ -44,8 +45,10 @@ namespace BiodiversityPlugin.Models
             _proteinPeptideMap.Clear();
             _uniprots.Clear();
             _peptides.Clear();
+            _msgfPaths.Clear();
 
             //Call all the methods here that will update the existing organism
+            _msgfPaths = msgfFolderLoc;
             _orgName = orgName;
             _databasePath = databasePath;
             string orgcode = keggOrgCode;
@@ -223,11 +226,36 @@ namespace BiodiversityPlugin.Models
         /// <param name="orgName"> The name of the organism being updated </param>
         private static string DetermineObserved()
         {
+            //var reviewResults = "";
+
+            //var observedCount = 0;
+            //foreach (var keggGene in _keggGenes.Values)
+            //{
+            //    keggGene.IsObserved = 0;
+            //    foreach (var uniprot in _uniprots)
+            //    {
+            //        if (uniprot == keggGene.UniprotAcc)
+            //        {
+            //            keggGene.IsObserved = 1;
+            //            observedCount++;
+            //            break;
+            //        }
+            //    }
+            //}
+
             var reviewResults = "";
 
             var observedCount = 0;
+            var alreadyObserved = 0;
             foreach (var keggGene in _keggGenes.Values)
             {
+                if (keggGene.IsObserved == 1)
+                {
+                    //keggGene was already observed so keep track.
+                    alreadyObserved++;
+                    continue;
+                }
+                //Reset the observed variable
                 keggGene.IsObserved = 0;
                 foreach (var uniprot in _uniprots)
                 {
@@ -239,7 +267,13 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            reviewResults = "The observed protein count for " + _orgName  + " is " + observedCount + ".";
+            reviewResults = "We parsed the " + _msgfPaths + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
+                             _uniprots.Count +
+                            " proteins for organism " + _orgName + ". The current plugin has " + alreadyObserved +
+                            " proteins for this organism." +
+                            " Your selected option to replace will removed the observed proteins from the plugin" +
+                            "and replace them them with the observed proteins found in your data.";
+            //"The observed protein count for " + _orgName  + " is " + observedCount + ".";
             return reviewResults;
         }
 

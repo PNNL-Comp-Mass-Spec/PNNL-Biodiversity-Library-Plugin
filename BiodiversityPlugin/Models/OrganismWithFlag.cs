@@ -11,12 +11,14 @@ namespace BiodiversityPlugin.Models
     public class OrganismWithFlag
     {
         public string OrganismName { get; set; }
+        public string OrgNameWithMessage { get; set; }
         public bool Custom { get; set; }
 
         public OrganismWithFlag(string orgName, bool custom)
         {
             OrganismName = orgName;
             Custom = custom;
+            OrgNameWithMessage = "";
         }
 
         public static ObservableCollection<OrganismWithFlag> ConvertToFlaggedList(List<string> InputOrganisms, string databasePath)

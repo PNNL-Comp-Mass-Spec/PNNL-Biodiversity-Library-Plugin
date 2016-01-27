@@ -21,6 +21,7 @@ namespace BiodiversityPlugin.Models
         private static List<Tuple<string, int>> _peptides = new List<Tuple<string, int>>();
         private static string _databasePath;
         private static string _orgName;
+        private static List<string> _msgfPaths = new List<string>();
 
         public static string Supplement(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string keggOrgCode)
         {
@@ -31,7 +32,9 @@ namespace BiodiversityPlugin.Models
             _proteinPeptideMap.Clear();
             _uniprots.Clear();
             _peptides.Clear();
+            _msgfPaths.Clear();
 
+            _msgfPaths = msgfFolderLoc;
             _orgName = orgName;
             _databasePath = databasePath;
             string orgcode = keggOrgCode;
@@ -207,10 +210,15 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-
-            reviewResults = "The number of proteins that were already observed for " + _orgName + " is " + alreadyObserved + ". " +
-                                "The number of new proteins that were observed is " + observedCount + ". " +
-                                "The combined observed protein count is " + (alreadyObserved + observedCount) + ".";
+            
+            reviewResults = "We parsed the " + _msgfPaths + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
+                             _uniprots.Count +
+                            " proteins for organism " + _orgName + ". The current plugin has " + alreadyObserved +
+                            " proteins for this organism." +
+                            " Your selected option to supplement will combine the observed proteins from the plugin with the observed proteins found in your data.";
+            //"The number of proteins that were already observed for " + _orgName + " is " + alreadyObserved + ". " +
+            //                "The number of new proteins that were observed is " + observedCount + ". " +
+            //                "The combined observed protein count is " + (alreadyObserved + observedCount) + ".";
             return reviewResults;
         }
 

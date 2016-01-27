@@ -30,6 +30,7 @@ namespace BiodiversityPlugin.Models
         private static Dictionary<string, Gene> _keggGenes = new Dictionary<string, Gene>();
         private static Dictionary<string, List<string>> _keggGeneKoMap = new Dictionary<string, List<string>>();
         private static Dictionary<string, List<Tuple<string, int>>> _proteinPeptideMap = new Dictionary<string, List<Tuple<string, int>>>();
+        private static List<string> _msgfPaths = new List<string>(); 
 
         public static string InsertNew(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, out bool alreadyAdded)
         {
@@ -40,7 +41,9 @@ namespace BiodiversityPlugin.Models
             _proteinPeptideMap.Clear();
             _uniprots.Clear();
             _peptides.Clear();
+            _msgfPaths.Clear();
 
+            _msgfPaths = msgfFolderLoc;
             FindOrgCode(orgName);
             _databasePath = databasePath;
             bool go = CheckIfOrgExists(orgName);
@@ -65,6 +68,12 @@ namespace BiodiversityPlugin.Models
             return reviewResults;
         }
 
+        /// <summary>
+        /// Method to check if the org that the user is trying to add already exists in
+        /// the database already
+        /// </summary>
+        /// <param name="orgName"> Name of the organism to search for</param>
+        /// <returns></returns>
         public static bool CheckIfOrgExists(string orgName)
         {
             bool exists = false;
@@ -90,6 +99,10 @@ namespace BiodiversityPlugin.Models
             return exists;
         }
 
+        /// <summary>
+        /// Method to find the KEGG org code for the specified organism
+        /// </summary>
+        /// <param name="orgName"></param>
         private static void FindOrgCode(string orgName)
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -134,6 +147,9 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to download the kegg gene and kegg orthologs for the specified organism
+        /// </summary>
         private static void DownloadKeggGenesAndKos()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -173,6 +189,9 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to download the uniprot identifiers for the specified organism
+        /// </summary>
         private static void DownloadUniprotIdentifiers()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -200,6 +219,9 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to download the connected pathways for each gene in the specified organism
+        /// </summary>
         private static void DownloadConnectedPathways()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -224,11 +246,17 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to get the fasta location from the uniprot website
+        /// </summary>
         private static void GetFaaLocation()
         {
             _faaLink = KeggInteraction.GetFaaLocation(_taxon);
         }
 
+        /// <summary>
+        /// Method to get the taxon for the specified organism. Will be used to find the fasta location
+        /// </summary>
         private static void GetTaxon()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -255,6 +283,9 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to get the gene descriptions
+        /// </summary>
         private static void GetProduct()
         {
             var options = StringSplitOptions.RemoveEmptyEntries;
@@ -282,6 +313,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to parse the results files and make a list of all the peptides and proteins in there.
+        /// </summary>
+        /// <param name="msgfResults"> mzIdentML results file </param>
         private static void SearchMsgfFiles(List<string> msgfResults)
         {
             double cutoff = 0.0001;
@@ -346,6 +381,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Method to compare the proteins that were found in the msgf results files
+        /// and mark them as observed in the database
+        /// </summary>
+        /// <returns> A string message of the results to return back to the view model</returns>
         private static string DetermineObserved()
         {
             var reviewResults = "";
@@ -367,10 +407,16 @@ namespace BiodiversityPlugin.Models
                 }               
             }
 
-            reviewResults = "The observed protein count for " + _orgName + " is " + observedCount + ".";
+            reviewResults = "We parsed the " + _msgfPaths.Count + " uploaded file(s) and found " + _peptides.Count +
+                            " peptides from "
+                            + _uniprots.Count + " proteins for organism " + _orgName + ".";
+                //"The observed protein count for " + _orgName + " is " + observedCount + ".";
             return reviewResults;
         }
 
+        /// <summary>
+        /// Method to insert the accumulated organism data into the database
+        /// </summary>
         public static void InsertIntoDb()
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))

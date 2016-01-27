@@ -121,7 +121,7 @@
 
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" FontSize="16" Foreground="Black" Margin="10,10,10,0" FontWeight="Normal" TextWrapping="Wrap">
                         Libraries must be in the Bibliospec (.blib) format. Details and assistance on generating a blib
-                        can be found under the the help button.
+                        can be found under the help button.
                     </TextBlock>
 
                     <TextBlock Grid.Column="0" Grid.Row="3" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Black"/>
@@ -167,7 +167,7 @@
                 </TabItem.Header>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="90"/>
+                        <RowDefinition Height="120"/>
                         <RowDefinition Height="190"/>
                         <RowDefinition Height="50"/>
                         <RowDefinition Height="*"/>
@@ -179,8 +179,10 @@
                         <ColumnDefinition Width="75"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="24" Text="2. Set customizing options" Foreground="Black"/>
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" FontWeight="Normal" FontSize="16" Foreground="Black" Margin="10,45,0,0">
+                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" FontWeight="Normal" FontSize="16" Foreground="Black" Margin="10,45,10,0" TextWrapping="Wrap">
+                        Your personal data can be added to the plugin in there different ways. 
                         Click an option and then choose an organism from the selection box below.
+                        Details and assistance can be found under the help button. Organisms that have already been customized will appear in red.
                     </TextBlock>
                     <ListBox HorizontalAlignment="Left" Grid.Column="0" Grid.Row="1" BorderBrush="#F9F9F9" Background="#F9F9F9" Margin="0,0,0,10">
                         <ListBox.Items>
@@ -228,7 +230,8 @@
                              FontWeight="Normal" SelectedItem="{Binding OrgName}" Visibility="{Binding FilterBoxVisible}" Margin="10,0,10,0">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models1:OrganismWithFlag}">
-                                <TextBlock Text="{Binding OrganismName}" Foreground="{Binding Custom, Converter={StaticResource BoolToColor}}"/>
+                                <TextBlock Text="{Binding OrgNameWithMessage}" Foreground="{Binding Custom, Converter={StaticResource BoolToColor}}">
+                                </TextBlock>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

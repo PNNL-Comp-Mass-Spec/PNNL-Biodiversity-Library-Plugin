@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Media.Animation;
 using BiodiversityPlugin.Models;
 using BiodiversityPlugin.Views;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using MessageBox = System.Windows.MessageBox;
 
 namespace BiodiversityPlugin.ViewModels
 {
@@ -120,12 +114,12 @@ namespace BiodiversityPlugin.ViewModels
 
                 //If task selection is already made, set the organism list that will be displayed
                 //depending on which task they want to perform (different tasks have different lists of orgs)
-                if (TaskSelection != null)
+                if (TaskSelection < 3)
                 {
                     if (TaskSelection == 2)
                     {
                         FilteredOrganisms = _allKeggOrgs;
-                    }
+                     }
                     else
                     {
                         FilteredOrganisms = _PBLOrganisms;
@@ -149,6 +143,29 @@ namespace BiodiversityPlugin.ViewModels
                 //Convert the filtered list to a collection with the flags
                 FilteredOrganisms = new ObservableCollection<OrganismWithFlag>();
                 FilteredOrganisms = OrganismWithFlag.ConvertToFlaggedList(filtered, _dbPath);
+                if (TaskSelection == 2)
+                {
+                    foreach (var org in FilteredOrganisms)
+                    {
+                        org.OrgNameWithMessage = org.OrganismName;
+
+                        foreach (var pblOrg in PBLOrganisms)
+                        {
+                            if (pblOrg.OrganismName == org.OrganismName)
+                            {
+                                org.OrgNameWithMessage = org.OrganismName + " (already in the database)";
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var org in FilteredOrganisms)
+                    {
+                        org.OrgNameWithMessage = org.OrganismName;
+                    }
+                }
+
 
                 FilterBoxVisible = Visibility.Hidden;
                 if (FilteredOrganisms.Count > 0)
@@ -341,7 +358,7 @@ namespace BiodiversityPlugin.ViewModels
         /// </summary>
         private void IsStartEnabled()
         {
-            if (OrgName != null)
+            if (OrgName != null && !OrgName.OrgNameWithMessage.Contains(" (already in the database)"))
             {
                 if (!string.IsNullOrEmpty(OrgName.OrganismName))
                 {
@@ -371,10 +388,6 @@ namespace BiodiversityPlugin.ViewModels
             {
                 _selectedTabIndex = value;
                 RaisePropertyChanged();
-                if (SelectedTabIndex == 1)
-                {
-                    InputTabEnabled = true;
-                }
                 if (SelectedTabIndex == 2 && BlibPath != null && MsgfPath != null)
                 {
                     StartButtonEnabled = false;
@@ -407,10 +420,16 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand CancelCommand { get; private set; }
         public RelayCommand ClearFilterCommand { get; private set; }
 
-        public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> filteredOrganisms, List<string> allKeggOrgs )
+        /// <summary>
+        /// Constructor for UupdateExisting View Model
+        /// </summary>
+        /// <param name="dbpath"> Path to the location of the database containing KEGG information</param>
+        /// <param name="pblOrganisms"> A list of the organisms that are in the database (not pulled from KEGG)</param>
+        /// <param name="allKeggOrgs"> A list of all the organisms from KEGG</param>
+        public UpdateExistingViewModel(string dbpath, ObservableCollection<OrganismWithFlag> pblOrganisms, List<string> allKeggOrgs )
         {
             _dbPath = dbpath;
-            _PBLOrganisms = filteredOrganisms;
+            _PBLOrganisms = pblOrganisms;
             FinishButtonEnabled = false;
             AllKeggOrgs = new ObservableCollection<OrganismWithFlag>();
             foreach (var org in allKeggOrgs)
@@ -430,13 +449,17 @@ namespace BiodiversityPlugin.ViewModels
             FinishCommand = new RelayCommand(Finish);
             CancelCommand = new RelayCommand(Cancel);
             ClearFilterCommand = new RelayCommand(ClearFilter);
+            TaskSelection = 3; //Initial setting to 3 since the only possible task selections are 0,1,2
 
             WelcomeTabEnabled = true;
-            InputTabEnabled = false;
+            InputTabEnabled = true;
             CustomizeTabEnabled = false;
             ReviewTabEnabled = false;
         }
 
+        /// <summary>
+        /// Property to clear the filter in the organism search box
+        /// </summary>
         private void ClearFilter()
         {
             SelectedValue = "";
@@ -462,11 +485,16 @@ namespace BiodiversityPlugin.ViewModels
             help.Show();
         }
 
+        /// <summary>
+        /// Property to go to the previous tab
+        /// </summary>
         private void PreviousTab()
         {
             if (SelectedTabIndex > 0)
             {
                 SelectedTabIndex--;
+                //If the previous button was clicked and the user was already on the 
+                //review page, disable all the tabs so that user has to make an organism selection again.
                 if (SelectedTabIndex == 2)
                 {
                     OrgName = null;
@@ -491,27 +519,62 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to set the task selection for the replace option
+        /// Also to set the correct search list to display
+        /// </summary>
         public void SetReplace()
         {
             ClearFilter();
             FilteredOrganisms = _PBLOrganisms;
             TaskSelection = 0;
+            foreach (var org in FilteredOrganisms)
+            {
+                org.OrgNameWithMessage = org.OrganismName;
+            }
         }
 
+        /// <summary>
+        /// Property to set the task selection for the supplement option
+        /// Also to set the correct search list to display
+        /// </summary>
         public void SetSupplement()
         {
             ClearFilter();
             FilteredOrganisms = _PBLOrganisms;
             TaskSelection = 1;
+            foreach (var org in FilteredOrganisms)
+            {
+                org.OrgNameWithMessage = org.OrganismName;
+            }
         }
 
+        /// <summary>
+        /// Property to set the task selection for the add new option
+        /// Also to set the correct search list to display
+        /// </summary>
         public void SetAddNew()
         {
             ClearFilter();
             FilteredOrganisms = _allKeggOrgs;
             TaskSelection = 2;
+            foreach (var org in FilteredOrganisms)
+            {
+                org.OrgNameWithMessage = org.OrganismName;
+
+                foreach (var pblOrg in PBLOrganisms)
+                {
+                    if (pblOrg.OrganismName == org.OrganismName)
+                    {
+                        org.OrgNameWithMessage = org.OrganismName + " (already in the database)";
+                    }
+                }
+            }
         }
 
+        /// <summary>
+        /// Property to begin the process of collecting the results from the given cutomizing options
+        /// </summary>
         private void Start()
         {
             //Take the user to the Review page
@@ -534,6 +597,7 @@ namespace BiodiversityPlugin.ViewModels
                     
                     _orgCode = UpdateExistingOrganism.GetKeggOrgCode(OrgName.OrganismName, DbPath);
                     DisplayMessage = UpdateExistingOrganism.UpdateExisting(OrgName.OrganismName, BlibPath, MsgfPath, DbPath, _orgCode);
+                    //Re-enable the navigation buttons
                     PreviousButtonEnabled = true;
                     FinishButtonEnabled = true;
                     CancelButtonEnabled = true;
@@ -543,6 +607,7 @@ namespace BiodiversityPlugin.ViewModels
                     
                     _orgCode = SupplementOrgansim.GetKeggOrgCode(OrgName.OrganismName, DbPath);
                     DisplayMessage = SupplementOrgansim.Supplement(OrgName.OrganismName, BlibPath, MsgfPath, DbPath, _orgCode);
+                    //Re-enable the navigation buttons
                     PreviousButtonEnabled = true;
                     FinishButtonEnabled = true;
                     CancelButtonEnabled = true;
@@ -554,12 +619,14 @@ namespace BiodiversityPlugin.ViewModels
                     added = alreadyAdded;
                     if (alreadyAdded == false)
                     {
+                        //Re-enable the navigation buttons
                         PreviousButtonEnabled = true;
                         FinishButtonEnabled = true;
                         CancelButtonEnabled = true;
                     }
                     else
                     {
+                        //Re-enable the navigation buttons
                         PreviousButtonEnabled = true;
                         CancelButtonEnabled = true;
                     }
@@ -584,6 +651,9 @@ namespace BiodiversityPlugin.ViewModels
             this.CloseAction();
         }
 
+        /// <summary>
+        /// Property to begin the process of finalizing the changes if the user confirms the changes.
+        /// </summary>
         private void Finish()
         {
             if (TaskSelection == 2)
@@ -606,6 +676,9 @@ namespace BiodiversityPlugin.ViewModels
 
         public Action CloseAction { get; set; }
 
+        /// <summary>
+        /// Property to open a file dialog box for blib file selection
+        /// </summary>
         private void SelectBlib()
         {
             OpenFileDialog openFile = new OpenFileDialog();
@@ -617,6 +690,9 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to open a file dialog box for msgf files selections
+        /// </summary>
         private void SelectMsgf()
         {
             OpenFileDialog openFolder = new OpenFileDialog();

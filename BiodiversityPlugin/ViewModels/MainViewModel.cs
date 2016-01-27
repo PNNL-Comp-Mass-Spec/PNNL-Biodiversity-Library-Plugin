@@ -79,9 +79,7 @@ namespace BiodiversityPlugin.ViewModels
         private List<string> _accessionsWithFastaErrors;
         private bool _ncbiDownloading;
         private string _pathwayCoverageOrg;
-        private bool _versionBool;
         private int _topLevelWindow;
-        private int _noNewDataCount;
         private Visibility _skylineSolution;
         private string _errorDetail;
         private string _errorMessage;
@@ -252,6 +250,10 @@ namespace BiodiversityPlugin.ViewModels
             }
         }
 
+        /// <summary>
+        /// Property to hold the list of proteins that have been filtered through the
+        /// search box filter
+        /// </summary>
         public ObservableCollection<OrganismWithFlag> FilteredOrganisms
         {
             get { return _filteredOrganisms; }
@@ -715,7 +717,6 @@ namespace BiodiversityPlugin.ViewModels
             _priorOrg = "";
             _pathwayCoverageOrg = "";
             _overviewTabEnabled = true;
-            _noNewDataCount = 0;
             ErrorDetail = "";
             ErrorMessage = "";
             SkylineSolution = Visibility.Collapsed;
@@ -1882,7 +1883,7 @@ namespace BiodiversityPlugin.ViewModels
                                     }
                                 }
                             }
-                            catch (WebException ex)
+                            catch (WebException)
                             {
                                 dlFailed = true;
                             }
