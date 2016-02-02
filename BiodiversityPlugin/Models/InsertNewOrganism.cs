@@ -38,6 +38,7 @@ namespace BiodiversityPlugin.Models
 
             //Initialize by clearing everything out first
             _keggGenes.Clear();
+            _keggGeneKoMap.Clear();
             _proteinPeptideMap.Clear();
             _uniprots.Clear();
             _peptides.Clear();
@@ -409,7 +410,8 @@ namespace BiodiversityPlugin.Models
 
             reviewResults = "We parsed the " + _msgfPaths.Count + " uploaded file(s) and found " + _peptides.Count +
                             " peptides from "
-                            + _uniprots.Count + " proteins for organism " + _orgName + ".";
+                            + _uniprots.Count + " proteins for organism " + _orgName + " (" 
+                            + observedCount + " proteins mapped to KEGG pathways).";
                 //"The observed protein count for " + _orgName + " is " + observedCount + ".";
             return reviewResults;
         }

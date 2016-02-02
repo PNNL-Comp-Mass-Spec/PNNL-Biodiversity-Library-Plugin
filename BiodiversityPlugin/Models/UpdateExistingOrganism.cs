@@ -141,6 +141,9 @@ namespace BiodiversityPlugin.Models
                         {
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
                                 Convert.ToString(reader["kegg_pathway_id"]));
+                            //Add the data for if it was observed or not
+                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved =
+                                Convert.ToInt32(reader["is_observed"]);
                         }
                     }
                 }
@@ -253,7 +256,6 @@ namespace BiodiversityPlugin.Models
                 {
                     //keggGene was already observed so keep track.
                     alreadyObserved++;
-                    continue;
                 }
                 //Reset the observed variable
                 keggGene.IsObserved = 0;
@@ -267,12 +269,12 @@ namespace BiodiversityPlugin.Models
                     }
                 }
             }
-            reviewResults = "We parsed the " + _msgfPaths + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
+            reviewResults = "We parsed the " + _msgfPaths.Count + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
                              _uniprots.Count +
-                            " proteins for organism " + _orgName + ". The current plugin has " + alreadyObserved +
-                            " proteins for this organism." +
-                            " Your selected option to replace will removed the observed proteins from the plugin" +
-                            "and replace them them with the observed proteins found in your data.";
+                            " proteins for organism " + _orgName + " (" + observedCount + " proteins mapped to KEGG pathways)." + " The plugin currently has " + alreadyObserved +
+                            " proteins mapped to KEGG pathways for this organism." +
+                            " Your selected option to replace will remove the proteins from the plugin " +
+                            "and replace them with the proteins found in your personal data.";
             //"The observed protein count for " + _orgName  + " is " + observedCount + ".";
             return reviewResults;
         }
