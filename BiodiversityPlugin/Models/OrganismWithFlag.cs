@@ -21,6 +21,12 @@ namespace BiodiversityPlugin.Models
             OrgNameWithMessage = "";
         }
 
+        /// <summary>
+        /// Set the flags for organisms that have been customized previously by the user
+        /// </summary>
+        /// <param name="InputOrganisms"> List of organisms to check </param>
+        /// <param name="databasePath"> Path to the current database </param>
+        /// <returns></returns>
         public static ObservableCollection<OrganismWithFlag> ConvertToFlaggedList(List<string> InputOrganisms, string databasePath)
         {
             var fileLocSource = databasePath.Replace("PBL.db", "blibFileLoc.db");

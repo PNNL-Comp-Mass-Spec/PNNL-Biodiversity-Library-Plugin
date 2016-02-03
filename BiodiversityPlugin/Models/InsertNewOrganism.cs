@@ -241,7 +241,11 @@ namespace BiodiversityPlugin.Models
                     {
                         var geneID = line.Split('\t')[0].Split(':')[1];
                         var pathPiece = line.Split('\t')[1];
-                        _keggGenes[geneID].ConnectedPathways.Add(pathPiece.Substring(pathPiece.Length - 5));
+                        if (_keggGenes.ContainsKey(geneID))
+                        {
+                            _keggGenes[geneID].ConnectedPathways.Add(pathPiece.Substring(pathPiece.Length - 5)); 
+                        }
+                        
                     }
                 }
             }

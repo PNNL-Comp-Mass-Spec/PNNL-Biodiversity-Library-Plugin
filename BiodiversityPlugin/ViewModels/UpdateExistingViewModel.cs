@@ -400,6 +400,9 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 if (SelectedTabIndex == 4)
                 {
+                    FinishButtonEnabled = false;
+                    CancelButtonEnabled = false;
+
                     CustomizeTabEnabled = false;
                     InputTabEnabled = false;
                     WelcomeTabEnabled = false;
@@ -490,6 +493,9 @@ namespace BiodiversityPlugin.ViewModels
         /// </summary>
         private void PreviousTab()
         {
+            FinishButtonEnabled = false;
+            CancelButtonEnabled = false;
+
             if (SelectedTabIndex > 0)
             {
                 SelectedTabIndex--;

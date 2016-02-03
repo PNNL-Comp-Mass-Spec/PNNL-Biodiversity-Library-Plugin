@@ -186,6 +186,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Compare the proteins found in the msgf results to the ones in the database and mark which ones are observed
+        /// </summary>
+        /// <returns> The message of the results to display on the wizard review tab</returns>
         private static string DetermineObserved()
         {
             var listOfObserved = new List<string>();
@@ -228,6 +232,10 @@ namespace BiodiversityPlugin.Models
             return reviewResults;
         }
 
+        /// <summary>
+        /// Commit and write changes to the database
+        /// </summary>
+        /// <param name="keggOrgCode"> The Kegg org code for the specified organism</param>
         public static void UpdateObservedKeggGeneTable(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -263,6 +271,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Update the blib database to use the most current blibs and mark that it is now customized
+        /// </summary>
+        /// <param name="orgName"> Name of the organism</param>
+        /// <param name="fileLoc"> Path to the file location of the blib</param>
         public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
