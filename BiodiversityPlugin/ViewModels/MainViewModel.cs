@@ -1641,7 +1641,7 @@ namespace BiodiversityPlugin.ViewModels
                 // Continue waiting for the downloading to be complete.
                 while (_ncbiDownloading)
                 {
-                    continue;
+                    Thread.Sleep(200);
                 }
 
 
