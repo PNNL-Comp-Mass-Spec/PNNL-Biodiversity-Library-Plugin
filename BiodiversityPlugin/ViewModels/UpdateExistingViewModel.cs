@@ -24,7 +24,7 @@ namespace BiodiversityPlugin.ViewModels
         private bool _cancelEnable;
         private string _dbPath;
         private int _selectedTabIndex;
-        private int _taskSelection; //0 is replace, 1 is supplement, 2 is insert new
+        private TaskSelectionEnum _taskSelection; 
         private string _selectedValue;
         private OrganismWithFlag _orgName;
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
@@ -114,9 +114,9 @@ namespace BiodiversityPlugin.ViewModels
 
                 //If task selection is already made, set the organism list that will be displayed
                 //depending on which task they want to perform (different tasks have different lists of orgs)
-                if (TaskSelection < 3)
+                if (TaskSelection != TaskSelectionEnum.NONE)
                 {
-                    if (TaskSelection == 2)
+                    if (TaskSelection == TaskSelectionEnum.INSERT_NEW)
                     {
                         FilteredOrganisms = _allKeggOrgs;
                      }
@@ -143,7 +143,7 @@ namespace BiodiversityPlugin.ViewModels
                 //Convert the filtered list to a collection with the flags
                 FilteredOrganisms = new ObservableCollection<OrganismWithFlag>();
                 FilteredOrganisms = OrganismWithFlag.ConvertToFlaggedList(filtered, _dbPath);
-                if (TaskSelection == 2)
+                if (TaskSelection == TaskSelectionEnum.INSERT_NEW)
                 {
                     foreach (var org in FilteredOrganisms)
                     {
@@ -237,9 +237,9 @@ namespace BiodiversityPlugin.ViewModels
 
         /// <summary>
         /// Property to hold the current task selection
-        /// options are replace = 0, supplement = 1 and add new = 2
+        /// options are replace, supplement and add new 
         /// </summary>
-        public int TaskSelection
+        public TaskSelectionEnum TaskSelection
         {
             get { return _taskSelection; }
             set
@@ -452,7 +452,7 @@ namespace BiodiversityPlugin.ViewModels
             FinishCommand = new RelayCommand(Finish);
             CancelCommand = new RelayCommand(Cancel);
             ClearFilterCommand = new RelayCommand(ClearFilter);
-            TaskSelection = 3; //Initial setting to 3 since the only possible task selections are 0,1,2
+            TaskSelection = TaskSelectionEnum.NONE; //Initial setting to 3 since the only possible task selections are 0,1,2
 
             WelcomeTabEnabled = true;
             InputTabEnabled = true;
@@ -466,7 +466,7 @@ namespace BiodiversityPlugin.ViewModels
         private void ClearFilter()
         {
             SelectedValue = "";
-            if (TaskSelection == 2)
+            if (TaskSelection == TaskSelectionEnum.INSERT_NEW)
             {
                 FilteredOrganisms = _allKeggOrgs;
             }
@@ -548,7 +548,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             ClearFilter();
             FilteredOrganisms = _PBLOrganisms;
-            TaskSelection = 1;
+            TaskSelection = TaskSelectionEnum.SUPPLEMENT;
             foreach (var org in FilteredOrganisms)
             {
                 org.OrgNameWithMessage = org.OrganismName;
@@ -563,7 +563,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             ClearFilter();
             FilteredOrganisms = _allKeggOrgs;
-            TaskSelection = 2;
+            TaskSelection = TaskSelectionEnum.INSERT_NEW;
             foreach (var org in FilteredOrganisms)
             {
                 org.OrgNameWithMessage = org.OrganismName;
@@ -598,7 +598,7 @@ namespace BiodiversityPlugin.ViewModels
 
                 bool added = false;
 
-                if (_taskSelection == 0)
+                if (_taskSelection == TaskSelectionEnum.REPLACE)
                 {
                     
                     _orgCode = UpdateExistingOrganism.GetKeggOrgCode(OrgName.OrganismName, DbPath);
@@ -608,7 +608,7 @@ namespace BiodiversityPlugin.ViewModels
                     FinishButtonEnabled = true;
                     CancelButtonEnabled = true;
                 }
-                else if (_taskSelection == 1)
+                else if (_taskSelection == TaskSelectionEnum.SUPPLEMENT)
                 {
                     
                     _orgCode = SupplementOrgansim.GetKeggOrgCode(OrgName.OrganismName, DbPath);
@@ -618,7 +618,7 @@ namespace BiodiversityPlugin.ViewModels
                     FinishButtonEnabled = true;
                     CancelButtonEnabled = true;
                 }
-                else if (_taskSelection == 2)
+                else if (_taskSelection == TaskSelectionEnum.INSERT_NEW)
                 {
                     bool alreadyAdded;                                    
                     DisplayMessage = InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath, out alreadyAdded);
@@ -659,20 +659,21 @@ namespace BiodiversityPlugin.ViewModels
 
         /// <summary>
         /// Property to begin the process of finalizing the changes if the user confirms the changes.
+        /// Changes include updating the PBL database as well as the blib database.
         /// </summary>
         private void Finish()
         {
-            if (TaskSelection == 2)
+            if (TaskSelection == TaskSelectionEnum.INSERT_NEW)
             {
                 InsertNewOrganism.InsertIntoDb();
                 InsertNewOrganism.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
             }
-            else if (TaskSelection == 1)
+            else if (TaskSelection == TaskSelectionEnum.SUPPLEMENT)
             {
                 SupplementOrgansim.UpdateObservedKeggGeneTable(_orgCode);
                 SupplementOrgansim.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
             }
-            else if (TaskSelection == 0)
+            else if (TaskSelection == TaskSelectionEnum.REPLACE)
             {
                 UpdateExistingOrganism.UpdateObservedKeggGeneTable(_orgCode);
                 UpdateExistingOrganism.UpdateBlibLocation(OrgName.OrganismName, BlibPath);

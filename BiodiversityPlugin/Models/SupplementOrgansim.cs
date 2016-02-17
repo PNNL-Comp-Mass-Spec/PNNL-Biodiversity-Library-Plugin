@@ -23,8 +23,19 @@ namespace BiodiversityPlugin.Models
         private static string _orgName;
         private static List<string> _msgfPaths = new List<string>();
 
+        /// <summary>
+        /// Starting entry point of the supplement an organism's data action
+        /// </summary>
+        /// <param name="orgName">Name of the organism to be customized</param>
+        /// <param name="blibLoc">Path to the blib file for this organism</param>
+        /// <param name="msgfFolderLoc">Path to the msgf results location for this organism</param>
+        /// <param name="databasePath">Path to the database the be worked on (its all internal but I need a way to reach it, therefore passing it in</param>
+        /// <param name="keggOrgCode">The KEGG organism code for this organism</param>
+        /// <returns></returns>
         public static string Supplement(string orgName, string blibLoc, List<string> msgfFolderLoc, string databasePath, string keggOrgCode)
         {
+            //String message to return back to the view model to display to the user. 
+            //Includes information about what proteins were observed
             var reviewResults = "";
 
             //Do initial clean up of what was in the lists just to be safe
@@ -34,10 +45,13 @@ namespace BiodiversityPlugin.Models
             _peptides.Clear();
             _msgfPaths.Clear();
 
+            //Set variables
             _msgfPaths = msgfFolderLoc;
             _orgName = orgName;
             _databasePath = databasePath;
             string orgcode = keggOrgCode;
+
+            //Begin customizing
             GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
             SearchMsgfFiles(msgfFolderLoc);
@@ -46,6 +60,12 @@ namespace BiodiversityPlugin.Models
             return reviewResults;
         }
 
+        /// <summary>
+        /// Uses the name of the organism to search the database and find the kegg org code that corresponds to this organism.
+        /// </summary>
+        /// <param name="orgName">Name of the organism being customized</param>
+        /// <param name="_databasePath">Path to the PBL database</param>
+        /// <returns></returns>
         public static string GetKeggOrgCode(string orgName, string _databasePath)
         {
             string orgCode = "";
@@ -67,6 +87,11 @@ namespace BiodiversityPlugin.Models
             return orgCode;
         }
 
+        /// <summary>
+        /// This method will query the database to get a list of all the kegg genes which will be 
+        /// used throughout the function to find and update other information.
+        /// </summary>
+        /// <param name="keggOrgCode">The KEGG organism code for the organism being worked on</param>
         private static void GetKeggGenesWithRefs(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -95,6 +120,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Query the database to pull a list of connected pathways and its corresponding gene
+        /// </summary>
+        /// <param name="keggOrgCode"> The KEGG organism code for the organism being worked on</param>
         private static void GetConnectedPathways(string keggOrgCode)
         {
             using (var dbConnection = new SQLiteConnection("Datasource=" + _databasePath + ";Version=3;"))
@@ -122,6 +151,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// This method will search the PSM results file for this organism
+        /// </summary>
+        /// <param name="msgfFolder">Path to the PSM results file for this organism</param>
         private static void SearchMsgfFiles(List<string> msgfFolder)
         {
             double cutoff = 0.0001;
@@ -221,6 +254,7 @@ namespace BiodiversityPlugin.Models
                 }
             }
 
+            //Compile the string of the results that will be returned and displayed on the user interface
             reviewResults = "We parsed the " + _msgfPaths.Count + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
                              _uniprots.Count +
                             " proteins for organism " + _orgName + " (" + observedCount + " proteins mapped to KEGG pathways)." + " The plugin currently has " + alreadyObserved +

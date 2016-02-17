@@ -525,6 +525,11 @@ namespace BiodiversityPlugin.Models
             }
         }
 
+        /// <summary>
+        /// Update and write the changes to the blib database
+        /// </summary>
+        /// <param name="orgName">Name of the organism being customized</param>
+        /// <param name="fileLoc">Path to the location of the blib file</param>
         public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
             var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
@@ -549,6 +554,9 @@ namespace BiodiversityPlugin.Models
         }
     }
 
+    /// <summary>
+    /// Container for an individual KEGG gene and gene specific information
+    /// </summary>
     class Gene
     {
         public string KeggOrgCode { get; set; }

@@ -168,6 +168,7 @@ namespace BiodiversityPlugin.Models
                     int qValIndex = -1, chargeIndex = -1, pepInd = -1, protInd = -1;
                     for (int i = 0; i < header.Count(); i++)
                     {
+                        //Set the header indexes
                         if (header[i] == "QValue")
                         {
                             qValIndex = i;
