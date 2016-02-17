@@ -19,8 +19,7 @@ namespace BiodiversityPlugin
             if (e.Args.Length > 0)
             {
                 _toolClient = new SkylineToolClient(e.Args[0], "BioDiversity Library");
-                var version = _toolClient.GetSkylineVersion();         
-
+                var version = _toolClient.GetSkylineVersion();
                 if (new System.Version(version.Major, version.Minor, version.Build, version.Revision) >= new System.Version(3, 1, 1, 7490))
                 {
                     goodVersion = true;
