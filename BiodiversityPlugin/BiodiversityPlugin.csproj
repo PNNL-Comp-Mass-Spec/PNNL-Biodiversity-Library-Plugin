@@ -108,6 +108,15 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="MTDBAccessIO">
+      <HintPath>..\libs\MTDBAccessIO.dll</HintPath>
+    </Reference>
+    <Reference Include="MTDBFramework">
+      <HintPath>..\libs\MTDBFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="NETPrediction">
+      <HintPath>..\libs\NETPrediction.dll</HintPath>
+    </Reference>
     <Reference Include="OxyPlot">
       <HintPath>..\packages\OxyPlot.Core.2014.1.546\lib\portable-net4+sl4+wp71+win8\OxyPlot.dll</HintPath>
     </Reference>
@@ -119,6 +128,12 @@
     </Reference>
     <Reference Include="OxyPlot.Xps">
       <HintPath>..\packages\OxyPlot.Wpf.2014.1.546\lib\net45\OxyPlot.Xps.dll</HintPath>
+    </Reference>
+    <Reference Include="PHRPReader">
+      <HintPath>..\libs\PHRPReader.dll</HintPath>
+    </Reference>
+    <Reference Include="PNNLOmics">
+      <HintPath>..\libs\PNNLOmics.dll</HintPath>
     </Reference>
     <Reference Include="SkylineTool">
       <HintPath>..\libs\SkylineTool.dll</HintPath>

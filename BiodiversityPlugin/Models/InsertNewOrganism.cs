@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using KeggParsesClassLibrary;
+using MTDBFramework.Algorithms;
+using MTDBFramework.Data;
+using PNNLOmics;
 
 namespace BiodiversityPlugin.Models
 {
@@ -57,8 +61,8 @@ namespace BiodiversityPlugin.Models
                 GetTaxon();
                 GetFaaLocation();
                 GetProduct();
-                SearchMsgfFiles(msgfFolderLoc);
-                reviewResults = DetermineObserved();
+                SearchBlib(blibLoc);
+                reviewResults = DetermineObserved();               
             }
             else
             {
@@ -318,73 +322,136 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        /// <summary>
-        /// Method to parse the results files and make a list of all the peptides and proteins in there.
-        /// </summary>
-        /// <param name="msgfResults"> mzIdentML results file </param>
-        private static void SearchMsgfFiles(List<string> msgfResults)
+        private static void SearchBlib(string blibLoc)
         {
-            double cutoff = 0.0001;
-            foreach (var file in msgfResults)
+            using (var dbConnection = new SQLiteConnection("Datasource=" + blibLoc + ";Version=3"))
             {
-                using (var reader = new StreamReader(file))
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    // read the header in
-                    var header = reader.ReadLine().Split('\t');
-                    int qValIndex = -1, chargeIndex = -1, pepInd = -1, protInd = -1;
-                    for (int i = 0; i < header.Count(); i++)
+                    var select = "SELECT Proteins.accession, RefSpectra.peptideSeq, RefSpectra.precursorCharge FROM RefSpectraProteins" +
+                                " INNER JOIN Proteins" +
+                                " ON RefSpectraProteins.ProteinId = Proteins.id" +
+                                " INNER JOIN RefSpectra" +
+                                " ON RefSpectraProteins.RefSpectraId = RefSpectra.id; ";
+                    cmd.CommandText = select;
+                    cmd.CommandType = CommandType.Text;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        if (header[i] == "QValue")
-                        {
-                            qValIndex = i;
-                        }
-                        if (header[i] == "Charge")
-                        {
-                            chargeIndex = i;
-                        }
-                        if (header[i] == "Peptide")
-                        {
-                            pepInd = i;
-                        }
-                        if (header[i] == "Protein")
-                        {
-                            protInd = i;
-                        }
-                    }
-                    if (qValIndex != -1 && chargeIndex != -1 && pepInd != -1 && protInd != -1)
-                    {
-                        while (reader.Peek() > -1)
-                        {
-                            var line = reader.ReadLine();
-                            var pieces = line.Split('\t');
-                            // qValue (cut off) is in column r (pieces[17])
-                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && !string.IsNullOrEmpty(pieces[protInd]))
-                            {
-                                var peptide = pieces[pepInd].Split('.')[1];
 
-                                var prot = pieces[protInd]; //Getting the uniprot identifier
+                        var protein = Convert.ToString(reader["accession"]);
+                        if (protein.Contains("Contaminant"))
+                        {
+                            continue;
+                        }
+                        if (protein.Contains('|'))
+                        {
+                            protein = protein.Split('|')[1];
+                        }
+                        var peptide = Convert.ToString(reader["peptideSeq"]);
+                        var charge = Convert.ToInt32(reader["precursorCharge"]);
 
-                                var charge = Convert.ToInt32(pieces[chargeIndex]);
+                        //Convert the protein into a uniprot accession
+                        var prot = ConvertToUniprot(protein);                                               
 
-                                if (!_proteinPeptideMap.ContainsKey(prot))
-                                {
-                                    _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-                                    _uniprots.Add(prot);
-                                }
-                                if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
-                                {
-                                    _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
-                                }
-                                if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
-                                {
-                                    _peptides.Add(new Tuple<string, int>(peptide, charge));
-                                }
-                            }
+                        if (string.IsNullOrEmpty(prot))
+                        {
+                            //If it returns null then that uniprot no longer exists so skip over
+                            continue;
+                        }
+
+                        //Add 
+                        if (!_proteinPeptideMap.ContainsKey(prot))
+                        {
+                            _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
+                            _uniprots.Add(prot);
+                        }
+                        if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
+                        {
+                            _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
+                        }
+                        if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
+                        {
+                            _peptides.Add(new Tuple<string, int>(peptide, charge));
                         }
                     }
                 }
+                dbConnection.Close();
             }
         }
+
+        private static string ConvertToUniprot(string protein)
+        {
+            string uniprot = "";
+
+            var url = WebRequest.Create("http://www.uniprot.org/uniprot/" + protein + ".fasta");
+            var urlStream = url.GetResponse().GetResponseStream();
+            using (var reader = new StreamReader(urlStream))
+            {
+                var line = reader.ReadLine();
+                if (line != null && line.Contains('|'))
+                {
+                    uniprot = line.Split('|')[1];
+                }
+                reader.Close();
+            }
+
+            return uniprot;
+        }
+
+        //private static void SearchMsgfFiles(List<string> msgfResults)
+        //{
+        //    var options = new Options
+        //    {
+        //        MsgfQValue = 0.0001,
+        //        TargetFilterType = TargetWorkflowType.BOTTOM_UP
+        //    };
+
+
+        //    foreach (var file in msgfResults)
+        //    {
+        //        var mzIdentMlReader = new MTDBFramework.IO.MzIdentMlReader(options);
+        //        var dataSet = mzIdentMlReader.Read(file);
+        //        var evidences = dataSet.Evidences;
+
+        //        foreach (var evidence in evidences)
+        //        {
+        //            var msgfPlusEvidence = evidence as MsgfPlusResult;
+        //            var sequenceText = evidence.CleanPeptide;
+        //            double qvalue = -1;
+        //            if (msgfPlusEvidence != null)
+        //            {
+        //                qvalue = msgfPlusEvidence.QValue;
+        //            }
+        //            foreach (var protein in evidence.Proteins)
+        //            {
+        //                if (!protein.ProteinName.Contains('|'))
+        //                {
+        //                    continue;
+        //                }
+        //                var prot = protein.ProteinName.Split('|')[1];
+        //                var peptide = sequenceText;
+        //                var charge = evidence.Charge;
+
+        //                //Add 
+        //                if (!_proteinPeptideMap.ContainsKey(prot))
+        //                {
+        //                    _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
+        //                    _uniprots.Add(prot);
+        //                }
+        //                if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
+        //                {
+        //                    _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
+        //                }
+        //                if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
+        //                {
+        //                    _peptides.Add(new Tuple<string, int>(peptide, charge));
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Method to compare the proteins that were found in the msgf results files
@@ -522,6 +589,7 @@ namespace BiodiversityPlugin.Models
                     }
                     transaction.Commit();
                 }
+                dbConnection.Close();
             }
         }
 

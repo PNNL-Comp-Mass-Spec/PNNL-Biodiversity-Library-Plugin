@@ -103,9 +103,10 @@
                             </TextBlock>
                         </StackPanel>
 
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Foreground="Black" FontSize="12" FontWeight="Normal" Text="Version: 1.0.4"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
                             <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
-                            Source: 
+                            Database Source: 
                             <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/project-data/biodiversity-library"> 
                                 <TextBlock Text="{Binding Path=DatabaseVersion}"></TextBlock>
                             </Hyperlink>

@@ -4,12 +4,18 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using BiodiversityPlugin.ViewModels;
 using KeggParsesClassLibrary;
+using MTDBFramework.Algorithms;
+using MTDBFramework.Data;
+using PNNLOmics;
 
 namespace BiodiversityPlugin.Models
 {
@@ -54,9 +60,9 @@ namespace BiodiversityPlugin.Models
             //Begin customizing
             GetKeggGenesWithRefs(orgcode);
             GetConnectedPathways(orgcode);
-            SearchMsgfFiles(msgfFolderLoc);
+            SearchBlib(blibLoc);
             reviewResults = DetermineObserved();
-
+            
             return reviewResults;
         }
 
@@ -99,9 +105,20 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT * from kegg_gene INNER JOIN observed_kegg_gene" +
+                    var getOrgText = "";
+                    if (keggOrgCode == "hsa")
+                    {
+                        getOrgText = " SELECT * from kegg_gene INNER JOIN observed_kegg_gene" +
+                                     " ON kegg_gene.kegg_gene_id = observed_kegg_gene.kegg_gene_id" +
+                                     " WHERE kegg_gene.kegg_org_code like \"" + keggOrgCode + "%\" " + " GROUP BY kegg_gene.kegg_gene_id;";
+                    }
+                    else
+                    {
+                        getOrgText = " SELECT * from kegg_gene INNER JOIN observed_kegg_gene" +
                                      " ON kegg_gene.kegg_gene_id = observed_kegg_gene.kegg_gene_id" +
                                      " WHERE kegg_gene.kegg_org_code = \"" + keggOrgCode + "\" " + " GROUP BY kegg_gene.kegg_gene_id;";
+                    }
+                    
                     cmd.CommandText = getOrgText;
                     cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
@@ -114,6 +131,9 @@ namespace BiodiversityPlugin.Models
                         //Pull the uniprots for that organism
                         _keggGenes[Convert.ToString(reader["kegg_gene_id"])].UniprotAcc =
                             Convert.ToString(reader["uniprot"]);
+
+                        //Set whether the gene has been observed or not
+                        //_keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved = Convert.ToInt32(reader["is_observed"]);
                     }
                 }
                 dbConnection.Close();
@@ -131,7 +151,16 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var getOrgText = " SELECT * FROM observed_kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    var getOrgText = "";
+                    if (keggOrgCode == "hsa")
+                    {
+                        getOrgText = " SELECT * FROM observed_kegg_gene WHERE kegg_org_code like \"" + keggOrgCode + "%\" ;";
+                    }
+                    else
+                    {
+                        getOrgText = " SELECT * FROM observed_kegg_gene WHERE kegg_org_code = \"" + keggOrgCode + "\" ;";
+                    }
+                    
                     cmd.CommandText = getOrgText;
                     cmd.CommandType = CommandType.Text;
                     SQLiteDataReader reader = cmd.ExecuteReader();
@@ -141,9 +170,7 @@ namespace BiodiversityPlugin.Models
                         {
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
                                 Convert.ToString(reader["kegg_pathway_id"]));
-                            //Add the data for if it was observed or not
-                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved =
-                                Convert.ToInt32(reader["is_observed"]);
+                            _keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved = Convert.ToInt32(reader["is_observed"]);
                         }
                     }
                 }
@@ -151,73 +178,135 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        /// <summary>
-        /// This method will search the PSM results file for this organism
-        /// </summary>
-        /// <param name="msgfFolder">Path to the PSM results file for this organism</param>
-        private static void SearchMsgfFiles(List<string> msgfFolder)
+        private static void SearchBlib(string blibLoc) 
         {
-            double cutoff = 0.0001;
-
-            foreach (var file in msgfFolder)
+            using (var dbConnection = new SQLiteConnection("Datasource=" + blibLoc + ";Version=3"))
             {
-                using (var reader = new StreamReader(file))
+                dbConnection.Open();
+                using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    // read the header in
-                    var header = reader.ReadLine().Split('\t');
-                    int qValIndex = -1, chargeIndex = -1, pepInd = -1, protInd = -1;
-                    for (int i = 0; i < header.Count(); i++)
+                    var select = "SELECT Proteins.accession, RefSpectra.peptideSeq, RefSpectra.precursorCharge FROM RefSpectraProteins" +
+                                " INNER JOIN Proteins" +
+                                " ON RefSpectraProteins.ProteinId = Proteins.id" +
+                                " INNER JOIN RefSpectra" +
+                                " ON RefSpectraProteins.RefSpectraId = RefSpectra.id; ";
+                    cmd.CommandText = select;
+                    cmd.CommandType = CommandType.Text;
+                    SQLiteDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        if (header[i] == "QValue")
-                        {
-                            qValIndex = i;
-                        }
-                        if (header[i] == "Charge")
-                        {
-                            chargeIndex = i;
-                        }
-                        if (header[i] == "Peptide")
-                        {
-                            pepInd = i;
-                        }
-                        if (header[i] == "Protein")
-                        {
-                            protInd = i;
-                        }
-                    }
-                    if (qValIndex != -1 && chargeIndex != -1 && pepInd != -1 && protInd != -1)
-                    {
-                        while (reader.Peek() > -1)
-                        {
-                            var line = reader.ReadLine();
-                            var pieces = line.Split('\t');
-                            // qValue (cut off) is in column r (pieces[17])
-                            if (Convert.ToDouble(pieces[qValIndex]) < cutoff && !string.IsNullOrEmpty(pieces[protInd]))
-                            {
-                                var peptide = pieces[pepInd].Split('.')[1];
 
-                                var prot = pieces[protInd];
+                        var protein = Convert.ToString(reader["accession"]);
+                        if (protein.Contains("Contaminant"))
+                        {
+                            continue;
+                        }
+                        if (protein.Contains('|'))
+                        {
+                            protein = protein.Split('|')[1];
+                        }
+                        var peptide = Convert.ToString(reader["peptideSeq"]);
+                        var charge = Convert.ToInt32(reader["precursorCharge"]);
 
-                                var charge = Convert.ToInt32(pieces[chargeIndex]);
-                                if (!_proteinPeptideMap.ContainsKey(prot))
-                                {
-                                    _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-                                    _uniprots.Add(prot);
-                                }
-                                if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
-                                {
-                                    _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
-                                }
-                                if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
-                                {
-                                    _peptides.Add(new Tuple<string, int>(peptide, charge));
-                                }
-                            }
+                        //Convert the protein into a uniprot accession
+                        var prot = ConvertToUniprot(protein);
+                      
+                        if (string.IsNullOrEmpty(prot))
+                        {
+                            //If it returns null then that uniprot no longer exists so skip over
+                            continue;
+                        }
+                        
+                        //Add 
+                        if (!_proteinPeptideMap.ContainsKey(prot))
+                        {
+                            _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
+                            _uniprots.Add(prot);
+                        }
+                        if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
+                        {
+                            _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
+                        }
+                        if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
+                        {
+                            _peptides.Add(new Tuple<string, int>(peptide, charge));
                         }
                     }
                 }
+                dbConnection.Close();
             }
         }
+
+        private static string ConvertToUniprot(string protein)
+        {
+            string uniprot = "";
+
+            var url = WebRequest.Create("http://www.uniprot.org/uniprot/" + protein + ".fasta");
+            var urlStream = url.GetResponse().GetResponseStream();
+            using (var reader = new StreamReader(urlStream))
+            {
+                var line = reader.ReadLine();
+                if (line != null && line.Contains('|'))
+                {
+                    uniprot = line.Split('|')[1];
+                }               
+                reader.Close();
+            }
+            
+            return uniprot;
+        }
+
+        //private static void SearchMsgfFiles(List<string> msgfResults)
+        //{
+        //    var options = new Options
+        //    {
+        //        MsgfQValue = 0.0001,
+        //        TargetFilterType = TargetWorkflowType.BOTTOM_UP
+        //    };           
+
+        //    foreach (var file in msgfResults)
+        //    {
+        //        var mzIdentMlReader = new MTDBFramework.IO.MzIdentMlReader(options);
+        //        var dataSet = mzIdentMlReader.Read(file);
+        //        var evidences = dataSet.Evidences;
+
+        //        foreach (var evidence in evidences)
+        //        {
+        //            var msgfPlusEvidence = evidence as MsgfPlusResult;
+        //            var sequenceText = evidence.CleanPeptide;
+        //            double qvalue = -1;
+        //            if (msgfPlusEvidence != null)
+        //            {
+        //                qvalue = msgfPlusEvidence.QValue;
+        //            }
+        //            foreach (var protein in evidence.Proteins)
+        //            {
+        //                if (!protein.ProteinName.Contains('|'))
+        //                {
+        //                    continue;
+        //                }
+        //                var prot = protein.ProteinName.Split('|')[1];
+        //                var peptide = sequenceText;
+        //                var charge = evidence.Charge;
+
+        //                //Add 
+        //                if (!_proteinPeptideMap.ContainsKey(prot))
+        //                {
+        //                    _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
+        //                    _uniprots.Add(prot);
+        //                }
+        //                if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
+        //                {
+        //                    _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
+        //                }
+        //                if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
+        //                {
+        //                    _peptides.Add(new Tuple<string, int>(peptide, charge));
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Compare the proteins found in the msgf results to the ones in the database and mark which ones are observed
