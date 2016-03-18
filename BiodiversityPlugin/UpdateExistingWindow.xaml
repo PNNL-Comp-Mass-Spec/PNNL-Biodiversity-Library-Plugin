@@ -125,25 +125,25 @@
                     </TextBlock>
 
                     <TextBlock Grid.Column="0" Grid.Row="3" Text=".blib File Location" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Black"/>
-                    <TextBlock Grid.Column="0" Grid.Row="6" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black" VerticalAlignment="Center">
+                    <!--<TextBlock Grid.Column="0" Grid.Row="6" FontWeight="Bold" HorizontalAlignment="Center" Foreground="Black" VerticalAlignment="Center">
                             mzIdentML Results <LineBreak />
                             Location
-                    </TextBlock>
+                    </TextBlock> -->
 
-                    <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
+                    <!--<TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="5" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
                         The PSM results must be formatted according to the mzIdentML format. Details and assistance on generating mzIdentML results 
                         can be found under the help button.
-                    </TextBlock>
+                    </TextBlock> -->
 
-                    <TextBox Grid.Column="1" Grid.Row="3" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding BlibPath}" IsReadOnly="True"/>
+                   <TextBox Grid.Column="1" Grid.Row="3" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding BlibPath}" IsReadOnly="True"/>
                     <Button Grid.Column="2" Grid.Row="3" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
                         <Image Source="DataFiles/search-icon.png"/>
-                    </Button>
+                    </Button> 
 
-                    <TextBox Grid.Column="1" Grid.Row="6" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding ShowMsgfPaths}" IsReadOnly="True"/>
+                    <!--<TextBox Grid.Column="1" Grid.Row="6" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding ShowMsgfPaths}" IsReadOnly="True"/>
                     <Button Grid.Column="2" Grid.Row="6" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectMsgfCommand}">
                         <Image Source="DataFiles/search-icon.png" />
-                    </Button>
+                    </Button> -->
 
                     <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Width="150" Height="40"  HorizontalAlignment="Right" Margin="0,80,40,0" FontSize="16" 
                             IsEnabled="{Binding NextButtonEnabled}" Command="{Binding NextTabCommand}" >

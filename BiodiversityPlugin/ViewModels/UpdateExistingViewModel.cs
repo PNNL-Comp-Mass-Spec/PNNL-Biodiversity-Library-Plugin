@@ -514,7 +514,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private void IsNextEnabled()
         {
-            if (!string.IsNullOrEmpty(BlibPath) && MsgfPath != null)
+            if (!string.IsNullOrEmpty(BlibPath))
             {
                 NextButtonEnabled = true;
                 RaisePropertyChanged();
@@ -533,7 +533,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             ClearFilter();
             FilteredOrganisms = _PBLOrganisms;
-            TaskSelection = 0;
+            TaskSelection = TaskSelectionEnum.REPLACE;
             foreach (var org in FilteredOrganisms)
             {
                 org.OrgNameWithMessage = org.OrganismName;

@@ -28,6 +28,7 @@ namespace BiodiversityPlugin.Models
         private static string _databasePath;
         private static string _orgName;
         private static List<string> _msgfPaths = new List<string>();
+        private static string _blibLoc;
 
         /// <summary>
         /// Starting entry point of the supplement an organism's data action
@@ -53,6 +54,7 @@ namespace BiodiversityPlugin.Models
 
             //Set variables
             _msgfPaths = msgfFolderLoc;
+            _blibLoc = blibLoc;
             _orgName = orgName;
             _databasePath = databasePath;
             string orgcode = keggOrgCode;
@@ -62,7 +64,7 @@ namespace BiodiversityPlugin.Models
             GetConnectedPathways(orgcode);
             SearchBlib(blibLoc);
             reviewResults = DetermineObserved();
-            
+
             return reviewResults;
         }
 
@@ -131,9 +133,7 @@ namespace BiodiversityPlugin.Models
                         //Pull the uniprots for that organism
                         _keggGenes[Convert.ToString(reader["kegg_gene_id"])].UniprotAcc =
                             Convert.ToString(reader["uniprot"]);
-
-                        //Set whether the gene has been observed or not
-                        //_keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved = Convert.ToInt32(reader["is_observed"]);
+                        
                     }
                 }
                 dbConnection.Close();
@@ -170,6 +170,8 @@ namespace BiodiversityPlugin.Models
                         {
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].ConnectedPathways.Add(
                                 Convert.ToString(reader["kegg_pathway_id"]));
+
+                            //Set whether the gene has been observed or not
                             _keggGenes[Convert.ToString(reader["kegg_gene_id"])].IsObserved = Convert.ToInt32(reader["is_observed"]);
                         }
                     }
@@ -178,8 +180,10 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void SearchBlib(string blibLoc) 
+        private static void SearchBlib(string blibLoc)
         {
+            var listOfProteinsInDb = new List<Tuple<string, string, int>>();
+
             using (var dbConnection = new SQLiteConnection("Datasource=" + blibLoc + ";Version=3"))
             {
                 dbConnection.Open();
@@ -208,105 +212,99 @@ namespace BiodiversityPlugin.Models
                         var peptide = Convert.ToString(reader["peptideSeq"]);
                         var charge = Convert.ToInt32(reader["precursorCharge"]);
 
-                        //Convert the protein into a uniprot accession
-                        var prot = ConvertToUniprot(protein);
-                      
-                        if (string.IsNullOrEmpty(prot))
-                        {
-                            //If it returns null then that uniprot no longer exists so skip over
-                            continue;
-                        }
-                        
-                        //Add 
-                        if (!_proteinPeptideMap.ContainsKey(prot))
-                        {
-                            _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-                            _uniprots.Add(prot);
-                        }
-                        if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
-                        {
-                            _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
-                        }
-                        if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
-                        {
-                            _peptides.Add(new Tuple<string, int>(peptide, charge));
-                        }
+                        listOfProteinsInDb.Add(new Tuple<string, string, int>(protein, peptide, charge));
                     }
                 }
                 dbConnection.Close();
             }
-        }
 
-        private static string ConvertToUniprot(string protein)
-        {
-            string uniprot = "";
+            var listOfQueryStrings = new List<string>();
 
-            var url = WebRequest.Create("http://www.uniprot.org/uniprot/" + protein + ".fasta");
-            var urlStream = url.GetResponse().GetResponseStream();
-            using (var reader = new StreamReader(urlStream))
+            var queryCount = 0;
+            string queryUniprot = "http://www.uniprot.org/uniprot/?query=";
+            foreach (var protein in listOfProteinsInDb)
             {
-                var line = reader.ReadLine();
-                if (line != null && line.Contains('|'))
+                queryUniprot = queryUniprot + protein.Item1 + "+or+";
+                queryCount++;
+                if (queryCount == 50)
                 {
-                    uniprot = line.Split('|')[1];
-                }               
-                reader.Close();
+                    queryUniprot = queryUniprot.Substring(0, (queryUniprot.Length - 4));
+                    listOfQueryStrings.Add(queryUniprot);
+                    //Reset values and start over
+                    queryCount = 0;
+                    queryUniprot = "http://www.uniprot.org/uniprot/?query=";
+                }
             }
-            
-            return uniprot;
+            //Add final time just in case it didn't reach 50
+            queryUniprot = queryUniprot.Substring(0, (queryUniprot.Length - 4));
+            listOfQueryStrings.Add(queryUniprot);
+
+            //Send list of queries to get queried in uniprot
+            var dictOfProteinToUniprots = ConvertToUniprot(listOfQueryStrings);
+
+            var converted = new List<Tuple<string, string, int>>();
+
+            foreach (var protein in listOfProteinsInDb)
+            {
+                if (dictOfProteinToUniprots.ContainsKey(protein.Item1))
+                {
+                    var uniprot = dictOfProteinToUniprots[protein.Item1];
+                    converted.Add(new Tuple<string, string, int>(uniprot, protein.Item2, protein.Item3));
+                }
+            }
+
+            foreach (var protein in converted)
+            {
+                if (string.IsNullOrEmpty(protein.Item1))
+                {
+                    //If it returns null then that uniprot no longer exists so skip over
+                    continue;
+                }
+
+                //Add 
+                if (!_proteinPeptideMap.ContainsKey(protein.Item1))
+                {
+                    _proteinPeptideMap.Add(protein.Item1, new List<Tuple<string, int>>());
+                    _uniprots.Add(protein.Item1);
+                }
+                if (!_proteinPeptideMap[protein.Item1].Contains(new Tuple<string, int>(protein.Item2, protein.Item3)))
+                {
+                    _proteinPeptideMap[protein.Item1].Add(new Tuple<string, int>(protein.Item2, protein.Item3));
+                }
+                if (!_peptides.Contains(new Tuple<string, int>(protein.Item2, protein.Item3)))
+                {
+                    _peptides.Add(new Tuple<string, int>(protein.Item2, protein.Item3));
+                }
+            }
         }
 
-        //private static void SearchMsgfFiles(List<string> msgfResults)
-        //{
-        //    var options = new Options
-        //    {
-        //        MsgfQValue = 0.0001,
-        //        TargetFilterType = TargetWorkflowType.BOTTOM_UP
-        //    };           
-
-        //    foreach (var file in msgfResults)
-        //    {
-        //        var mzIdentMlReader = new MTDBFramework.IO.MzIdentMlReader(options);
-        //        var dataSet = mzIdentMlReader.Read(file);
-        //        var evidences = dataSet.Evidences;
-
-        //        foreach (var evidence in evidences)
-        //        {
-        //            var msgfPlusEvidence = evidence as MsgfPlusResult;
-        //            var sequenceText = evidence.CleanPeptide;
-        //            double qvalue = -1;
-        //            if (msgfPlusEvidence != null)
-        //            {
-        //                qvalue = msgfPlusEvidence.QValue;
-        //            }
-        //            foreach (var protein in evidence.Proteins)
-        //            {
-        //                if (!protein.ProteinName.Contains('|'))
-        //                {
-        //                    continue;
-        //                }
-        //                var prot = protein.ProteinName.Split('|')[1];
-        //                var peptide = sequenceText;
-        //                var charge = evidence.Charge;
-
-        //                //Add 
-        //                if (!_proteinPeptideMap.ContainsKey(prot))
-        //                {
-        //                    _proteinPeptideMap.Add(prot, new List<Tuple<string, int>>());
-        //                    _uniprots.Add(prot);
-        //                }
-        //                if (!_proteinPeptideMap[prot].Contains(new Tuple<string, int>(peptide, charge)))
-        //                {
-        //                    _proteinPeptideMap[prot].Add(new Tuple<string, int>(peptide, charge));
-        //                }
-        //                if (!_peptides.Contains(new Tuple<string, int>(peptide, charge)))
-        //                {
-        //                    _peptides.Add(new Tuple<string, int>(peptide, charge));
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        private static Dictionary<string, string> ConvertToUniprot(List<string> urlPaths)
+        {
+            Dictionary<string, string> uniprotToProtein = new Dictionary<string, string>();
+            foreach (var urlPath in urlPaths)
+            {
+                var url = WebRequest.Create(urlPath + "&format=FASTA&columns=id");
+                var urlStream = url.GetResponse().GetResponseStream();
+                using (var reader = new StreamReader(urlStream))
+                {
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+                        if (line != null && line.Contains('|') && line.StartsWith(">"))
+                        {
+                            var uniprot = line.Split('|')[1];
+                            var protein = line.Split('|')[2].Split(' ')[0];
+                            if (!uniprotToProtein.ContainsKey(protein))
+                            {
+                                uniprotToProtein.Add(protein, uniprot);
+                            }
+                        }
+                    }
+                    reader.Close();
+                }
+            }
+            return uniprotToProtein;
+        }
 
         /// <summary>
         /// Compare the proteins found in the msgf results to the ones in the database and mark which ones are observed
@@ -336,15 +334,15 @@ namespace BiodiversityPlugin.Models
                         {
                             newProteins++;
                         }
-                            keggGene.IsObserved = 1;
-                            observedCount++;
-                            break;                 
+                        keggGene.IsObserved = 1;
+                        observedCount++;
+                        break;
                     }
                 }
             }
 
             //Compile the string of the results that will be returned and displayed on the user interface
-            reviewResults = "We parsed the " + _msgfPaths.Count + " uploaded file(s) and found " + _peptides.Count + " peptides from " +
+            reviewResults = "We parsed " + _blibLoc + " and found " + _peptides.Count + " peptides from " +
                              _uniprots.Count +
                             " proteins for organism " + _orgName + " (" + observedCount + " proteins mapped to KEGG pathways)." + " The plugin currently has " + alreadyObserved +
                             " proteins mapped to KEGG pathways for this organism. Your data has " + newProteins + " proteins that are not currently in the database." +
