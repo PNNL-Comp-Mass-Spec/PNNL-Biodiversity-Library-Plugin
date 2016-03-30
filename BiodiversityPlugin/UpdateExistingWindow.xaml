@@ -98,11 +98,11 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50"/>
-                        <RowDefinition Height="80"/>
+                        <RowDefinition Height="60"/>
                         <RowDefinition Height="60"/>
                         <RowDefinition Height="60" />
                         <RowDefinition Height="40" />
-                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="80"/>
                         <RowDefinition Height="60" />
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
@@ -115,8 +115,7 @@
                     <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="24" Text="1. Input Mass Spectrometry Data" Foreground="Black"/>
                     
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
-                        To load data into the plugin, we require the annotated spectrum (in a spectrum library) and the
-                        peptide-to-protein mapping (gleaned from PSM results).
+                        To load data into the plugin, we require the annotated spectrum (in a spectrum library).
                     </TextBlock>
 
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" FontSize="16" Foreground="Black" Margin="10,10,10,0" FontWeight="Normal" TextWrapping="Wrap">
