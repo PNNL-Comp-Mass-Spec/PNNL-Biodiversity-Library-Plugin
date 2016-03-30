@@ -18,6 +18,11 @@ using PNNLOmics;
 
 namespace BiodiversityPlugin.Models
 {
+    //For inserting a new organism, there are some extra steps involved. We follow this general path through the code
+    // 1. identify the organism code at KEGG (given as user input from the 'view' through the method FindOrgCode)
+    // 2. We download a list of KO->identifier maps from rest.kegg.jp (as seen in method DownloadKeggGenesAndKos)
+    // 3. we insert this list into the SQLite (as seen in method XXXXX)
+    // 4. we update the 'observed' information for proteins
     class InsertNewOrganism
     {      
         private static string _keggOrgCode;
@@ -326,7 +331,8 @@ namespace BiodiversityPlugin.Models
 
         private static void SearchBlib(string blibLoc)
         {
-            var listOfProteinsInDb = new List<Tuple<string, string, int>>();
+            var listOfProteinsToConvert = new List<Tuple<string, string, int>>();
+            var converted = new List<Tuple<string, string, int>>();
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + blibLoc + ";Version=3"))
             {
@@ -343,7 +349,7 @@ namespace BiodiversityPlugin.Models
                     SQLiteDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-
+                        bool alreadyUniprot = false;
                         var protein = Convert.ToString(reader["accession"]);
                         if (protein.Contains("Contaminant"))
                         {
@@ -352,11 +358,19 @@ namespace BiodiversityPlugin.Models
                         if (protein.Contains('|'))
                         {
                             protein = protein.Split('|')[1];
+                            alreadyUniprot = true;
                         }
                         var peptide = Convert.ToString(reader["peptideSeq"]);
                         var charge = Convert.ToInt32(reader["precursorCharge"]);
 
-                        listOfProteinsInDb.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                        if (alreadyUniprot)
+                        {
+                            converted.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                        }
+                        else
+                        {
+                            listOfProteinsToConvert.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                        }
                     }
                 }
                 dbConnection.Close();
@@ -366,7 +380,7 @@ namespace BiodiversityPlugin.Models
 
             var queryCount = 0;
             string queryUniprot = "http://www.uniprot.org/uniprot/?query=";
-            foreach (var protein in listOfProteinsInDb)
+            foreach (var protein in listOfProteinsToConvert)
             {
                 queryUniprot = queryUniprot + protein.Item1 + "+or+";
                 queryCount++;
@@ -386,9 +400,7 @@ namespace BiodiversityPlugin.Models
             //Send list of queries to get queried in uniprot
             var dictOfProteinToUniprots = ConvertToUniprot(listOfQueryStrings);
 
-            var converted = new List<Tuple<string, string, int>>();
-
-            foreach (var protein in listOfProteinsInDb)
+            foreach (var protein in listOfProteinsToConvert)
             {
                 if (dictOfProteinToUniprots.ContainsKey(protein.Item1))
                 {
