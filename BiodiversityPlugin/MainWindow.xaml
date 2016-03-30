@@ -25,6 +25,31 @@
         <SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888" />
         <utilities:OrgCodeToColorConverter x:Key="OrgCodeToColor" />
         <calculations:BoolToColorConverter x:Key="BoolToColor"/>
+
+        <!-- <Style TargetType="TabControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <DockPanel
+                            Panel.ZIndex="1"   
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            Margin="0,0,0,-1"
+                            IsItemsHost="True"/>
+                            
+                            
+                            
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style> -->
+
         <Style TargetType="{x:Type TabItem}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -98,12 +123,12 @@
                         The wizard helps users browse data using the following steps:   <LineBreak /> 
                         1) Select an Organism.<LineBreak /> 
                         2) Select pathways of interest.<LineBreak /> 
-                        3) Curate protein identifications.<LineBreak /> 
+                        3) View pathways and curate proteins.<LineBreak /> 
                         4) Review and export data to Skyline. <LineBreak />
                             </TextBlock>
                         </StackPanel>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Foreground="Black" FontSize="12" FontWeight="Normal" Text="Version: 1.0.4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Foreground="Black" FontSize="12" FontWeight="Normal" Text="PNNL Biodiversity Plugin Version: 1.0.4"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
                             <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                             Database Source: 
@@ -137,7 +162,8 @@
                 </TabItem>
 
                 <!-- Organism selection tab    -->
-                <TabItem Header="Organisms" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" BorderThickness="5"  IsEnabled="{Binding OverviewEnabled}">
+                <TabItem Header="Organism Chooser" Width="200" Height="100" FontSize="20" FontWeight="Bold" Foreground="White" BorderBrush="Black" 
+                         BorderThickness="5" Margin="-2,0,2,0" IsEnabled="{Binding OverviewEnabled}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1" />
@@ -207,17 +233,17 @@
                         </Grid>
                         <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Left" Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                         <Button Grid.Row="5" Grid.Column="1" FontSize="20" Margin="30,0"  Width="150" HorizontalAlignment="Right" Command="{Binding LoadPathwayCoverageCommand}" IsEnabled="{Binding IsOrganismSelected}">Next &gt;</Button>
-                        <Button Grid.Row="5" Grid.Column="0" FontSize="15" Margin="30,0" Width="150 " HorizontalAlignment="Center" Command="{Binding UpdateButtonCommand}">Customize Data</Button>
+                        <!-- <Button Grid.Row="5" Grid.Column="0" FontSize="15" Margin="30,0" Width="150 " HorizontalAlignment="Center" Command="{Binding UpdateButtonCommand}">Customize Data</Button> -->
                     </Grid>
                 </TabItem>
 
                 <!-- Pathway selection tab    -->
-                <TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" IsEnabled="{Binding PathwaysTabEnabled}">
+                <TabItem Width="200" Height="100" FontSize="20" Foreground="White" FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Margin="-2,0,2,0" IsEnabled="{Binding PathwaysTabEnabled}">
                     <TabItem.Header>
                         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                             <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <LineBreak /> Pathways
+                        <LineBreak /> Pathway Chooser
                             </TextBlock>
                             <StackPanel.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding LoadPathwayCoverageCommand}"></MouseBinding>
@@ -301,7 +327,7 @@
 
                 <!-- Protein selection tab from many pathway -->
                 <TabItem Width="200" Height="100" FontSize="20" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White" Margin="-2,0,2,0"
                   IsEnabled="{Binding SelectionTabEnabled}">
 
                     <TabItem.Header>
@@ -309,8 +335,8 @@
                             <TextBlock Width="200" Height="100" TextAlignment="Center"
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
-                        Select Proteins
-                        <LineBreak/>by Pathway
+                        Pathway
+                        <LineBreak/>Visualization
                             </TextBlock>
                             <StackPanel.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding DisplayPathwayImagesCommand}"></MouseBinding>
@@ -399,7 +425,7 @@
                 </TabItem>
 
                 <TabItem Width="200" Height="100" FontSize="20" 
-                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White"
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White" Margin="-2,0,2,0"
                  IsEnabled="{Binding ReviewTabEnabled}">
                     <TabItem.Header>
                         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -407,7 +433,7 @@
                         VerticalAlignment="Center" HorizontalAlignment="Center">
                         <LineBreak />
                         Review and <LineBreak /> 
-                        export to Skyline
+                        Export
                             </TextBlock>
                             <StackPanel.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding AcquireProteinsCommand}"></MouseBinding>
@@ -507,10 +533,34 @@
                         </Border>
                     </Grid>
                 </TabItem>
+
+                <TabItem Width="200" Height="115" FontSize="20" IsEnabled="False"
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White" Margin="-2,0,2,0" Background="White" Opacity="0"/>
+
+                <TabItem Width="200" Height="100" FontSize="20" 
+                 FontWeight="Bold" BorderBrush="Black" BorderThickness="5" Foreground="White" Margin="-2,0,2,0" 
+                 IsEnabled="{Binding OverviewEnabled}">
+                    <TabItem.Header>
+                        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <TextBlock Width="200" Height="100" TextAlignment="Center"
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <LineBreak />
+                        Upload <LineBreak /> 
+                        New Data
+                            </TextBlock>
+                            <StackPanel.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding UpdateButtonCommand}"></MouseBinding>
+                            </StackPanel.InputBindings>
+                        </StackPanel>
+                    </TabItem.Header>
+                </TabItem>
+
             </TabControl>
         </TabItem>
 
-        <TabItem Height="0" MinHeight="0" MaxHeight="0">
+        
+
+            <TabItem Height="0" MinHeight="0" MaxHeight="0">
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Foreground="Black">
