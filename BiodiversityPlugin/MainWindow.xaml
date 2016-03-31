@@ -119,8 +119,9 @@
                         All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
                         Sam Payne at 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
-                        with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak /> <LineBreak /> 
-                        The wizard helps users browse data using the following steps:   <LineBreak /> 
+                        with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak />  
+                        The wizard helps users browse data using the following steps. Users can upload new data into the plugin by clicking 
+                        "Upload New Data" on the left hand side at the bottom of the page.   <LineBreak /> 
                         1) Select an Organism.<LineBreak /> 
                         2) Select pathways of interest.<LineBreak /> 
                         3) View pathways and curate proteins.<LineBreak /> 
@@ -167,7 +168,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="90"/>
+                            <RowDefinition Height="115"/>
                             <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="15" />
@@ -184,11 +185,12 @@
                             <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" Width="Auto" TextWrapping="Wrap" Margin="15,0,15,0">
                         Data in the Biodiversity Library is organized by the organism. To retrieve data, please select an organism of interest, either 
                         through the Phylogeny explorer or through the Organism search box. If you want to analyze data from multiple organisms,
-                        please export the data one organism at a time. Organisms that have been customized are shown in red.
+                        please export the data one organism at a time. If you would like to add or customize an organism, click "Upload New Data" on the left hand side at the bottom of the page.
+                        Organisms that have been customized are shown in red.
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Phylogeny Explorer</TextBlock>
-                        <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="24">Organism search</TextBlock>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="23">Phylogeny Explorer</TextBlock>
+                        <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="23">Organism search</TextBlock>
                         <utilities:MvvmTreeView Grid.Column="0" Grid.Row="2" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}" Margin="0,40,0,0" Grid.RowSpan="2">
                             <utilities:MvvmTreeView.Resources>
                                 <HierarchicalDataTemplate DataType="{x:Type models:OrgDomain}" ItemsSource="{Binding OrgPhyla}">
@@ -254,7 +256,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="65" />
+                            <RowDefinition Height="80" />
                             <RowDefinition Height="40" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="15" />
@@ -273,7 +275,7 @@
                         Pathway definitions and membership are defined by 
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://www.genome.jp/kegg/pathway.html"> KEGG. </Hyperlink> 
                         Navigate to pathways and click the checkbox. 
-                        Multiple pathways can be selected.
+                        Multiple pathways can be selected. If you decide to use your own data, you can do so by clicking "Upload New Data" on the bottom left.
                             </TextBlock>
                         </StackPanel>
 
@@ -346,7 +348,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1" />
-                            <RowDefinition Height="110" />
+                            <RowDefinition Height="120" />
                             <RowDefinition Height="219*" />
                             <RowDefinition Height="485*"/>
                             <RowDefinition Height="5" />
@@ -362,7 +364,7 @@
                         Pathways specified in Step 2 are overlaid with proteomics data for the organism selected in step 1. Proteins identified in the 
                         Biodiversity Library are shown in red. Proteins which are annotated in the genome but are not present in the MS data are 
                         shown in blue. Users can deselect any protein they wish to exclude by clicking on the corresponding red box on the 
-                        pathway image. (Deselected proteins appear as grey boxes.)
+                        pathway image. (Deselected proteins appear as grey boxes.) If you wish to use you own data instead for this organism, click "Upload New Data" on the bottom left.
                             </TextBlock>
                         </StackPanel>
                         <TabControl Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" SelectedIndex="{Binding PathwayTabIndex}" ItemsSource="{Binding SelectedPathways, Mode=TwoWay}" Grid.RowSpan="2">
