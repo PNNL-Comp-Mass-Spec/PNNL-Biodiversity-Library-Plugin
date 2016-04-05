@@ -7,6 +7,7 @@ In total the Biodiversity Library catalogs MS/MS spectra from over 118 distict o
 ## Database
 
 File PBL.db is a SQLite database that the Biodiversity Library Plugin uses for tracking peptides, proteins, and pathways. Due to the size of the file it is not part of this repository. It is available on the panomics.pnl.gov website at <a href="http://panomics.pnnl.gov/data/">http://panomics.pnnl.gov/data</a>
+After downloading the PBL.db file, place it in a directory named "DBs", inside the folder at "BiodiversityPlugin/DataFiles", so that the path "BiodiversityPlugin/DataFiles/DBs/PBL.db" exists.
 
 ## About Skyline
 
