@@ -234,19 +234,19 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="DataFiles\blibFileLoc.db">
+    <None Include="DataFiles\DBs\blibFileLoc.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DataFiles\DBs\iRT_Libraries\Ariadne_Thread_iRT_C18.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataFiles\iRT_Libraries\Ariadne_Thread_iRT_C18.irtdb">
+    <None Include="DataFiles\DBs\iRT_Libraries\Biognosis_iRT_C12_C18.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataFiles\iRT_Libraries\Biognosis_iRT_C12_C18.irtdb">
+    <None Include="DataFiles\DBs\iRT_Libraries\Mtb_SWATH_iRT.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataFiles\iRT_Libraries\Mtb_SWATH_iRT.irtdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="DataFiles\iRT_Libraries\Neuron_SRM_IRT_V2.irtdb">
+    <None Include="DataFiles\DBs\iRT_Libraries\Neuron_SRM_IRT_V2.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DataFiles\DBs\PBL.db">
