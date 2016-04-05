@@ -19,6 +19,15 @@ using PNNLOmics;
 
 namespace BiodiversityPlugin.Models
 {
+    /// <summary>
+    /// For supplementing an organism, the general path that we follow through code is
+    /// 1. identify the organism code at KEGG (given as user input from the 'view' through the method FindOrgCode)
+    /// 2. Obtain list of kegg genes and the connected pathways for the specified organism to use in later methods
+    /// 3. Search the .blib file that the user provided to find which protein/peptides were observed
+    /// 4. Flag which proteins were observed based on the .blib search results
+    /// 5. Update the PBL.db and the BlibLoc.db by appending the new data with the original data. The only thing that changes is proteins that were observed in the new data and not in the original data
+    /// will get appeneded. If the original database already has the protein obsereved, regardless of if its in the new data or not, it will remain observed.
+    /// </summary>
     class SupplementOrgansim
     {
         private static Dictionary<string, KeggGene> _keggGenes = new Dictionary<string, KeggGene>();
@@ -349,7 +358,7 @@ namespace BiodiversityPlugin.Models
             }
 
             //Compile the string of the results that will be returned and displayed on the user interface
-            reviewResults = "We parsed " + _blibLoc + " and found " + _peptides.Count + " peptides from " +
+            reviewResults = "We parsed " + _blibLoc + " and found " + _peptides.Count + " peptides from " + 
                              _uniprots.Count +
                             " proteins for organism " + _orgName + " (" + observedCount + " proteins mapped to KEGG pathways)." + " The plugin currently has " + alreadyObserved +
                             " proteins mapped to KEGG pathways for this organism. Your data has " + newProteins + " proteins that are not currently in the database." +

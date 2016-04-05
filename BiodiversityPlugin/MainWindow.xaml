@@ -189,7 +189,7 @@
                         Organisms that have been customized are shown in red.
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="23">Phylogeny Explorer</TextBlock>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="23">Taxonomy Explorer</TextBlock>
                         <TextBlock Grid.Column="1" Grid.Row="2" Foreground="Black" HorizontalAlignment="Center" FontSize="23">Organism search</TextBlock>
                         <utilities:MvvmTreeView Grid.Column="0" Grid.Row="2" ItemsSource="{Binding Organisms}" SelectedItemTarget="{Binding SelectedOrganismTreeItem, Mode=TwoWay}" Margin="0,40,0,0" Grid.RowSpan="2">
                             <utilities:MvvmTreeView.Resources>

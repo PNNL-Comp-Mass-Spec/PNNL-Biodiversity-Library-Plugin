@@ -17,7 +17,12 @@ using PNNLOmics;
 namespace BiodiversityPlugin.Models
 {
     /// <summary>
-    /// Contains all methods needed to replace the current organism data with different PSM results.
+    /// For replacing an organism, the general path that we follow through code is
+    /// 1. identify the organism code at KEGG (given as user input from the 'view' through the method FindOrgCode)
+    /// 2. Obtain list of kegg genes and the connected pathways for the specified organism to use in later methods
+    /// 3. Search the .blib file that the user provided to find which protein/peptides were observed
+    /// 4. Flag which proteins were observed based on the .blib search results
+    /// 5. Update the PBL.db and the BlibLoc.db by first resetting all previously observed proteins to "not oberseved" and the updating with the new observed information for each protein
     /// </summary>
     public class UpdateExistingOrganism
     {
