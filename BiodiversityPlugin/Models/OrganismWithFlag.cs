@@ -29,7 +29,7 @@ namespace BiodiversityPlugin.Models
         /// <returns></returns>
         public static ObservableCollection<OrganismWithFlag> ConvertToFlaggedList(List<string> InputOrganisms, string databasePath)
         {
-            var fileLocSource = databasePath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = databasePath.Replace("PBL.db", "..//blibFileLoc.db");
 
             ObservableCollection<OrganismWithFlag> orgCollection = new ObservableCollection<OrganismWithFlag>();
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))

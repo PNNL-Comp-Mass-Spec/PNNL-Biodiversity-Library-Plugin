@@ -609,7 +609,7 @@ namespace BiodiversityPlugin.Models
         /// <param name="fileLoc">Path to the location of the blib file</param>
         public static void UpdateBlibLocation(string orgName, string fileLoc)
         {
-            var fileLocSource = _databasePath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = _databasePath.Replace("PBL.db", "..//blibFileLoc.db");
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {

@@ -735,7 +735,7 @@ namespace BiodiversityPlugin.ViewModels
                 TopLevelWindow = 3;
             }
             _irtLibraries.Add("No iRT Library");
-            var files = Directory.GetFiles(Path.Combine(_dbPath.Replace("PBL.db", ""), "iRt_Libraries")).ToList();
+            var files = Directory.GetFiles(Path.Combine(_dbPath.Replace("PBL.db", ".."), "iRt_Libraries")).ToList();
             foreach (var file in files)
             {
                 _irtLibraries.Add(file);
@@ -867,7 +867,7 @@ namespace BiodiversityPlugin.ViewModels
                 }
             //}
 
-            var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
+            var coordPrefix = _dbPath.Replace("DataFiles\\DBs\\PBL.db", "");
 
             Task.Factory.StartNew(() =>
             {
@@ -1058,7 +1058,7 @@ namespace BiodiversityPlugin.ViewModels
             QueryString = queryingStrings[0];
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
+            var coordPrefix = _dbPath.Replace("DataFiles\\DBs\\PBL.db", "");
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways
                                                                  from @group in pathwayCatagory.PathwayGroups
@@ -2093,7 +2093,7 @@ namespace BiodiversityPlugin.ViewModels
         /// <returns>File location of the .blib</returns>
         private List<FileLocContainer> CheckFileLocation(string orgName)
         {
-            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = _dbPath.Replace("PBL.db", "..//blibFileLoc.db");
             List<FileLocContainer> fileLoc = new List<FileLocContainer>();
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
@@ -2118,7 +2118,7 @@ namespace BiodiversityPlugin.ViewModels
 
         private bool GetTypeOfChange(string orgName)
         {
-            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = _dbPath.Replace("PBL.db", "..//blibFileLoc.db");
             var needsBoth = true;
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
@@ -2143,7 +2143,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             var list = (from domain in organisms from phylum in domain.OrgPhyla from orgClass in phylum.OrgClasses from organism in orgClass.Organisms select organism).ToList();
 
-            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = _dbPath.Replace("PBL.db", "..//blibFileLoc.db");
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
                 dbConnection.Open();
@@ -2172,7 +2172,7 @@ namespace BiodiversityPlugin.ViewModels
         /// <param name="fileLoc"></param>
         private void AddFileLocation(string orgName, string fileLoc)
         {
-            var fileLocSource = _dbPath.Replace("PBL.db", "blibFileLoc.db");
+            var fileLocSource = _dbPath.Replace("PBL.db", "..//blibFileLoc.db");
 
             using (var dbConnection = new SQLiteConnection("Datasource=" + fileLocSource + ";Version=3;"))
             {
