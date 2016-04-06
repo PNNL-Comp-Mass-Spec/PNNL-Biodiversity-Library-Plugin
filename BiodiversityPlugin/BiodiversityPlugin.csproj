@@ -182,6 +182,7 @@
     <Compile Include="Models\ErrorTypeEnum.cs" />
     <Compile Include="Models\FileLocContainer.cs" />
     <Compile Include="Models\InsertNewOrganism.cs" />
+    <Compile Include="Models\InsertTissue.cs" />
     <Compile Include="Models\Logger.cs" />
     <Compile Include="Models\OrganismWithFlag.cs" />
     <Compile Include="Models\SupplementOrgansim.cs" />
@@ -193,12 +194,16 @@
     <Compile Include="ViewModels\ClickableErrorMessageBox.cs" />
     <Compile Include="ViewModels\HelpViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\TissueNameSelectorViewModel.cs" />
     <Compile Include="ViewModels\UpdateExistingViewModel.cs" />
     <Compile Include="Views\ClickableErrorMessageBoxView.xaml.cs">
       <DependentUpon>ClickableErrorMessageBoxView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\HelpWindow.xaml.cs">
       <DependentUpon>HelpWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TissueNameSelectorView.xaml.cs">
+      <DependentUpon>TissueNameSelectorView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -224,6 +229,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\TissueNameSelectorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -235,7 +244,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="DataFiles\blibFileLoc.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DataFiles\iRT_Libraries\Ariadne_Thread_iRT_C18.irtdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

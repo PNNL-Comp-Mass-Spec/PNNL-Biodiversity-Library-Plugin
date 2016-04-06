@@ -9,7 +9,7 @@
         xmlns:models1="clr-namespace:BiodiversityPlugin.Models"
         xmlns:calculations="clr-namespace:BiodiversityPlugin.Calculations"
         mc:Ignorable="d"
-        Title="Customize Data for Biodiversity Library" Height="600" Width="900" MinHeight="600" MinWidth="900">
+        Title="Customize Data for Biodiversity Library" Height="700" Width="900" MinHeight="700" MinWidth="900">
     <Window.Resources>
         <calculations:BoolToColorConverter x:Key="BoolToColor"/>
         
@@ -167,7 +167,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="120"/>
-                        <RowDefinition Height="190"/>
+                        <RowDefinition Height="250"/>
                         <RowDefinition Height="50"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="54"/>
@@ -192,6 +192,9 @@
                                          Width="230" Height="40" Content="Supplement" 
                                          Margin="0,0,0,20" Command="{Binding SupplementSelected, UpdateSourceTrigger=PropertyChanged}"/>
                             <RadioButton Style="{StaticResource {x:Type ToggleButton}}" 
+                                         Width="230" Height="40" Content="Add tissue to existing" 
+                                         Margin="0,0,0,20" Command="{Binding AddTissueSelected, UpdateSourceTrigger=PropertyChanged}"/>
+                            <RadioButton Style="{StaticResource {x:Type ToggleButton}}" 
                                          Width="230" Height="40" Content="Add New" 
                                          Command="{Binding AddNewSelected, UpdateSourceTrigger=PropertyChanged}"/>
                         </ListBox.Items>
@@ -203,6 +206,9 @@
                         </TextBlock>
                         <TextBlock Height="25" Margin="0,10,0,25" Foreground="Black" FontSize="14" FontWeight="Normal">
                             Supplement an existing organism with custom data.
+                        </TextBlock>
+                        <TextBlock Height="25" Margin="0,10,0,25" Foreground="Black" FontSize="14" FontWeight="Normal">
+                            Add a new tissue to human data.
                         </TextBlock>
                         <TextBlock Height="25" Margin="0,10,0,10" Foreground="Black" FontSize="14" FontWeight="Normal">
                             Add a new organism that does not yet exist in the current database.

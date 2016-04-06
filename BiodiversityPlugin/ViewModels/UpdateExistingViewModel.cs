@@ -30,6 +30,7 @@ namespace BiodiversityPlugin.ViewModels
         private ObservableCollection<OrganismWithFlag> _filteredOrganisms;
         private ObservableCollection<OrganismWithFlag> _allKeggOrgs;
         private ObservableCollection<OrganismWithFlag> _PBLOrganisms;
+        private ObservableCollection<OrganismWithFlag> _TissueOrganisms;
         private Visibility _filterVisibility;
         private bool _welcomeTabEnabled;
         private bool _inputTabEnabled;
@@ -417,6 +418,7 @@ namespace BiodiversityPlugin.ViewModels
         public RelayCommand PreviousTabCommand { get; private set; }
         public RelayCommand ReplaceSelected { get; private set; }
         public RelayCommand SupplementSelected { get; private set; }
+        public RelayCommand AddTissueSelected { get; private set; }
         public RelayCommand AddNewSelected { get; private set; }
         public RelayCommand StartCommand { get; private set; }
         public RelayCommand FinishCommand { get; private set; }
@@ -433,6 +435,7 @@ namespace BiodiversityPlugin.ViewModels
         {
             _dbPath = dbpath;
             _PBLOrganisms = pblOrganisms;
+            _TissueOrganisms = new ObservableCollection<OrganismWithFlag>(pblOrganisms.Where(x => x.OrganismName == "Homo sapiens All Tissues"));
             FinishButtonEnabled = false;
             AllKeggOrgs = new ObservableCollection<OrganismWithFlag>();
             foreach (var org in allKeggOrgs)
@@ -447,6 +450,7 @@ namespace BiodiversityPlugin.ViewModels
             _selectedTabIndex = 0;
             ReplaceSelected = new RelayCommand(SetReplace);
             SupplementSelected = new RelayCommand(SetSupplement);
+            AddTissueSelected = new RelayCommand(SetTissueInsert);
             AddNewSelected = new RelayCommand(SetAddNew);
             StartCommand = new RelayCommand(Start);
             FinishCommand = new RelayCommand(Finish);
@@ -554,6 +558,21 @@ namespace BiodiversityPlugin.ViewModels
                 org.OrgNameWithMessage = org.OrganismName;
             }
         }
+        
+        /// <summary>
+        /// Property to set the task selection for the supplement option
+        /// Also to set the correct search list to display
+        /// </summary>
+        public void SetTissueInsert()
+        {
+            ClearFilter();
+            TaskSelection = TaskSelectionEnum.INSERT_TISSUE;
+            FilteredOrganisms = _TissueOrganisms;
+            foreach (var org in FilteredOrganisms)
+            {
+                org.OrgNameWithMessage = org.OrganismName;
+            }
+        }
 
         /// <summary>
         /// Property to set the task selection for the add new option
@@ -583,6 +602,20 @@ namespace BiodiversityPlugin.ViewModels
         /// </summary>
         private void Start()
         {
+
+            var popupVM = new TissueNameSelectorViewModel();
+            if (_taskSelection == TaskSelectionEnum.INSERT_TISSUE)
+            {
+                var popupView = new TissueNameSelectorView(popupVM);
+                popupView.ShowDialog();
+                var tissueName = popupVM.TissueName;
+                if ("" == tissueName)
+                {
+                    return;
+                }
+            }
+            
+
             //Take the user to the Review page
             NextTab();
 
@@ -620,8 +653,29 @@ namespace BiodiversityPlugin.ViewModels
                 }
                 else if (_taskSelection == TaskSelectionEnum.INSERT_NEW)
                 {
-                    bool alreadyAdded;                                    
-                    DisplayMessage = InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath, out alreadyAdded);
+                    bool alreadyAdded;
+                    DisplayMessage = InsertNewOrganism.InsertNew(_orgName.OrganismName, _blibPath, _msgfPath, _dbPath,
+                        out alreadyAdded);
+                    added = alreadyAdded;
+                    if (alreadyAdded == false)
+                    {
+                        //Re-enable the navigation buttons
+                        PreviousButtonEnabled = true;
+                        FinishButtonEnabled = true;
+                        CancelButtonEnabled = true;
+                    }
+                    else
+                    {
+                        //Re-enable the navigation buttons
+                        PreviousButtonEnabled = true;
+                        CancelButtonEnabled = true;
+                    }
+                }
+                else
+                {
+                    bool alreadyAdded;
+                    DisplayMessage = InsertTissue.InsertNew(popupVM.TissueName, popupVM.TissueKeggCode, popupVM.TissueTaxon, _blibPath,
+                        _msgfPath, _dbPath, out alreadyAdded);
                     added = alreadyAdded;
                     if (alreadyAdded == false)
                     {
@@ -677,6 +731,11 @@ namespace BiodiversityPlugin.ViewModels
             {
                 UpdateExistingOrganism.UpdateObservedKeggGeneTable(_orgCode);
                 UpdateExistingOrganism.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
+            }
+            else
+            {
+                InsertTissue.InsertIntoDb();
+                InsertTissue.UpdateBlibLocation(OrgName.OrganismName, BlibPath);
             }
             this.CloseAction();
         }
