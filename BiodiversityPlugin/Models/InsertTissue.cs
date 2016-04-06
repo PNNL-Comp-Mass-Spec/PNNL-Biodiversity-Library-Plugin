@@ -422,6 +422,7 @@ namespace BiodiversityPlugin.Models
                             version[0] = major;
                             version[1] = minor;
                             version[2] = dbRev + 1;
+                            _numHumanTissues++;
                         }
                     }
 
