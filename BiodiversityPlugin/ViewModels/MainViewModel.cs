@@ -1058,7 +1058,7 @@ namespace BiodiversityPlugin.ViewModels
             QueryString = queryingStrings[0];
 
             var dataAccess = new DatabaseDataLoader(_dbPath);
-            var coordPrefix = _dbPath.Replace("DataFiles\\DBs\\PBL.db", "");
+            var coordPrefix = _dbPath.Replace("DataFiles\\PBL.db", "");
             var currentOrg = SelectedOrganism.Name;
             var curPathways = new ObservableCollection<Pathway>((from pathwayCatagory in Pathways
                                                                  from @group in pathwayCatagory.PathwayGroups
