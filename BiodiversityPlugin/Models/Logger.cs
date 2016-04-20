@@ -107,8 +107,9 @@ namespace BiodiversityPlugin.Models
                 mailClient.Send(message);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 object mailClient = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Clients\Mail", "", "none");
                 var mail = mailClient.ToString();
                 if (string.IsNullOrEmpty(mail))
@@ -119,8 +120,9 @@ namespace BiodiversityPlugin.Models
                     {
                         System.Diagnostics.Process.Start(address);
                     }
-                    catch (Exception)
+                    catch (Exception ey)
                     {
+                        Console.WriteLine(ey.Message);
                         MessageBox.Show("That e-mail address is invalid.", "E-mail error");
                     }
                 }

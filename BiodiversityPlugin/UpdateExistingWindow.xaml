@@ -144,13 +144,13 @@
                         <Image Source="DataFiles/search-icon.png" />
                     </Button> -->
 
-                    <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Width="150" Height="40"  HorizontalAlignment="Right" Margin="0,80,40,0" FontSize="16" 
+                    <Button Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="3" Width="150" Height="40"  HorizontalAlignment="Right" Margin="0,200,40,0" FontSize="16" 
                             IsEnabled="{Binding NextButtonEnabled}" Command="{Binding NextTabCommand}" >
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
                         </StackPanel>
                     </Button>
-                    <Button Grid.Row="7" Grid.Column="0" FontSize="16" Margin="40,80,0,0" Height="40" Width="150" HorizontalAlignment="Left" 
+                    <Button Grid.Row="7" Grid.Column="0" FontSize="16" Margin="40,200,0,0" Height="40" Width="150" HorizontalAlignment="Left" 
                             Command="{Binding PreviousTabCommand}">&lt; Previous</Button>
                 </Grid>
 

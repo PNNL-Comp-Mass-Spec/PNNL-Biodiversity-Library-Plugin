@@ -65,7 +65,7 @@ namespace BiodiversityPlugin.Models
             else
             {
                 reviewResults =
-                    orgName + " was already found in the database. Try replacing this organism instead.";
+                    orgName + " was already found in the database. Try replacing or renaming this organism instead.";
                 alreadyAdded = true;
             }
             return reviewResults;

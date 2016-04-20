@@ -1265,8 +1265,9 @@ namespace BiodiversityPlugin.ViewModels
                 //}
                 _ncbiDownloading = false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 _ncbiDownloading = false;
                 _errorFound = true;
                 TopLevelWindow = 3;
@@ -1884,8 +1885,9 @@ namespace BiodiversityPlugin.ViewModels
                                     }
                                 }
                             }
-                            catch (WebException)
+                            catch (WebException ex)
                             {
+                                Console.WriteLine(ex.Message);
                                 dlFailed = true;
                             }
                             // Attempt to access the Username based MassIVE link
@@ -1967,8 +1969,9 @@ namespace BiodiversityPlugin.ViewModels
                                         dlFailed = false;
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
+                                    Console.WriteLine(ex.Message);
                                     dlFailed = true;
                                 }
                             }
@@ -2048,8 +2051,9 @@ namespace BiodiversityPlugin.ViewModels
                                     }
                                 }
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                Console.WriteLine(ex.Message);
                                 TopLevelWindow = 3;
 
                                 MassiveSolution = Visibility.Visible;

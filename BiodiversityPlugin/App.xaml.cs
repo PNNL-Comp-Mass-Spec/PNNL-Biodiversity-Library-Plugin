@@ -58,8 +58,9 @@ namespace BiodiversityPlugin
                 mainWindow.Show();
             }
             //Last ditch to run in debug or stand-alone mode
-            catch (DirectoryNotFoundException)
+            catch (DirectoryNotFoundException ex)
             {
+                Console.WriteLine(ex.Message);
 				const string dbPath = "DataFiles\\DBs\\PBL.db";
                 var vm = new MainViewModel(new DatabaseDataLoader(dbPath), new DatabaseDataLoader(dbPath), dbPath,
                     ref _toolClient, goodVersion);

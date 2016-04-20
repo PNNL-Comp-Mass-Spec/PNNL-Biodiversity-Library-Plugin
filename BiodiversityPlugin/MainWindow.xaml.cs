@@ -31,8 +31,9 @@ namespace BiodiversityPlugin
             {
                 System.Diagnostics.Process.Start(address);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 MessageBox.Show("That e-mail address is invalid.", "E-mail error");
             }
         }
