@@ -677,6 +677,7 @@ namespace BiodiversityPlugin.ViewModels
                     DisplayMessage = InsertTissue.InsertNew(popupVM.TissueName, popupVM.TissueKeggCode, popupVM.TissueTaxon, _blibPath,
                         _msgfPath, _dbPath, out alreadyAdded);
                     added = alreadyAdded;
+                    OrgName.OrganismName = popupVM.TissueName;
                     if (alreadyAdded == false)
                     {
                         //Re-enable the navigation buttons
