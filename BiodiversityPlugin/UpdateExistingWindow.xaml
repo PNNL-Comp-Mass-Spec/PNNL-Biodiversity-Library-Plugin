@@ -12,7 +12,7 @@
         Title="Customize Data for Biodiversity Library" Height="700" Width="900" MinHeight="700" MinWidth="900">
     <Window.Resources>
         <calculations:BoolToColorConverter x:Key="BoolToColor"/>
-        
+
         <SolidColorBrush x:Key="SolidBorderBrush" Color="#FFFFFF" />
 
         <SolidColorBrush x:Key="WhiteBrush" Color="White" />
@@ -69,15 +69,15 @@
                         <RowDefinition Height ="50"/>
                     </Grid.RowDefinitions>
                     <TextBlock FontWeight="Bold" FontSize="24" Text="Welcome!" Foreground="Black" Margin="10,10"/>
-                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" Foreground="Black" Height="355" Margin="12,0" FontWeight="Normal">
-            You can update the MS/MS data used by the Biodiversity Plugin for Skyline. By uploading your personal data into the plugin, 
+                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="16" Foreground="Black" Margin="12,60,12,130" FontWeight="Normal">
+            You can update the MS/MS data used by the Biodiversity Plug-in for Skyline. By uploading your personal data into the plug-in, 
             you can use the same pathway oriented interface to load your data directly into Skyline. Data must be properly formatted
             before input. Follow through the steps in the wizard and see the help button for additional information. <LineBreak/> <LineBreak/>
             <!-- There are  three options for updating data.   <LineBreak/>
         1) Replace an existing organism entirely with custom data. <LineBreak/>
         2) Supplement an existing organism with custom data. <LineBreak/>
         3) Add a new organism that does not yet exist in the current database. <LineBreak/> <LineBreak/> -->
-        </TextBlock>
+                    </TextBlock>
                     <Button Grid.Row="1" Width="150" Height="40"  Margin="450,0,0,0" FontSize="16" Command="{Binding NextTabCommand}" >
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
@@ -113,7 +113,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.ColumnSpan="3" FontWeight="Bold" FontSize="24" Text="1. Input Mass Spectrometry Data" Foreground="Black"/>
-                    
+
                     <TextBlock Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" FontSize="16" Foreground="Black" Margin="10" FontWeight="Normal" TextWrapping="Wrap">
                         To load data into the plugin, we require the annotated spectrum (in a spectrum library).
                     </TextBlock>
@@ -134,10 +134,10 @@
                         can be found under the help button.
                     </TextBlock> -->
 
-                   <TextBox Grid.Column="1" Grid.Row="3" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding BlibPath}" IsReadOnly="True"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding BlibPath}" IsReadOnly="True"/>
                     <Button Grid.Column="2" Grid.Row="3" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectBlibCommand}">
                         <Image Source="DataFiles/search-icon.png"/>
-                    </Button> 
+                    </Button>
 
                     <!--<TextBox Grid.Column="1" Grid.Row="6" Margin ="15,10" BorderThickness="1" BorderBrush="Black" FontWeight="Normal" Text="{Binding ShowMsgfPaths}" IsReadOnly="True"/>
                     <Button Grid.Column="2" Grid.Row="6" Width="60" Height="30" BorderThickness="1" BorderBrush="Black" Command="{Binding SelectMsgfCommand}">

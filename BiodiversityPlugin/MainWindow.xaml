@@ -116,8 +116,7 @@
                         can be exported into Skyline to assist in SRM assay design or DIA data analysis. The tool exposes peptides identified 
                         in MS/MS by allowing users to select an organism and biological pathway of interest. In total the Biodiversity Library 
                         catalogs MS/MS spectra from 3 million peptides and 230,000 proteins from 118 distinct organisms across the tree of life. 
-                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by 
-                        Sam Payne at 
+                        All proteins are cross referenced to KEGG pathways for intuitive biological interpretation. The Library was developed by the                        
                         <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://omics.pnl.gov/"> Pacific Northwest National Laboratory </Hyperlink> 
                         with data collected over 10+ years in hundreds of collaborative projects.  <LineBreak /> <LineBreak />  
                         The wizard helps users browse data using the following steps. Users can upload new data into the plugin by clicking 
@@ -129,7 +128,7 @@
                             </TextBlock>
                         </StackPanel>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Foreground="Black" FontSize="12" FontWeight="Normal" Text="PNNL Biodiversity Plugin Version: 1.0.4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Top" Foreground="Black" FontSize="12" FontWeight="Normal" Text="PNNL Biodiversity Plugin Version: 1.0.5"/>
                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal">
                             <TextBlock FontSize="12" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                             Database Source: 
@@ -143,12 +142,13 @@
 
                         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Vertical">
                             <StackPanel  Orientation="Horizontal">
-                                <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                                <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                             Funding: US DOE, 
-                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research </Hyperlink>
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="http://science.energy.gov/ber/"> Biological and Environmental Research, </Hyperlink> and
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://www.nih.gov/"> National Institutes of Health </Hyperlink>
                                 </TextBlock>
                             </StackPanel>
-                            <TextBlock FontSize="15" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
+                            <TextBlock FontSize="14" FontWeight="Normal" Foreground="Black" VerticalAlignment="Bottom">
                         Contact: 
                         <Hyperlink RequestNavigate="Hyperlink_MailTo" NavigateUri="samuel.payne@pnnl.gov"> Samuel Payne </Hyperlink>
                             </TextBlock>
@@ -158,7 +158,7 @@
                                 <TextBlock FontSize="16" VerticalAlignment="Center">Next &gt;</TextBlock>
                             </StackPanel>
                         </Button>
-                        <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo-no-seal.png" Width="180" Margin="130,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                       <!-- <Image Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Source="DataFiles/doe-logo-no-seal.png" Width="180" Margin="130,0,0,15" VerticalAlignment="Bottom" HorizontalAlignment="Left" /> -->
                     </Grid>
                 </TabItem>
 

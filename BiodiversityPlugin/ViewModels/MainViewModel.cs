@@ -1021,6 +1021,8 @@ namespace BiodiversityPlugin.ViewModels
             var updateWindow = new UpdateExistingWindow(UpdateWindowVm);
             updateWindow.ShowDialog();
 
+            SelectedTabIndex = 0;
+
             var db = new DatabaseDataLoader(_dbPath);
             var list = new List<string>();
             db.LoadOrganisms(ref list);

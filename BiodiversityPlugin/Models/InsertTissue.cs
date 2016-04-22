@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using KeggParsesClassLibrary;
@@ -42,9 +43,7 @@ namespace BiodiversityPlugin.Models
             _proteinPeptideMap.Clear();
             _uniprots.Clear();
             _peptides.Clear();
-            _msgfPaths.Clear();
 
-            _msgfPaths = msgfFolderLoc;
             _blibLoc = blibLoc;
             _keggOrgCode = orgCode;
             _orgName = orgName;
@@ -59,7 +58,13 @@ namespace BiodiversityPlugin.Models
                 _taxon = orgTaxon;
                 GetFaaLocation();
                 GetProduct();
-                SearchBlib(blibLoc);
+                bool blibSuccessful = SearchBlib(blibLoc);
+                if (blibSuccessful != true)
+                {
+                    reviewResults = "The .blib " + blibLoc +
+                                    " was not formatted correctly. Please input a correctly formatted .blib file and try running the wizard again. ";
+                    return reviewResults;
+                }
                 reviewResults = DetermineObserved();
             }
             else
@@ -231,7 +236,7 @@ namespace BiodiversityPlugin.Models
             }
         }
 
-        private static void SearchBlib(string blibLoc)
+        private static bool SearchBlib(string blibLoc)
         {
             var listOfProteinsToConvert = new List<Tuple<string, string, int>>();
             var converted = new List<Tuple<string, string, int>>();
@@ -241,41 +246,52 @@ namespace BiodiversityPlugin.Models
                 dbConnection.Open();
                 using (var cmd = new SQLiteCommand(dbConnection))
                 {
-                    var select = "SELECT Proteins.accession, RefSpectra.peptideSeq, RefSpectra.precursorCharge FROM RefSpectraProteins" +
-                                " INNER JOIN Proteins" +
-                                " ON RefSpectraProteins.ProteinId = Proteins.id" +
-                                " INNER JOIN RefSpectra" +
-                                " ON RefSpectraProteins.RefSpectraId = RefSpectra.id; ";
-                    cmd.CommandText = select;
-                    cmd.CommandType = CommandType.Text;
-                    SQLiteDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
+                    try
                     {
-                        bool alreadyUniprot = false;
-                        var protein = Convert.ToString(reader["accession"]);
-                        if (protein.Contains("Contaminant"))
+                        var select =
+                            "SELECT Proteins.accession, RefSpectra.peptideSeq, RefSpectra.precursorCharge FROM RefSpectraProteins" +
+                            " INNER JOIN Proteins" +
+                            " ON RefSpectraProteins.ProteinId = Proteins.id" +
+                            " INNER JOIN RefSpectra" +
+                            " ON RefSpectraProteins.RefSpectraId = RefSpectra.id; ";
+                        cmd.CommandText = select;
+                        cmd.CommandType = CommandType.Text;
+                        SQLiteDataReader reader = cmd.ExecuteReader();
+                        while (reader.Read())
                         {
-                            continue;
-                        }
-                        if (protein.Contains('|'))
-                        {
-                            protein = protein.Split('|')[1];
-                            alreadyUniprot = true;
-                        }
-                        var peptide = Convert.ToString(reader["peptideSeq"]);
-                        var charge = Convert.ToInt32(reader["precursorCharge"]);
+                            bool alreadyUniprot = false;
+                            var protein = Convert.ToString(reader["accession"]);
+                            if (protein.Contains("Contaminant"))
+                            {
+                                continue;
+                            }
+                            if (protein.Contains('|'))
+                            {
+                                protein = protein.Split('|')[1];
+                                alreadyUniprot = true;
+                            }
+                            var peptide = Convert.ToString(reader["peptideSeq"]);
+                            var charge = Convert.ToInt32(reader["precursorCharge"]);
 
-                        if (alreadyUniprot)
-                        {
-                            converted.Add(new Tuple<string, string, int>(protein, peptide, charge));
-                        }
-                        else
-                        {
-                            listOfProteinsToConvert.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                            if (alreadyUniprot)
+                            {
+                                converted.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                            }
+                            else
+                            {
+                                listOfProteinsToConvert.Add(new Tuple<string, string, int>(protein, peptide, charge));
+                            }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return false;
+                    }
+                    
                 }
                 dbConnection.Close();
+                
             }
 
             var listOfQueryStrings = new List<string>();
@@ -334,6 +350,7 @@ namespace BiodiversityPlugin.Models
                     _peptides.Add(new Tuple<string, int>(protein.Item2, protein.Item3));
                 }
             }
+            return true;
         }
 
         private static Dictionary<string, string> ConvertToUniprot(List<string> urlPaths)
