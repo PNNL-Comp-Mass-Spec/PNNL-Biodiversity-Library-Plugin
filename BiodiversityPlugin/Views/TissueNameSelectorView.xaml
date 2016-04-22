@@ -16,8 +16,8 @@
         <TextBlock Grid.Row="0" Margin="15,5,15,5" Foreground="Black" FontSize="12" FontWeight="Normal" TextWrapping="Wrap">
             Please select an identifier for your tissue without the organism's name:
         </TextBlock>
-        <TextBox Grid.Row="1" Text="{Binding InputText}" FontSize="12" Foreground="Black" FontWeight="Normal" Margin="5"></TextBox>
-        <Button Grid.Row="2" HorizontalAlignment="Left" Margin="5" Width="100" Command="{Binding AcceptCommand}">Accept</Button>
+        <TextBox Grid.Row="1" Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="12" Foreground="Black" FontWeight="Normal" Margin="5"></TextBox>
+        <Button Grid.Row="2" HorizontalAlignment="Left" Margin="5" Width="100" IsEnabled="{Binding AcceptButtonEnabled}" Command="{Binding AcceptCommand}">Accept</Button>
         <Button Grid.Row="2" HorizontalAlignment="Right" Margin="5" Width="100" Command="{Binding CancelCommand}">Cancel</Button>
     </Grid>
 </Window>

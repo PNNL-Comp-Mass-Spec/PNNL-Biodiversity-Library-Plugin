@@ -13,14 +13,29 @@ namespace BiodiversityPlugin.ViewModels
         private string _tissueName;
         private string _tissueTaxon;
         private string _tissueKeggCode;
+        private string _inputText;
+        private bool _acceptEnable;
+
+        public bool AcceptButtonEnabled
+        {
+            get { return _acceptEnable; }
+            set
+            {
+                _acceptEnable = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public TissueNameSelectorViewModel()
         {
             TissueName = "";
             TissueTaxon = "";
             TissueKeggCode = "";
+            
             CancelCommand = new RelayCommand(Cancel);
             AcceptCommand = new RelayCommand(ApplyInformation);
+
+            AcceptButtonEnabled = false;
         }
         public Action CloseAction { get; set; }
         public RelayCommand CancelCommand { get; private set; }
@@ -61,7 +76,29 @@ namespace BiodiversityPlugin.ViewModels
             this.CloseAction();
         }
 
-        public string InputText { get; set; }
+        public string InputText
+        {
+            get { return _inputText; }
+            set
+            {
+                _inputText = value;
+                RaisePropertyChanged();
+                IsAcceptEnabled();            
+            }
+        }
+
+        private void IsAcceptEnabled()
+        {
+            if (string.IsNullOrWhiteSpace(InputText))
+            {
+                AcceptButtonEnabled = false;
+            }
+            else
+            {
+                AcceptButtonEnabled = true;
+                RaisePropertyChanged();
+            }
+        }
 
         private void ApplyInformation()
         {
