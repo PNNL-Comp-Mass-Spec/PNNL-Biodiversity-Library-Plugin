@@ -13,3 +13,15 @@ After downloading the PBL.db file, place it in a directory named `DBs` inside th
 ## About Skyline
 
 [Skyline](https://brendanx-uw1.gs.washington.edu/labkey/project/home/software/Skyline/begin.view) is an application for working with mass spectrometry based quantitative methods (SRM, MRM, DDA, etc.) and for analyzing the resulting mass spectrometer data. Learn more at the [MacCoss Lab Software](https://brendanx-uw1.gs.washington.edu/labkey/project/home/begin.view?) website.
+
+## Contacts
+
+Written by Michael Degan, Grant Fujimoto, Lillian Ryadinskiy, and Chris Wilkins for the Department of Energy (PNNL, Richland, WA) \
+E-mail: proteomics@pnnl.gov \
+Website: https://panomics.pnl.gov/ or https://omics.pnl.gov
+
+## License
+
+The Biodiversity Library Plugin is licensed under the Apache License, Version 2.0; 
+you may not use this file except in compliance with the License.  You may obtain 
+a copy of the License at https://opensource.org/licenses/Apache-2.0
